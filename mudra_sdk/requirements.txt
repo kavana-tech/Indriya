@@ -1,0 +1,5 @@
+bleak @ git+https://github.com/wearable-devices/bleak.git@develop
+pyserial
+requests
+urllib3
+smpclient

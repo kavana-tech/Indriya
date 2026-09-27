@@ -1,0 +1,49 @@
+# AGENTS.md — Mudra Pro SDK
+
+Instructions for AI coding agents working in, or on top of, this SDK. Humans want
+[`README.md`](README.md) and [`docs/SDK_USAGE.md`](docs/SDK_USAGE.md) instead.
+
+## Rule 0 — sign-in is what unlocks the device's tier
+
+**Connecting to a device never requires an account** — a signed-out app connects and
+streams fine, at whatever tier the device already holds (usually `FREE`). That makes it
+easy to ship an app that silently caps every user at `FREE` forever, because nothing
+raises an exception when you skip this.
+
+- If your app is meant to entitle users to `PLUS`/`PRO` features, sign in and provision
+  the device on every connect:
+
+  ```python
+  from mudra_sdk import auth
+
+  tier = auth.sign_in_email(email, password)   # raises on bad credentials/no connectivity
+  await auth.provision_device(device)           # call this unconditionally, right after connect()
+  ```
+
+- `provision_device()` is a no-op if nobody's signed in, so it's always safe to call —
+  don't gate it behind an `if signed_in` check.
+- Renewal after that is automatic: each connected `MudraDevice` owns a `LicenseManager`
+  that re-provisions before the token expires. **Don't add your own renewal loop.**
+- The session is **in-memory only, for the current process** — there's no persisted
+  login across restarts (unlike some other SDKs in this org). Sign in again each run.
+
+👉 **Read [`docs/AUTH.md`](docs/AUTH.md) before writing sign-in/licensing code.** That
+file is the single source of truth: the full API, the `LicenseManager` renewal
+mechanism, and a practical checklist for an app (not just a script) built on this SDK.
+
+## Where the rest lives
+
+| Need | Read |
+| --- | --- |
+| Full documentation index (every doc in this repo) | [`docs/DOCS_MAP.md`](docs/DOCS_MAP.md) |
+| SDK usage guide — package layout, setup, minimal example | [`docs/SDK_USAGE.md`](docs/SDK_USAGE.md) |
+| Account sign-in & device licensing | [`docs/AUTH.md`](docs/AUTH.md) |
+| Scanning/connecting (BLE + CDC), firmware update (DFU) | [`docs/CONNECTION.md`](docs/CONNECTION.md) |
+| Sensor streams, status/config, SD recording | [`docs/SENSORS.md`](docs/SENSORS.md) |
+| Every callback in the SDK | [`docs/CALLBACKS.md`](docs/CALLBACKS.md) |
+
+## Related documentation
+
+- Doc index: **[`docs/DOCS_MAP.md`](docs/DOCS_MAP.md)** · Repo landing: **[`README.md`](README.md)**
+- Sign-in & licensing reference: **[`docs/AUTH.md`](docs/AUTH.md)**
+- Docs site (built from these same docs): **[wearable-devices.github.io/mudra_pro_sdk](https://wearable-devices.github.io/mudra_pro_sdk/)**
