@@ -171,6 +171,10 @@ class CdcService:
             logger.error(f"Failed to connect to CDC device {address}: {error_msg}")
             if self._delegate:
                 self._delegate.on_mudra_device_connection_failed(device, error_msg)
+                # USB pulled mid-handshake: report the drop too.
+                ports = await loop.run_in_executor(None, serial.tools.list_ports.comports)
+                if device.config_port not in {p.device for p in ports}:
+                    self._delegate.on_mudra_device_disconnected(device)
             return
 
         conn = _CdcConnection(device=device, config_ser=config_ser, data_ser=data_ser, loop=loop)
@@ -237,7 +241,18 @@ class CdcService:
                         self._delegate.on_data_received, address, bytes(chunk)
                     )
         except Exception as e:
-            logger.error(f"CDC DATA reader for {address} stopped: {e}")
+            if not conn.stop_event.is_set():  # not our own teardown -> USB dropped
+                logger.warning(f"CDC device {address} disconnected unexpectedly: {e}")
+                conn.loop.call_soon_threadsafe(self._on_connection_lost, conn)
+
+    def _on_connection_lost(self, conn: _CdcConnection):
+        """CDC counterpart of `BleService._on_disconnect_callback`."""
+        if self._connections.get(conn.device.address) is not conn:
+            return  # disconnect() already tearing it down
+        del self._connections[conn.device.address]
+        conn.loop.run_in_executor(None, self._teardown_connection, conn)
+        if self._delegate:
+            self._delegate.on_mudra_device_disconnected(conn.device)
 
     async def disconnect(self, device: CdcDevice):
         address = device.address
@@ -249,9 +264,9 @@ class CdcService:
         if self._delegate:
             self._delegate.on_mudra_device_disconnecting(device)
 
+        del self._connections[address]
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, self._teardown_connection, conn)
-        del self._connections[address]
 
         logger.info(f"Successfully disconnected from CDC device {device.name} ({address})")
         if self._delegate:

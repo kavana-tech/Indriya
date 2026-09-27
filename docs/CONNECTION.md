@@ -78,7 +78,10 @@ sends for you right after connecting).
 **Unexpected disconnects** (BLE radio drop, USB unplug) are detected by the
 transport and reported through the same
 `MudraDelegate.on_mudra_device_disconnected` callback — you don't need a
-separate error path for "lost connection" vs. "I called disconnect()". Note
+separate error path for "lost connection" vs. "I called disconnect()". Over
+CDC this also covers an unplug *while connecting*: after `connecting` fires,
+a detach always ends in `on_mudra_device_disconnected` (preceded by
+`on_mudra_device_connection_failed` if the ports hadn't finished opening). Note
 that disconnecting (expected or not) clears every per-device callback on
 that `MudraDevice` — see the "callbacks don't survive a disconnect" note in
 [CALLBACKS.md](CALLBACKS.md#callbacks-dont-survive-a-disconnect).

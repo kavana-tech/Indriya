@@ -31,6 +31,32 @@ raises an exception when you skip this.
 file is the single source of truth: the full API, the `LicenseManager` renewal
 mechanism, and a practical checklist for an app (not just a script) built on this SDK.
 
+## Rule 1 — your app is responsible for turning sensors off
+
+Enabling a sensor (`set_on_emg_ready(fn)` and the IMU/PPG equivalents) powers it on
+**on the device**, and it stays on until your app turns it off (`set_on_emg_ready(None)`)
+or the device is powered off. Nothing else turns it off — not `disconnect()`, and not
+your app exiting or crashing. For example: enable EMG, close the app without disabling
+it, and EMG keeps running on the device (draining its battery) with nobody reading it.
+The next session to connect will find it still on.
+
+- Disable every sensor you enabled before disconnecting or exiting — in a `finally` /
+  shutdown handler, not only on the happy path:
+
+  ```python
+  try:
+      await device.set_on_emg_ready(on_emg)
+      ...
+  finally:
+      await device.set_on_emg_ready(None)   # turn off what you turned on
+      await device.disconnect()
+  ```
+
+- If the link drops unexpectedly, you can't send the power-off — the sensor stays on
+  until you reconnect and disable it, or the device is powered off.
+
+👉 Details: [`docs/SENSORS.md`](docs/SENSORS.md#turning-sensors-off-is-the-apps-job).
+
 ## Where the rest lives
 
 | Need | Read |

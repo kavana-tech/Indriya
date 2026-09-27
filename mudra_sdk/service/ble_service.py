@@ -51,7 +51,7 @@ class BleService:
                 self._delegate.on_mudra_device_connecting(device)
             
             # Create client with disconnect callback.
-            client = BleakClient(device, disconnected_callback=lambda client: self._on_disconnect_callback(device))
+            client = BleakClient(device, disconnected_callback=lambda client: self._on_disconnect_callback(device, client))
             
             # Attempt connection
             logger.debug(f"Calling BleakClient.connect() for {address}")
@@ -280,11 +280,17 @@ class BleService:
                 del self._connected_clients[address]
             device.client = None
 
-    def _on_disconnect_callback(self, device: BLEDevice):
+    def _on_disconnect_callback(self, device: BLEDevice, client: BleakClient):
         """Internal callback triggered when device disconnects unexpectedly."""
         address = device.address
         
         logger.warning(f"Device {address} disconnected unexpectedly")
+        # On an unexpected drop bleak closes its GATT session but not the
+        # service handles it opened. Left open, Windows denies the Mudra
+        # service (fff0) to every later connection until the process exits,
+        # so reconnects fail with "Characteristic fff1 was not found".
+        # disconnect() releases them (and is a no-op if already released).
+        asyncio.ensure_future(self._release_client(client))
         
         # Clean up
         if address in self._connected_clients:
@@ -294,6 +300,13 @@ class BleService:
         # Notify delegate
         if self._delegate:
             self._delegate.on_mudra_device_disconnected(device)
+
+    @staticmethod
+    async def _release_client(client: BleakClient):
+        try:
+            await client.disconnect()
+        except Exception as e:
+            logger.debug(f"Releasing disconnected BLE client failed: {e}")
 
     def is_connected(self, device: BLEDevice) -> bool:
         """Check if a device is currently connected."""

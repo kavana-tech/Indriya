@@ -59,6 +59,36 @@ still wanting that stream) and only then sends the firmware enable/disable
 command over BLE or the `<SENSOR>_ON`/`<SENSOR>_OFF` CDC token — you don't
 send power commands directly.
 
+### Turning sensors off is the app's job
+
+Enabling a sensor powers it on **on the device**, not just in your process.
+It keeps running until your app disables it (`set_on_<sensor>_ready(None)`)
+or the device is powered off. Nothing else turns it off:
+
+- `device.disconnect()` doesn't turn sensors off. Over CDC it pauses the
+  data stream (`STOP`), but the sensors themselves stay on.
+- Your app exiting or crashing doesn't turn them off either. For example:
+  enable EMG, close the app without disabling it, and EMG keeps running on
+  the device, draining its battery with nobody reading the data.
+- The next session to connect will find the sensor still on
+  (`get_emg_status()` reports `enabled=True`).
+
+So disable every sensor you enabled before you disconnect or exit — in a
+`finally` block or shutdown handler, so it also runs on errors:
+
+```python
+try:
+    await device.set_on_emg_ready(on_emg_data)
+    ...  # use the stream
+finally:
+    await device.set_on_emg_ready(None)   # turn off what you turned on
+    await device.disconnect()
+```
+
+If the connection drops unexpectedly (out of range, USB unplugged), the
+power-off command can't be sent — the sensor stays on until you reconnect
+and disable it, or the device is powered off.
+
 ## 2. Query / observe sensor status
 
 **One-shot query** — fires the corresponding status callback (below) when
@@ -282,6 +312,10 @@ Unlike storage/SD commands, `set_user_id` also works over CDC (`USER_ID <hex>`).
 - **Forgetting `None` disables streaming** — `set_on_emg_ready(None)` (and
   the IMU/PPG equivalents) is the disable call, not just "clear my
   callback"; it actually sends the power-off command.
+- **Leaving a sensor on when the app closes** — neither `disconnect()` nor
+  exiting the app turns sensors off; they keep running until you disable
+  them or the device is powered off. See
+  [Turning sensors off is the app's job](#turning-sensors-off-is-the-apps-job).
 - **CDC test mode doesn't power the sensor on** — see §4 above; enable the
   sensor separately.
 - **SD recording is BLE-only** — see §5 above.
