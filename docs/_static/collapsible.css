@@ -1,0 +1,55 @@
+/* Collapsible source blocks for the Examples page.
+ *
+ * RST cannot emit a <details> element directly, so collapsible.js converts
+ * every ``.. container:: collapsible-code`` wrapper into a <details
+ * class="example-source"> at load time. This file styles the result. The
+ * block is collapsed by default (no [open] attribute) so a long literalinclude
+ * does not dominate the page until the reader asks for it. Colours come from the
+ * shared tokens in tokens.css (loaded first), so the box flips with the theme. */
+
+details.example-source {
+  margin: 1em 0;
+  border: 1px solid var(--ex-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+details.example-source > summary {
+  cursor: pointer;
+  padding: 0.55em 0.95em;
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--ex-ink);
+  background: var(--ex-surface-2);
+  list-style-position: inside;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+/* A "</>" source cue before the summary label. */
+details.example-source > summary::before {
+  content: "</>";
+  margin-right: 0.55em;
+  font-family: var(--ex-mono);
+  font-weight: 700;
+  color: var(--ex-teal);
+}
+
+details.example-source > summary:hover {
+  background: var(--color-background-hover);
+}
+
+details.example-source[open] > summary {
+  border-bottom: 1px solid var(--ex-border);
+}
+
+/* Slightly looser line-height inside the embedded source for readability. */
+details.example-source .highlight pre {
+  line-height: 1.5;
+}
+
+/* Drop the inner margins so the code sits flush inside the box. */
+details.example-source .literal-block-wrapper,
+details.example-source div[class^="highlight"] {
+  margin: 0;
+}

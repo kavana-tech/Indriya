@@ -1,0 +1,81 @@
+{#
+  Search results page — client-side fuzzy + synonym search.
+
+  We extend furo's ``page.html`` DIRECTLY (not its ``search.html``) so the stock
+  Sphinx search machinery (``searchtools.js`` / ``language_data.js`` /
+  ``searchindex.js``) is never loaded here. We keep the full furo chrome — the
+  sidebar (with its unchanged search box), header, and theme toggle — and swap
+  only the article body + a small script bundle:
+
+    * ``_static/minisearch.js``     — the vendored search engine (MIT)
+    * ``_static/fuzzy-search.js``   — glue: index load, synonym map, rendering
+    * ``_static/search_index.json`` — emitted at build time (see conf.py)
+
+  ``pathto(..., 1)`` yields resource paths relative to this page, so everything
+  resolves correctly under the ``/Pro_SDK/`` GitHub Pages path prefix.
+#}
+{% extends "page.html" %}
+
+{%- block htmltitle -%}
+<title>{{ _("Search") }} - {{ docstitle|striptags|e }}</title>
+{%- endblock htmltitle -%}
+
+{# Keep this results page out of search-engine indexes, like the stock page. #}
+{%- block site_meta -%}
+{{ super() }}
+<meta name="robots" content="noindex" />
+{%- endblock site_meta -%}
+
+{% block content %}
+<h1>{{ _("Search") }}</h1>
+
+<form class="fuzzy-search-form" action="" method="get" role="search">
+  <input type="text" id="fuzzy-search-input" name="q"
+         placeholder="{% trans %}Search the docs…{% endtrans %}"
+         aria-label="{% trans %}Search the docs{% endtrans %}"
+         autocomplete="off" autocorrect="off" autocapitalize="off"
+         spellcheck="false" autofocus>
+</form>
+
+<noscript>
+<div class="admonition warning">
+  <p class="admonition-title">{% trans %}Warning{% endtrans %}</p>
+  <p>{% trans %}Please enable JavaScript to use the search.{% endtrans %}</p>
+</div>
+</noscript>
+
+<p id="fuzzy-search-status" class="fuzzy-search-status" aria-live="polite"></p>
+<div id="fuzzy-search-results"></div>
+
+<style>
+  .fuzzy-search-form { margin: 1rem 0 0.5rem; }
+  #fuzzy-search-input {
+    width: 100%; box-sizing: border-box; padding: 0.6rem 0.8rem;
+    font-size: 1rem; border: 1px solid var(--color-background-border);
+    border-radius: 0.4rem; background: var(--color-background-primary);
+    color: var(--color-foreground-primary);
+  }
+  #fuzzy-search-input:focus {
+    outline: none; border-color: var(--color-brand-primary);
+  }
+  .fuzzy-search-status { color: var(--color-foreground-secondary); margin: 0.5rem 0 1rem; }
+  .fuzzy-search-results-list { list-style: none; margin: 0; padding: 0; }
+  .fuzzy-search-result { margin: 0 0 1.3rem; padding: 0; }
+  .fuzzy-search-result a.fuzzy-result-title {
+    font-size: 1.1rem; font-weight: 600; text-decoration: none;
+  }
+  .fuzzy-search-result .fuzzy-result-snippet {
+    margin: 0.25rem 0 0; color: var(--color-foreground-secondary); line-height: 1.5;
+  }
+  .fuzzy-search-result .fuzzy-result-match {
+    color: var(--color-brand-content); font-weight: 600; font-style: normal;
+  }
+</style>
+{% endblock content %}
+
+{% block scripts -%}
+{{ super() }}
+<script>window.FUZZY_INDEX_URL = "{{ pathto('_static/search_index.json', 1) }}";</script>
+<script src="{{ pathto('_static/minisearch.js', 1) }}"></script>
+<script src="{{ pathto('_static/fuzzy-search.js', 1) }}"></script>
+{%- endblock scripts %}
