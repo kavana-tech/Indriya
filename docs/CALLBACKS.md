@@ -47,7 +47,7 @@ is a good template.
 | `on_mudra_device_connected(device)` | Transport connected **and** SDK-internal readiness steps finished (BLE: characteristics discovered; CDC: status queried + `START` sent). See the ordering note in [SDK_USAGE.md](SDK_USAGE.md#4-minimal-end-to-end-example). |
 | `on_mudra_device_connecting` / `on_mudra_device_disconnecting(device)` | Right after `device.disconnect()` is called, before teardown. |
 | `on_mudra_device_disconnected(device)` | Teardown complete — for either a caller-initiated disconnect **or** an unexpected drop (BLE radio loss, USB unplug). No separate callback for "lost connection" vs. "I disconnected it." |
-| `on_mudra_device_connection_failed(device, error)` | `connect()` failed; `error` is a human-readable message. |
+| `on_mudra_device_connection_failed(device, error)` | `connect()` failed; `error` is a human-readable message. If a CDC device's USB cable is pulled mid-connect, this is followed by `on_mudra_device_disconnected`. |
 | `on_bluetooth_state_changed(state)` | The host's Bluetooth adapter turned on/off (`state: bool`). BLE-related only; unaffected by CDC devices. |
 
 This is a **single global delegate for all devices** — every callback
