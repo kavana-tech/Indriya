@@ -1,0 +1,10 @@
+sphinx>=7.0
+furo>=2024.1
+myst-parser[linkify]>=2.0
+# Runtime deps of mudra_sdk that autodoc actually imports for real — bleak
+# and smpclient are mocked instead (see conf.py autodoc_mock_imports) since
+# bleak is a git-fork dependency and smpclient pulls in extra transport deps
+# neither of which autodoc needs to render docstrings/signatures.
+pyserial
+requests
+urllib3
