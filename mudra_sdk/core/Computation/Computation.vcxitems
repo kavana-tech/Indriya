@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{de67a9c1-b0a4-43b2-a7b4-ef0d1b1f8860}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)ProCdcCommands.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UltimateCdcCommands.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)CommonTypes.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ComputationManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Constants.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)DataRecorder.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)ProFirmwareCommands.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UltimateFirmwareCommands.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)json11.hpp" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Logging.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Parser.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)PrioritySizedQueues.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SignalAnalyzer.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SizedQueues.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Timer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)ProCdcCommands.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UltimateCdcCommands.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ComputationManager.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)DataRecorder.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)ProFirmwareCommands.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UltimateFirmwareCommands.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)json11.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Logging.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Parser.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)PrioritySizedQueues.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SignalAnalyzer.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SizedQueues.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Timer.cpp" />
+  </ItemGroup>
+</Project>
