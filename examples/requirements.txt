@@ -1,0 +1,5 @@
+# mudra_sdk is not published to PyPI; examples import it directly via sys.path.
+# Install its dependencies too:
+-r ../mudra_sdk/requirements.txt
+
+matplotlib
