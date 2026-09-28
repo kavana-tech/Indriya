@@ -1,6 +1,6 @@
 //
 //  UltimateCdcCommands.h
-//  Mudra Pro SDK — CDC (USB serial) CONFIG-port command tokens for ULTIMATE
+//  Indriya — CDC (USB serial) CONFIG-port command tokens for ULTIMATE
 //
 //  Wire format: ASCII line, "<TOKEN>\r\n" for a bare action or GET query
 //  (query tokens end in '?'), "<TOKEN> <args...>\r\n" for a SET. Unlike

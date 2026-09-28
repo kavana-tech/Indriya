@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-09-28
+
+### Changed
+
+- The SDK is now named **Indriya**. The docs site moved to
+  https://kavana-tech.github.io/Indriya/, and the README, docs and
+  site title use the new name. The Python package is still imported as
+  `mudra_sdk` — no code changes are needed.
+
 ## [0.4.5] - 2026-09-27
 
 ### Fixed

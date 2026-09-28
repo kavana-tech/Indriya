@@ -1,4 +1,4 @@
-/* Client-side fuzzy + synonym search for the Mudra Pro SDK docs.
+/* Client-side fuzzy + synonym search for the Indriya docs.
  *
  * Loaded ONLY on the search results page (see _templates/search.html), which
  * also loads the vendored MiniSearch engine (_static/minisearch.js) and sets

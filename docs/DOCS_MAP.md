@@ -1,4 +1,4 @@
-# Documentation map — Mudra Pro SDK
+# Documentation map — Indriya
 
 > **The master index for every doc in this repo.** Every documentation file is a node
 > below; where a doc already carries its own "Part of / See also" links (the
@@ -15,7 +15,7 @@
 | **[`AGENTS.md`](../AGENTS.md)** | Agent entry point: **Rule 0** (sign in → provision the device before assuming a tier) and a signpost to the rest. Auto-loaded by most coding agents, so it's the first thing a downstream project's agent reads. |
 | **[`docs/SDK_USAGE.md`](SDK_USAGE.md)** | The main usage guide: package layout, setup, core architecture, a minimal end-to-end example. Links out to every page below. |
 | **[`CHANGELOG.md`](../CHANGELOG.md)** | What changed, release by release. |
-| **[Docs site](https://wearable-devices.github.io/mudra_pro_sdk/)** | Everything below, published as a browsable Sphinx site (installation, quickstart, API reference). Built from these same files. |
+| **[Docs site](https://kavana-tech.github.io/Indriya/)** | Everything below, published as a browsable Sphinx site (installation, quickstart, API reference). Built from these same files. |
 
 ## SDK usage guide (`docs/`)
 
