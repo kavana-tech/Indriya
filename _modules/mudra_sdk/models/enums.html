@@ -1,0 +1,1539 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
+        <link rel="prefetch" href="../../../_static/brand-logo-dark.svg" as="image">
+        <link rel="prefetch" href="../../../_static/brand-logo.svg" as="image">
+
+    <link rel="shortcut icon" href="../../../_static/brand-favicon.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>mudra_sdk.models.enums - Indriya 0.4.6</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tokens.css?v=c2ff8f60" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/collapsible.css?v=9ff2bea0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/examples.css?v=5bd11adc" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/led.css?v=91a52dbe" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #0d7d6e;
+  --color-brand-content: #0d7d6e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #5fd6cb;
+  --color-brand-content: #5fd6cb;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #5fd6cb;
+  --color-brand-content: #5fd6cb;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">Indriya 0.4.6</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../../../_static/brand-logo-dark.svg" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../../../_static/brand-logo.svg" alt="Dark Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../supported_devices.html">Supported devices</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../SDK_USAGE.html">Mudra SDK — Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONNECTION.html">Mudra SDK — Connection Guide (Scan, BLE, CDC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../SENSORS.html">Mudra SDK — Sensors Guide (Enable / Disable / Status / Config)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CALLBACKS.html">Mudra SDK — Callbacks Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTH.html">Mudra SDK — Account Sign-In &amp; Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../data_format.html">Data format</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Under the hood</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../native_library.html">Native library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../faq.html">FAQ</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for mudra_sdk.models.enums</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">cmdType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">BT_CMD_RESPONSE_HEADER</span> <span class="o">=</span> <span class="mh">0xF0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"cmdType"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">cmdType</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BtCmdProEMG</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">POWER</span> <span class="o">=</span> <span class="mh">0x00</span>          <span class="c1"># STOP | START</span>
+    <span class="n">ODR</span> <span class="o">=</span> <span class="mh">0x01</span>            <span class="c1"># GET -&gt; u16 | SET &lt;u16&gt;</span>
+    <span class="n">RES</span> <span class="o">=</span> <span class="mh">0x02</span>            <span class="c1"># GET -&gt; u8  | SET &lt;u8&gt;</span>
+    <span class="n">RES_MAX</span> <span class="o">=</span> <span class="mh">0x03</span>        <span class="c1"># -&gt; u32 ±max post-process value</span>
+    <span class="n">STATE</span> <span class="o">=</span> <span class="mh">0x04</span>          <span class="c1"># -&gt; [enabled u8, odr u16 LE, res_bits u8] (4 bytes)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"BtCmdProEMG"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BtCmdProEMG</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BtCmdUltimateEMG</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">POWER</span> <span class="o">=</span> <span class="mh">0x00</span>          <span class="c1"># STOP | START</span>
+    <span class="n">ODR</span> <span class="o">=</span> <span class="mh">0x01</span>            <span class="c1"># GET -&gt; u16 | SET &lt;u16&gt;</span>
+    <span class="n">RES</span> <span class="o">=</span> <span class="mh">0x02</span>            <span class="c1"># GET -&gt; u8  | SET &lt;u8&gt;</span>
+    <span class="n">RES_MAX</span> <span class="o">=</span> <span class="mh">0x03</span>        <span class="c1"># -&gt; u32 ±max post-process value</span>
+    <span class="n">STATE</span> <span class="o">=</span> <span class="mh">0x08</span>          <span class="c1"># -&gt; [enabled u8, odr u16 LE, res_bits u8, test u8] (5 bytes)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"BtCmdUltimateEMG"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BtCmdUltimateEMG</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BtCmdHIMU</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">POWER</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">ODR</span> <span class="o">=</span> <span class="mh">0x01</span>
+    <span class="n">ACC</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">GYR</span> <span class="o">=</span> <span class="mh">0x03</span>
+    <span class="n">ACC_RES</span> <span class="o">=</span> <span class="mh">0x04</span>
+    <span class="n">GYR_RES</span> <span class="o">=</span> <span class="mh">0x05</span>
+    <span class="n">ACC_BW</span> <span class="o">=</span> <span class="mh">0x06</span>
+    <span class="n">GYR_BW</span> <span class="o">=</span> <span class="mh">0x07</span>
+    <span class="n">ACC_AVG</span> <span class="o">=</span> <span class="mh">0x08</span>
+    <span class="n">GYR_AVG</span> <span class="o">=</span> <span class="mh">0x09</span>
+    <span class="n">STATE</span> <span class="o">=</span> <span class="mh">0x0A</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"BtCmdHIMU"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BtCmdHIMU</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BtCmdFIMU</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">POWER</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">ODR</span> <span class="o">=</span> <span class="mh">0x01</span>
+    <span class="n">ACC</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">GYR</span> <span class="o">=</span> <span class="mh">0x03</span>
+    <span class="n">ACC_RES</span> <span class="o">=</span> <span class="mh">0x04</span>
+    <span class="n">GYR_RES</span> <span class="o">=</span> <span class="mh">0x05</span>
+    <span class="n">ACC_BW</span> <span class="o">=</span> <span class="mh">0x06</span>
+    <span class="n">GYR_BW</span> <span class="o">=</span> <span class="mh">0x07</span>
+    <span class="n">ACC_AVG</span> <span class="o">=</span> <span class="mh">0x08</span>
+    <span class="n">GYR_AVG</span> <span class="o">=</span> <span class="mh">0x09</span>
+    <span class="n">STATE</span> <span class="o">=</span> <span class="mh">0x0A</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"BtCmdFIMU"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BtCmdFIMU</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BtCmdPPG</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">POWER</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">ODR</span> <span class="o">=</span> <span class="mh">0x01</span>
+    <span class="n">DEC</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">LED</span> <span class="o">=</span> <span class="mh">0x03</span>
+    <span class="n">TIA</span> <span class="o">=</span> <span class="mh">0x04</span>
+    <span class="n">PRPCT</span> <span class="o">=</span> <span class="mh">0x05</span>
+    <span class="n">CLEAR</span> <span class="o">=</span> <span class="mh">0x06</span>
+    <span class="n">SRC</span> <span class="o">=</span> <span class="mh">0x07</span>
+    <span class="n">STATE</span> <span class="o">=</span> <span class="mh">0x08</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"BtCmdPPG"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BtCmdPPG</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BtCmdStorage</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">RECORD_SET</span> <span class="o">=</span> <span class="mh">0x00</span>    <span class="c1"># emg, ppg, hand_imu, finger_imu, file_num, [description...]</span>
+    <span class="n">RECORD_STATE</span> <span class="o">=</span> <span class="mh">0x01</span>  <span class="c1"># -&gt; [active, emg, ppg, hand_imu, finger_imu, file_num]</span>
+    <span class="n">RECORD_ERROR</span> <span class="o">=</span> <span class="mh">0x02</span>  <span class="c1"># push-only: [RECORD_ERROR, status]</span>
+    <span class="n">NEXT_FILE_NUM</span> <span class="o">=</span> <span class="mh">0x03</span>  <span class="c1"># -&gt; [NEXT_FILE_NUM, file_num]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"BtCmdStorage"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BtCmdStorage</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="BtCmdStatus">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.BtCmdStatus">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BtCmdStatus</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""BLE CONFIG status codes (status-only replies and RECORD_ERROR payload)."""</span>
+    <span class="n">OK</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">ERR_UNKNOWN</span> <span class="o">=</span> <span class="mh">0x01</span>
+    <span class="n">ERR_INVALID</span> <span class="o">=</span> <span class="mh">0x02</span>
+    <span class="n">ERR_BUSY</span> <span class="o">=</span> <span class="mh">0x03</span>          <span class="c1"># RECORD_SET on a sensor already running</span>
+    <span class="n">ERR_STATE</span> <span class="o">=</span> <span class="mh">0x04</span>
+    <span class="n">ERR_HARDWARE</span> <span class="o">=</span> <span class="mh">0x05</span>
+    <span class="n">ERR_INTERNAL</span> <span class="o">=</span> <span class="mh">0x06</span>
+    <span class="n">ERR_BT_NOT_READY</span> <span class="o">=</span> <span class="mh">0x07</span>
+    <span class="n">ERR_LICENSE</span> <span class="o">=</span> <span class="mh">0x08</span>
+    <span class="n">ERR_BLE_RATE</span> <span class="o">=</span> <span class="mh">0x09</span>
+    <span class="n">ERR_FILE_EXISTS</span> <span class="o">=</span> <span class="mh">0x0A</span>   <span class="c1"># RECORD_SET file_num already on SD card</span>
+    <span class="n">ERR_SD_WRITE</span> <span class="o">=</span> <span class="mh">0x0B</span>      <span class="c1"># SD write failed; recording was stopped</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">OK</span><span class="p">:</span> <span class="s2">"OK"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_UNKNOWN</span><span class="p">:</span> <span class="s2">"ERR_UNKNOWN"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_INVALID</span><span class="p">:</span> <span class="s2">"ERR_INVALID"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_BUSY</span><span class="p">:</span> <span class="s2">"ERR_BUSY"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_STATE</span><span class="p">:</span> <span class="s2">"ERR_STATE"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_HARDWARE</span><span class="p">:</span> <span class="s2">"ERR_HARDWARE"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_INTERNAL</span><span class="p">:</span> <span class="s2">"ERR_INTERNAL"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_BT_NOT_READY</span><span class="p">:</span> <span class="s2">"ERR_BT_NOT_READY"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_LICENSE</span><span class="p">:</span> <span class="s2">"ERR_LICENSE"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_BLE_RATE</span><span class="p">:</span> <span class="s2">"ERR_BLE_RATE"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_FILE_EXISTS</span><span class="p">:</span> <span class="s2">"ERR_FILE_EXISTS"</span><span class="p">,</span>
+            <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">ERR_SD_WRITE</span><span class="p">:</span> <span class="s2">"ERR_SD_WRITE"</span><span class="p">,</span>
+        <span class="p">}[</span><span class="bp">self</span><span class="p">]</span>
+
+<div class="viewcode-block" id="BtCmdStatus.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.BtCmdStatus.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"BtCmdStatus"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BtCmdStatus</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BtCmdId">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.BtCmdId">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BtCmdId</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Top-level BLE CONFIG command IDs (first byte of request / second of 0xF0 reply)."""</span>
+    <span class="n">SYSTEM</span> <span class="o">=</span> <span class="mh">0x00</span>
+    <span class="n">EMG</span> <span class="o">=</span> <span class="mh">0x10</span>
+    <span class="n">H_IMU</span> <span class="o">=</span> <span class="mh">0x20</span>
+    <span class="n">F_IMU</span> <span class="o">=</span> <span class="mh">0x30</span>
+    <span class="n">PPG</span> <span class="o">=</span> <span class="mh">0x40</span>
+    <span class="n">BAT</span> <span class="o">=</span> <span class="mh">0x50</span>
+    <span class="n">LED</span> <span class="o">=</span> <span class="mh">0x60</span>
+    <span class="n">BT_CTRL</span> <span class="o">=</span> <span class="mh">0x70</span>
+    <span class="n">TAP</span> <span class="o">=</span> <span class="mh">0x80</span>
+    <span class="n">STORAGE</span> <span class="o">=</span> <span class="mh">0x90</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<div class="viewcode-block" id="BtCmdId.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.BtCmdId.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"BtCmdId"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BtCmdId</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SensorTypes">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.SensorTypes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SensorTypes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">EMG</span> <span class="o">=</span> <span class="mh">0x10</span>
+    <span class="n">H_IMU</span> <span class="o">=</span> <span class="mh">0x20</span>
+    <span class="n">F_IMU</span> <span class="o">=</span> <span class="mh">0x30</span>
+    <span class="n">PPG</span> <span class="o">=</span> <span class="mh">0x40</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="SensorTypes.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.SensorTypes.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"SensorTypes"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">SensorTypes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MudraBLEServicesUUID</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">COMMAND_SERVICE</span> <span class="o">=</span> <span class="s2">"0000fff0-0000-1000-8000-00805f9b34fb"</span>
+    <span class="n">BATTERY_SERVICE</span> <span class="o">=</span> <span class="s2">"0000180f-0000-1000-8000-00805f9b34fb"</span>
+    <span class="n">INFORMATION_SERVICE</span> <span class="o">=</span> <span class="s2">"0000180a-0000-1000-8000-00805f9b34fb"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"MudraBLEServicesUUID"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">MudraBLEServicesUUID</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MudraCharacteristicUUID</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">COMMAND_CHARACTERISTIC</span> <span class="o">=</span> <span class="s2">"0000fff1-0000-1000-8000-00805f9b34fb"</span>
+    <span class="n">MESSAGE_CHARACTERISTIC</span> <span class="o">=</span> <span class="s2">"0000fff2-0000-1000-8000-00805f9b34fb"</span>
+    <span class="n">DATA_CHARACTERISTIC</span> <span class="o">=</span> <span class="s2">"0000fff3-0000-1000-8000-00805f9b34fb"</span>
+    <span class="n">BATTERY_CHARACTERISTIC</span> <span class="o">=</span> <span class="s2">"00002a19-0000-1000-8000-00805f9b34fb"</span>
+    <span class="n">BATTERY_POWER_STATE_CHARACTERISTIC</span> <span class="o">=</span> <span class="s2">"00002a1a-0000-1000-8000-00805f9b34fb"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"MudraCharacteristicUUID"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">MudraCharacteristicUUID</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="FirmwareCallbacks">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.FirmwareCallbacks">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FirmwareCallbacks</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">EMG_STATUS</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">H_IMU_STATUS</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">F_IMU_STATUS</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">PPG_STATUS</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">STORAGE_RECORD_STATE</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">STORAGE_RECORD_ERROR</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">STORAGE_NEXT_FILE_NUM</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">PING_RESPONSE</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">DEVICE_INFO</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">SYSTEM_VERSION</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">EMG_STATUS</span><span class="p">:</span> <span class="s2">"EMG_STATUS"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">H_IMU_STATUS</span><span class="p">:</span> <span class="s2">"H_IMU_STATUS"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">F_IMU_STATUS</span><span class="p">:</span> <span class="s2">"F_IMU_STATUS"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">PPG_STATUS</span><span class="p">:</span> <span class="s2">"PPG_STATUS"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_RECORD_STATE</span><span class="p">:</span> <span class="s2">"STORAGE_RECORD_STATE"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_RECORD_ERROR</span><span class="p">:</span> <span class="s2">"STORAGE_RECORD_ERROR"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_NEXT_FILE_NUM</span><span class="p">:</span> <span class="s2">"STORAGE_NEXT_FILE_NUM"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">PING_RESPONSE</span><span class="p">:</span> <span class="s2">"PING_RESPONSE"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">DEVICE_INFO</span><span class="p">:</span> <span class="s2">"DEVICE_INFO"</span><span class="p">,</span>
+            <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">SYSTEM_VERSION</span><span class="p">:</span> <span class="s2">"SYSTEM_VERSION"</span><span class="p">,</span>
+        <span class="p">}[</span><span class="bp">self</span><span class="p">]</span>
+
+    <span class="c1"># Static byte-array values as bytes objects</span>
+    <span class="n">EMG_STATUS_BYTES</span>   <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdId</span><span class="o">.</span><span class="n">EMG</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdProEMG</span><span class="o">.</span><span class="n">STATE</span><span class="o">.</span><span class="n">value_int</span><span class="p">])</span>
+    <span class="c1"># Ultimate's EMG_STATE feature byte is 0x08, not Pro's 0x04 (Ultimate</span>
+    <span class="c1"># inserts TEST/CHMASK/RLD/ISOLATE at 0x04-0x07 — see</span>
+    <span class="c1"># UltimateFirmwareCommands.h). 0x04 is a *different, real* command on</span>
+    <span class="c1"># Ultimate (EMG_TEST), so from_data() must pick one pattern or the other</span>
+    <span class="c1"># per-device, never both — matching the wrong one would misclassify an</span>
+    <span class="c1"># Ultimate EMG_TEST reply as an EMG_STATUS push (or vice versa on Pro).</span>
+    <span class="n">EMG_STATUS_BYTES_ULTIMATE</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdId</span><span class="o">.</span><span class="n">EMG</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdUltimateEMG</span><span class="o">.</span><span class="n">STATE</span><span class="o">.</span><span class="n">value_int</span><span class="p">])</span>
+    <span class="n">H_IMU_STATUS_BYTES</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdId</span><span class="o">.</span><span class="n">H_IMU</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdHIMU</span><span class="o">.</span><span class="n">STATE</span><span class="o">.</span><span class="n">value_int</span><span class="p">])</span>
+    <span class="n">F_IMU_STATUS_BYTES</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdId</span><span class="o">.</span><span class="n">F_IMU</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdFIMU</span><span class="o">.</span><span class="n">STATE</span><span class="o">.</span><span class="n">value_int</span><span class="p">])</span>
+    <span class="n">PPG_STATUS_BYTES</span>   <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdId</span><span class="o">.</span><span class="n">PPG</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdPPG</span><span class="o">.</span><span class="n">STATE</span><span class="o">.</span><span class="n">value_int</span><span class="p">])</span>
+    <span class="n">PING_RESPONSE_BYTES</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdId</span><span class="o">.</span><span class="n">SYSTEM</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdStatus</span><span class="o">.</span><span class="n">OK</span><span class="o">.</span><span class="n">value_int</span><span class="p">])</span>
+    <span class="c1"># BT_SYS_DEVICE_INFO's reply has NO feature byte on the wire — firmware</span>
+    <span class="c1"># never echoes req-&gt;params[0] for this command (bt_command_manager.c</span>
+    <span class="c1"># handle_system(), case BT_SYS_DEVICE_INFO): the frame is bare</span>
+    <span class="c1"># [0xF0, cmd_id, tier, valid, now32, floor32, expires32, serial[13]],</span>
+    <span class="c1"># 29 bytes total. Matched by exact length in from_data() (checked</span>
+    <span class="c1"># first, below) rather than a 3-byte prefix like the others — a</span>
+    <span class="c1"># FREE-tier reply (tier byte = 0x00) would otherwise collide with</span>
+    <span class="c1"># PING_RESPONSE_BYTES ([0xF0, SYSTEM, OK]) on their shared first 3 bytes.</span>
+    <span class="n">DEVICE_INFO_HEADER_BYTES</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span> <span class="n">BtCmdId</span><span class="o">.</span><span class="n">SYSTEM</span><span class="o">.</span><span class="n">value_int</span><span class="p">])</span>
+    <span class="n">DEVICE_INFO_FRAME_LEN</span> <span class="o">=</span> <span class="mi">29</span>
+
+    <span class="c1"># BT_SYS_VERSION shares SYSTEM_VERSION's request cmd_id (0x00) with</span>
+    <span class="c1"># DEVICE_INFO/PING and, like DEVICE_INFO, is sent via `resp_ok(cmd_id, ...)`</span>
+    <span class="c1"># with no feature byte echoed: bare [0xF0, 0x00, maj, min, patch, tweak],</span>
+    <span class="c1"># 6 bytes total (bt_command_manager.c handle_system(), case</span>
+    <span class="c1"># BT_SYS_VERSION). Matched by exact length against the same 2-byte</span>
+    <span class="c1"># DEVICE_INFO_HEADER_BYTES prefix, checked before PING_RESPONSE_BYTES'</span>
+    <span class="c1"># 3-byte prefix match below so a version reply whose major byte happens</span>
+    <span class="c1"># to equal BtCmdStatus.OK's value can't be misread as a ping ack.</span>
+
+    <span class="n">STORAGE_RECORD_STATE_BYTES</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span>
+        <span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+        <span class="n">BtCmdId</span><span class="o">.</span><span class="n">STORAGE</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+        <span class="n">BtCmdStorage</span><span class="o">.</span><span class="n">RECORD_STATE</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+    <span class="p">])</span>
+    <span class="c1"># len must be &gt;= 4 — a 3-byte status reply with ERR_INVALID is also [0xF0, 0x90, 0x02]</span>
+    <span class="n">STORAGE_RECORD_ERROR_BYTES</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span>
+        <span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+        <span class="n">BtCmdId</span><span class="o">.</span><span class="n">STORAGE</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+        <span class="n">BtCmdStorage</span><span class="o">.</span><span class="n">RECORD_ERROR</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+    <span class="p">])</span>
+    <span class="n">STORAGE_NEXT_FILE_NUM_BYTES</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span>
+        <span class="n">cmdType</span><span class="o">.</span><span class="n">BT_CMD_RESPONSE_HEADER</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+        <span class="n">BtCmdId</span><span class="o">.</span><span class="n">STORAGE</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+        <span class="n">BtCmdStorage</span><span class="o">.</span><span class="n">NEXT_FILE_NUM</span><span class="o">.</span><span class="n">value_int</span><span class="p">,</span>
+    <span class="p">])</span>
+
+<div class="viewcode-block" id="FirmwareCallbacks.are_bytes_equal">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.FirmwareCallbacks.are_bytes_equal">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">are_bytes_equal</span><span class="p">(</span><span class="n">bytes1</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">bytes2</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">bytes1</span> <span class="o">==</span> <span class="n">bytes2</span></div>
+
+
+<div class="viewcode-block" id="FirmwareCallbacks.from_data">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.FirmwareCallbacks.from_data">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"FirmwareCallbacks"</span><span class="p">]:</span>
+        <span class="c1"># Checked first, by exact length — see DEVICE_INFO_HEADER_BYTES above</span>
+        <span class="c1"># for why this can't be a 3-byte prefix match like the others.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">DEVICE_INFO_FRAME_LEN</span><span class="o">.</span><span class="n">value</span>
+            <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">DEVICE_INFO_HEADER_BYTES</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">DEVICE_INFO</span>
+        <span class="c1"># SYSTEM_VERSION: bare [0xF0, 0x00, maj, min, patch, tweak], 6 bytes —</span>
+        <span class="c1"># see the SYSTEM_VERSION comment above DEVICE_INFO_FRAME_LEN. Checked</span>
+        <span class="c1"># by exact length, same as DEVICE_INFO, and before PING_RESPONSE_BYTES.</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">6</span>
+            <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">DEVICE_INFO_HEADER_BYTES</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">SYSTEM_VERSION</span>
+        <span class="c1"># EMG_STATE's feature byte differs by model (0x04 Pro / 0x08</span>
+        <span class="c1"># Ultimate) — pick the one matching `model` only; don't check both,</span>
+        <span class="c1"># since Pro's byte is a live, different command (EMG_TEST) on</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">EMG_STATUS_BYTES</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">EMG_STATUS</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">EMG_STATUS_BYTES_ULTIMATE</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">EMG_STATUS</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">H_IMU_STATUS_BYTES</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">H_IMU_STATUS</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">F_IMU_STATUS_BYTES</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">F_IMU_STATUS</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">PPG_STATUS_BYTES</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">PPG_STATUS</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_RECORD_STATE_BYTES</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_RECORD_STATE</span>
+        <span class="c1"># Require 4+ bytes so status-only ERR_INVALID ([0xF0, 0x90, 0x02]) is not mistaken.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_RECORD_ERROR_BYTES</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_RECORD_ERROR</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_NEXT_FILE_NUM_BYTES</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">STORAGE_NEXT_FILE_NUM</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">are_bytes_equal</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">PING_RESPONSE_BYTES</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">PING_RESPONSE</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="FirmwareCallbacks.from_cdc_line">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.FirmwareCallbacks.from_cdc_line">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_cdc_line</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"FirmwareCallbacks"</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""CDC counterpart to `from_data`: classify an ASCII CONFIG-port</span>
+<span class="sd">        reply line by its leading token instead of a binary byte prefix.</span>
+<span class="sd">        Only the combined sensor-status queries have a CDC equivalent — CDC</span>
+<span class="sd">        has no storage/recording tokens at all, and no PING token (the</span>
+<span class="sd">        "CDC?" handshake substitutes for it, handled separately)."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"EMG"</span><span class="p">:</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">EMG_STATUS</span><span class="p">,</span>
+            <span class="s2">"H_IMU"</span><span class="p">:</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">H_IMU_STATUS</span><span class="p">,</span>
+            <span class="s2">"F_IMU"</span><span class="p">:</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">F_IMU_STATUS</span><span class="p">,</span>
+            <span class="s2">"PPG"</span><span class="p">:</span> <span class="n">FirmwareCallbacks</span><span class="o">.</span><span class="n">PPG_STATUS</span><span class="p">,</span>
+        <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">token</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MudraModel">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.MudraModel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MudraModel</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Hardware product line — used only to pick which subclass/command table</span>
+<span class="sd">    a discovered device gets (MudraPro+ProFirmwareCommand vs.</span>
+<span class="sd">    MudraUltimate+UltimateFirmwareCommand). Named to avoid any confusion with</span>
+<span class="sd">    LicenseTier's PRO member (a feature tier, unrelated to hardware). Carries</span>
+<span class="sd">    no protocol/command logic of its own — see ProFirmwareCommand /</span>
+<span class="sd">    UltimateFirmwareCommand for that."""</span>
+    <span class="n">PRO</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ULTIMATE</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="MudraModel.from_ble_name">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.MudraModel.from_ble_name">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_ble_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"MudraModel"</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Classify a device from its BLE advertised name (e.g. "Mudra Pro</span>
+<span class="sd">        48-25" / "Mudra Ultimate 12-04"). Returns None if `name` doesn't look</span>
+<span class="sd">        like a Mudra device at all."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">"Mudra Ultimate"</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MudraModel</span><span class="o">.</span><span class="n">ULTIMATE</span>
+        <span class="k">if</span> <span class="s2">"Mudra Pro"</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">MudraModel</span><span class="o">.</span><span class="n">PRO</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ProFirmwareCommand">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.ProFirmwareCommand">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProFirmwareCommand</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""BLE CONFIG command table for Mudra PRO — fully independent of</span>
+<span class="sd">    UltimateFirmwareCommand (see that class for Ultimate's own table).</span>
+<span class="sd">    Mirrors mudra_pro/src/bt_layer/bt_command_manager.h."""</span>
+
+    <span class="c1"># System</span>
+    <span class="n">systemPing</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">systemVersion</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">systemSerial</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">systemRing</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">systemDeviceInfo</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">systemLicenseSet</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">systemLicenseClear</span> <span class="o">=</span> <span class="mi">6</span>
+
+    <span class="c1"># EMG — trailing template bytes are SDK-filled</span>
+    <span class="n">enableEmg</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">emgOdr</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">emgRes</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">emgResMax</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">emgStatus</span> <span class="o">=</span> <span class="mi">11</span>
+
+    <span class="c1"># Hand IMU</span>
+    <span class="n">enableHImu</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">hImuOdr</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">hImuAcc</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">hImuGyr</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">hImuAccRes</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">hImuGyrRes</span> <span class="o">=</span> <span class="mi">17</span>
+    <span class="n">hImuAccBw</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">hImuGyrBw</span> <span class="o">=</span> <span class="mi">19</span>
+    <span class="n">hImuAccAvg</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">hImuGyrAvg</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">hImuStatus</span> <span class="o">=</span> <span class="mi">22</span>
+
+    <span class="c1"># Finger IMU</span>
+    <span class="n">enableFImu</span> <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">fImuOdr</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">fImuAcc</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">fImuGyr</span> <span class="o">=</span> <span class="mi">26</span>
+    <span class="n">fImuAccRes</span> <span class="o">=</span> <span class="mi">27</span>
+    <span class="n">fImuGyrRes</span> <span class="o">=</span> <span class="mi">28</span>
+    <span class="n">fImuAccBw</span> <span class="o">=</span> <span class="mi">29</span>
+    <span class="n">fImuGyrBw</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">fImuAccAvg</span> <span class="o">=</span> <span class="mi">31</span>
+    <span class="n">fImuGyrAvg</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">fImuStatus</span> <span class="o">=</span> <span class="mi">33</span>
+
+    <span class="c1"># PPG</span>
+    <span class="n">enablePpg</span> <span class="o">=</span> <span class="mi">34</span>
+    <span class="n">ppgOdr</span> <span class="o">=</span> <span class="mi">35</span>
+    <span class="n">ppgDec</span> <span class="o">=</span> <span class="mi">36</span>
+    <span class="n">ppgLed</span> <span class="o">=</span> <span class="mi">37</span>
+    <span class="n">ppgTia</span> <span class="o">=</span> <span class="mi">38</span>
+    <span class="n">ppgPrpct</span> <span class="o">=</span> <span class="mi">39</span>
+    <span class="n">ppgClear</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="n">ppgSrc</span> <span class="o">=</span> <span class="mi">41</span>
+    <span class="n">ppgStatus</span> <span class="o">=</span> <span class="mi">42</span>
+
+    <span class="c1"># Battery</span>
+    <span class="n">batStatus</span> <span class="o">=</span> <span class="mi">43</span>
+    <span class="n">batSoc</span> <span class="o">=</span> <span class="mi">44</span>
+    <span class="n">batVoltage</span> <span class="o">=</span> <span class="mi">45</span>
+    <span class="n">batCharging</span> <span class="o">=</span> <span class="mi">46</span>
+    <span class="n">batConnected</span> <span class="o">=</span> <span class="mi">47</span>
+    <span class="n">batReset</span> <span class="o">=</span> <span class="mi">48</span>
+
+    <span class="c1"># LED</span>
+    <span class="n">ledSetState</span> <span class="o">=</span> <span class="mi">49</span>
+    <span class="n">ledClrState</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">ledRgb</span> <span class="o">=</span> <span class="mi">51</span>
+    <span class="n">ledBlink</span> <span class="o">=</span> <span class="mi">52</span>
+    <span class="n">ledOff</span> <span class="o">=</span> <span class="mi">53</span>
+    <span class="n">ledGet</span> <span class="o">=</span> <span class="mi">54</span>
+
+    <span class="c1"># BT control</span>
+    <span class="n">btAdvStart</span> <span class="o">=</span> <span class="mi">55</span>
+    <span class="n">btAdvStop</span> <span class="o">=</span> <span class="mi">56</span>
+    <span class="n">btAdvGet</span> <span class="o">=</span> <span class="mi">57</span>
+    <span class="n">btConnGet</span> <span class="o">=</span> <span class="mi">58</span>
+    <span class="n">btNameSet</span> <span class="o">=</span> <span class="mi">59</span>
+    <span class="n">btNameGet</span> <span class="o">=</span> <span class="mi">60</span>
+    <span class="n">btNameReset</span> <span class="o">=</span> <span class="mi">61</span>
+    <span class="n">btPhySet</span> <span class="o">=</span> <span class="mi">62</span>
+
+    <span class="c1"># TinyTap</span>
+    <span class="n">enableTap</span> <span class="o">=</span> <span class="mi">63</span>
+
+    <span class="c1"># Storage</span>
+    <span class="n">storageRecordSet</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">storageRecordState</span> <span class="o">=</span> <span class="mi">65</span>
+    <span class="n">storageNextFileNum</span> <span class="o">=</span> <span class="mi">66</span>
+
+    <span class="c1"># Packet-loss test mode — Pro-only, no Ultimate equivalent. Appended at</span>
+    <span class="c1"># the end; matches ProFirmwareCommands.h, where these are also appended</span>
+    <span class="c1"># last so no existing ordinal shifts.</span>
+    <span class="n">emgTestMode</span> <span class="o">=</span> <span class="mi">67</span>
+    <span class="n">hImuTestMode</span> <span class="o">=</span> <span class="mi">68</span>
+    <span class="n">fImuTestMode</span> <span class="o">=</span> <span class="mi">69</span>
+    <span class="n">ppgTestMode</span> <span class="o">=</span> <span class="mi">70</span>
+
+    <span class="c1"># Required before SD recording — also appended at the end; matches</span>
+    <span class="c1"># ProFirmwareCommands.h, where this is likewise appended last (grouped</span>
+    <span class="c1"># with the other end-of-enum entries) so no existing ordinal shifts.</span>
+    <span class="n">systemUserIdSet</span> <span class="o">=</span> <span class="mi">71</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">systemPing</span><span class="p">:</span> <span class="s2">"SYSTEM_PING"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">systemVersion</span><span class="p">:</span> <span class="s2">"SYSTEM_VERSION"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">systemSerial</span><span class="p">:</span> <span class="s2">"SYSTEM_SERIAL"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">systemRing</span><span class="p">:</span> <span class="s2">"SYSTEM_RING"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">systemDeviceInfo</span><span class="p">:</span> <span class="s2">"SYSTEM_DEVICE_INFO"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">systemLicenseSet</span><span class="p">:</span> <span class="s2">"SYSTEM_LICENSE_SET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">systemLicenseClear</span><span class="p">:</span> <span class="s2">"SYSTEM_LICENSE_CLEAR"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">enableEmg</span><span class="p">:</span> <span class="s2">"ENABLE_EMG"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">emgOdr</span><span class="p">:</span> <span class="s2">"EMG_ODR"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">emgRes</span><span class="p">:</span> <span class="s2">"EMG_RES"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">emgResMax</span><span class="p">:</span> <span class="s2">"EMG_RES_MAX"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">emgStatus</span><span class="p">:</span> <span class="s2">"EMG_STATUS"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">enableHImu</span><span class="p">:</span> <span class="s2">"ENABLE_H_IMU"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuOdr</span><span class="p">:</span> <span class="s2">"H_IMU_ODR"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuAcc</span><span class="p">:</span> <span class="s2">"H_IMU_ACC"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuGyr</span><span class="p">:</span> <span class="s2">"H_IMU_GYR"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuAccRes</span><span class="p">:</span> <span class="s2">"H_IMU_ACC_RES"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuGyrRes</span><span class="p">:</span> <span class="s2">"H_IMU_GYR_RES"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuAccBw</span><span class="p">:</span> <span class="s2">"H_IMU_ACC_BW"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuGyrBw</span><span class="p">:</span> <span class="s2">"H_IMU_GYR_BW"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuAccAvg</span><span class="p">:</span> <span class="s2">"H_IMU_ACC_AVG"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuGyrAvg</span><span class="p">:</span> <span class="s2">"H_IMU_GYR_AVG"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuStatus</span><span class="p">:</span> <span class="s2">"H_IMU_STATUS"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">enableFImu</span><span class="p">:</span> <span class="s2">"ENABLE_F_IMU"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuOdr</span><span class="p">:</span> <span class="s2">"F_IMU_ODR"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuAcc</span><span class="p">:</span> <span class="s2">"F_IMU_ACC"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuGyr</span><span class="p">:</span> <span class="s2">"F_IMU_GYR"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuAccRes</span><span class="p">:</span> <span class="s2">"F_IMU_ACC_RES"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuGyrRes</span><span class="p">:</span> <span class="s2">"F_IMU_GYR_RES"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuAccBw</span><span class="p">:</span> <span class="s2">"F_IMU_ACC_BW"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuGyrBw</span><span class="p">:</span> <span class="s2">"F_IMU_GYR_BW"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuAccAvg</span><span class="p">:</span> <span class="s2">"F_IMU_ACC_AVG"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuGyrAvg</span><span class="p">:</span> <span class="s2">"F_IMU_GYR_AVG"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuStatus</span><span class="p">:</span> <span class="s2">"F_IMU_STATUS"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">enablePpg</span><span class="p">:</span> <span class="s2">"ENABLE_PPG"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgOdr</span><span class="p">:</span> <span class="s2">"PPG_ODR"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgDec</span><span class="p">:</span> <span class="s2">"PPG_DEC"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgLed</span><span class="p">:</span> <span class="s2">"PPG_LED"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgTia</span><span class="p">:</span> <span class="s2">"PPG_TIA"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgPrpct</span><span class="p">:</span> <span class="s2">"PPG_PRPCT"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgClear</span><span class="p">:</span> <span class="s2">"PPG_CLEAR"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgSrc</span><span class="p">:</span> <span class="s2">"PPG_SRC"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgStatus</span><span class="p">:</span> <span class="s2">"PPG_STATUS"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">batStatus</span><span class="p">:</span> <span class="s2">"BAT_STATUS"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">batSoc</span><span class="p">:</span> <span class="s2">"BAT_SOC"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">batVoltage</span><span class="p">:</span> <span class="s2">"BAT_VOLTAGE"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">batCharging</span><span class="p">:</span> <span class="s2">"BAT_CHARGING"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">batConnected</span><span class="p">:</span> <span class="s2">"BAT_CONNECTED"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">batReset</span><span class="p">:</span> <span class="s2">"BAT_RESET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ledSetState</span><span class="p">:</span> <span class="s2">"LED_SET_STATE"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ledClrState</span><span class="p">:</span> <span class="s2">"LED_CLR_STATE"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ledRgb</span><span class="p">:</span> <span class="s2">"LED_RGB"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ledBlink</span><span class="p">:</span> <span class="s2">"LED_BLINK"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ledOff</span><span class="p">:</span> <span class="s2">"LED_OFF"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ledGet</span><span class="p">:</span> <span class="s2">"LED_GET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">btAdvStart</span><span class="p">:</span> <span class="s2">"BT_ADV_START"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">btAdvStop</span><span class="p">:</span> <span class="s2">"BT_ADV_STOP"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">btAdvGet</span><span class="p">:</span> <span class="s2">"BT_ADV_GET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">btConnGet</span><span class="p">:</span> <span class="s2">"BT_CONN_GET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">btNameSet</span><span class="p">:</span> <span class="s2">"BT_NAME_SET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">btNameGet</span><span class="p">:</span> <span class="s2">"BT_NAME_GET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">btNameReset</span><span class="p">:</span> <span class="s2">"BT_NAME_RESET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">btPhySet</span><span class="p">:</span> <span class="s2">"BT_PHY_SET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">enableTap</span><span class="p">:</span> <span class="s2">"ENABLE_TAP"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">storageRecordSet</span><span class="p">:</span> <span class="s2">"STORAGE_RECORD_SET"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">storageRecordState</span><span class="p">:</span> <span class="s2">"STORAGE_RECORD_STATE"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">storageNextFileNum</span><span class="p">:</span> <span class="s2">"STORAGE_NEXT_FILE_NUM"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">emgTestMode</span><span class="p">:</span> <span class="s2">"EMG_TEST_MODE"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">hImuTestMode</span><span class="p">:</span> <span class="s2">"H_IMU_TEST_MODE"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">fImuTestMode</span><span class="p">:</span> <span class="s2">"F_IMU_TEST_MODE"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">ppgTestMode</span><span class="p">:</span> <span class="s2">"PPG_TEST_MODE"</span><span class="p">,</span>
+            <span class="n">ProFirmwareCommand</span><span class="o">.</span><span class="n">systemUserIdSet</span><span class="p">:</span> <span class="s2">"SYSTEM_USER_ID_SET"</span><span class="p">,</span>
+        <span class="p">}[</span><span class="bp">self</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">op_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk.models.computation_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputationWrapper</span>
+        <span class="k">return</span> <span class="n">ComputationWrapper</span><span class="o">.</span><span class="n">get_pro_firmware_command_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op_code</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProFirmwareCommand.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.ProFirmwareCommand.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"ProFirmwareCommand"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ProFirmwareCommand</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UltimateFirmwareCommand">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.UltimateFirmwareCommand">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UltimateFirmwareCommand</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""BLE CONFIG command table for Mudra ULTIMATE — fully independent of</span>
+<span class="sd">    ProFirmwareCommand (see that class for Pro's own table). Mirrors</span>
+<span class="sd">    mudra_ultimate/src/bt_layer/bt_command_manager.h."""</span>
+
+    <span class="c1"># System</span>
+    <span class="n">systemPing</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">systemVersion</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">systemSerial</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">systemRing</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">systemDeviceInfo</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">systemLicenseSet</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">systemLicenseClear</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">systemTsync</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">systemLinkstats</span> <span class="o">=</span> <span class="mi">8</span>
+
+    <span class="c1"># EMG — trailing template bytes are SDK-filled</span>
+    <span class="n">enableEmg</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">emgOdr</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">emgRes</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">emgResMax</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">emgTest</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">emgChmask</span> <span class="o">=</span> <span class="mi">14</span>
+    <span class="n">emgRld</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">emgIsolate</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">emgStatus</span> <span class="o">=</span> <span class="mi">17</span>
+
+    <span class="c1"># Hand IMU</span>
+    <span class="n">enableHImu</span> <span class="o">=</span> <span class="mi">18</span>
+    <span class="n">hImuOdr</span> <span class="o">=</span> <span class="mi">19</span>
+    <span class="n">hImuAcc</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">hImuGyr</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">hImuAccRes</span> <span class="o">=</span> <span class="mi">22</span>
+    <span class="n">hImuGyrRes</span> <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">hImuAccBw</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">hImuGyrBw</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">hImuAccAvg</span> <span class="o">=</span> <span class="mi">26</span>
+    <span class="n">hImuGyrAvg</span> <span class="o">=</span> <span class="mi">27</span>
+    <span class="n">hImuStatus</span> <span class="o">=</span> <span class="mi">28</span>
+
+    <span class="c1"># Finger IMU</span>
+    <span class="n">enableFImu</span> <span class="o">=</span> <span class="mi">29</span>
+    <span class="n">fImuOdr</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">fImuAcc</span> <span class="o">=</span> <span class="mi">31</span>
+    <span class="n">fImuGyr</span> <span class="o">=</span> <span class="mi">32</span>
+    <span class="n">fImuAccRes</span> <span class="o">=</span> <span class="mi">33</span>
+    <span class="n">fImuGyrRes</span> <span class="o">=</span> <span class="mi">34</span>
+    <span class="n">fImuAccBw</span> <span class="o">=</span> <span class="mi">35</span>
+    <span class="n">fImuGyrBw</span> <span class="o">=</span> <span class="mi">36</span>
+    <span class="n">fImuAccAvg</span> <span class="o">=</span> <span class="mi">37</span>
+    <span class="n">fImuGyrAvg</span> <span class="o">=</span> <span class="mi">38</span>
+    <span class="n">fImuStatus</span> <span class="o">=</span> <span class="mi">39</span>
+
+    <span class="c1"># PPG</span>
+    <span class="n">enablePpg</span> <span class="o">=</span> <span class="mi">40</span>
+    <span class="n">ppgOdr</span> <span class="o">=</span> <span class="mi">41</span>
+    <span class="n">ppgDec</span> <span class="o">=</span> <span class="mi">42</span>
+    <span class="n">ppgLed</span> <span class="o">=</span> <span class="mi">43</span>
+    <span class="n">ppgTia</span> <span class="o">=</span> <span class="mi">44</span>
+    <span class="n">ppgPrpct</span> <span class="o">=</span> <span class="mi">45</span>
+    <span class="n">ppgClear</span> <span class="o">=</span> <span class="mi">46</span>
+    <span class="n">ppgSrc</span> <span class="o">=</span> <span class="mi">47</span>
+    <span class="n">ppgStatus</span> <span class="o">=</span> <span class="mi">48</span>
+
+    <span class="c1"># Battery</span>
+    <span class="n">batStatus</span> <span class="o">=</span> <span class="mi">49</span>
+    <span class="n">batSoc</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">batVoltage</span> <span class="o">=</span> <span class="mi">51</span>
+    <span class="n">batCharging</span> <span class="o">=</span> <span class="mi">52</span>
+    <span class="n">batConnected</span> <span class="o">=</span> <span class="mi">53</span>
+    <span class="n">batReset</span> <span class="o">=</span> <span class="mi">54</span>
+
+    <span class="c1"># LED</span>
+    <span class="n">ledSetState</span> <span class="o">=</span> <span class="mi">55</span>
+    <span class="n">ledClrState</span> <span class="o">=</span> <span class="mi">56</span>
+    <span class="n">ledRgb</span> <span class="o">=</span> <span class="mi">57</span>
+    <span class="n">ledBlink</span> <span class="o">=</span> <span class="mi">58</span>
+    <span class="n">ledOff</span> <span class="o">=</span> <span class="mi">59</span>
+    <span class="n">ledGet</span> <span class="o">=</span> <span class="mi">60</span>
+
+    <span class="c1"># BT control</span>
+    <span class="n">btAdvStart</span> <span class="o">=</span> <span class="mi">61</span>
+    <span class="n">btAdvStop</span> <span class="o">=</span> <span class="mi">62</span>
+    <span class="n">btAdvGet</span> <span class="o">=</span> <span class="mi">63</span>
+    <span class="n">btConnGet</span> <span class="o">=</span> <span class="mi">64</span>
+    <span class="n">btNameSet</span> <span class="o">=</span> <span class="mi">65</span>
+    <span class="n">btNameGet</span> <span class="o">=</span> <span class="mi">66</span>
+    <span class="n">btNameReset</span> <span class="o">=</span> <span class="mi">67</span>
+    <span class="n">btPhySet</span> <span class="o">=</span> <span class="mi">68</span>
+
+    <span class="c1"># TinyTap</span>
+    <span class="n">enableTap</span> <span class="o">=</span> <span class="mi">69</span>
+
+    <span class="c1"># Storage</span>
+    <span class="n">storageRecordSet</span> <span class="o">=</span> <span class="mi">70</span>
+    <span class="n">storageRecordState</span> <span class="o">=</span> <span class="mi">71</span>
+    <span class="n">storageNextFileNum</span> <span class="o">=</span> <span class="mi">72</span>
+
+    <span class="c1"># Required before SD recording. RAM-only on the device, no action byte,</span>
+    <span class="c1"># no getter (mirrors LICENSE_SET).</span>
+    <span class="n">systemUserIdSet</span> <span class="o">=</span> <span class="mi">73</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemPing</span><span class="p">:</span> <span class="s2">"SYSTEM_PING"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemVersion</span><span class="p">:</span> <span class="s2">"SYSTEM_VERSION"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemSerial</span><span class="p">:</span> <span class="s2">"SYSTEM_SERIAL"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemRing</span><span class="p">:</span> <span class="s2">"SYSTEM_RING"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemDeviceInfo</span><span class="p">:</span> <span class="s2">"SYSTEM_DEVICE_INFO"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemLicenseSet</span><span class="p">:</span> <span class="s2">"SYSTEM_LICENSE_SET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemLicenseClear</span><span class="p">:</span> <span class="s2">"SYSTEM_LICENSE_CLEAR"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemTsync</span><span class="p">:</span> <span class="s2">"SYSTEM_TSYNC"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemLinkstats</span><span class="p">:</span> <span class="s2">"SYSTEM_LINKSTATS"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">enableEmg</span><span class="p">:</span> <span class="s2">"ENABLE_EMG"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">emgOdr</span><span class="p">:</span> <span class="s2">"EMG_ODR"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">emgRes</span><span class="p">:</span> <span class="s2">"EMG_RES"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">emgResMax</span><span class="p">:</span> <span class="s2">"EMG_RES_MAX"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">emgTest</span><span class="p">:</span> <span class="s2">"EMG_TEST"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">emgChmask</span><span class="p">:</span> <span class="s2">"EMG_CHMASK"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">emgRld</span><span class="p">:</span> <span class="s2">"EMG_RLD"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">emgIsolate</span><span class="p">:</span> <span class="s2">"EMG_ISOLATE"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">emgStatus</span><span class="p">:</span> <span class="s2">"EMG_STATUS"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">enableHImu</span><span class="p">:</span> <span class="s2">"ENABLE_H_IMU"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuOdr</span><span class="p">:</span> <span class="s2">"H_IMU_ODR"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuAcc</span><span class="p">:</span> <span class="s2">"H_IMU_ACC"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuGyr</span><span class="p">:</span> <span class="s2">"H_IMU_GYR"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuAccRes</span><span class="p">:</span> <span class="s2">"H_IMU_ACC_RES"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuGyrRes</span><span class="p">:</span> <span class="s2">"H_IMU_GYR_RES"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuAccBw</span><span class="p">:</span> <span class="s2">"H_IMU_ACC_BW"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuGyrBw</span><span class="p">:</span> <span class="s2">"H_IMU_GYR_BW"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuAccAvg</span><span class="p">:</span> <span class="s2">"H_IMU_ACC_AVG"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuGyrAvg</span><span class="p">:</span> <span class="s2">"H_IMU_GYR_AVG"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">hImuStatus</span><span class="p">:</span> <span class="s2">"H_IMU_STATUS"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">enableFImu</span><span class="p">:</span> <span class="s2">"ENABLE_F_IMU"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuOdr</span><span class="p">:</span> <span class="s2">"F_IMU_ODR"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuAcc</span><span class="p">:</span> <span class="s2">"F_IMU_ACC"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuGyr</span><span class="p">:</span> <span class="s2">"F_IMU_GYR"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuAccRes</span><span class="p">:</span> <span class="s2">"F_IMU_ACC_RES"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuGyrRes</span><span class="p">:</span> <span class="s2">"F_IMU_GYR_RES"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuAccBw</span><span class="p">:</span> <span class="s2">"F_IMU_ACC_BW"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuGyrBw</span><span class="p">:</span> <span class="s2">"F_IMU_GYR_BW"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuAccAvg</span><span class="p">:</span> <span class="s2">"F_IMU_ACC_AVG"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuGyrAvg</span><span class="p">:</span> <span class="s2">"F_IMU_GYR_AVG"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">fImuStatus</span><span class="p">:</span> <span class="s2">"F_IMU_STATUS"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">enablePpg</span><span class="p">:</span> <span class="s2">"ENABLE_PPG"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ppgOdr</span><span class="p">:</span> <span class="s2">"PPG_ODR"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ppgDec</span><span class="p">:</span> <span class="s2">"PPG_DEC"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ppgLed</span><span class="p">:</span> <span class="s2">"PPG_LED"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ppgTia</span><span class="p">:</span> <span class="s2">"PPG_TIA"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ppgPrpct</span><span class="p">:</span> <span class="s2">"PPG_PRPCT"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ppgClear</span><span class="p">:</span> <span class="s2">"PPG_CLEAR"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ppgSrc</span><span class="p">:</span> <span class="s2">"PPG_SRC"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ppgStatus</span><span class="p">:</span> <span class="s2">"PPG_STATUS"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">batStatus</span><span class="p">:</span> <span class="s2">"BAT_STATUS"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">batSoc</span><span class="p">:</span> <span class="s2">"BAT_SOC"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">batVoltage</span><span class="p">:</span> <span class="s2">"BAT_VOLTAGE"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">batCharging</span><span class="p">:</span> <span class="s2">"BAT_CHARGING"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">batConnected</span><span class="p">:</span> <span class="s2">"BAT_CONNECTED"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">batReset</span><span class="p">:</span> <span class="s2">"BAT_RESET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ledSetState</span><span class="p">:</span> <span class="s2">"LED_SET_STATE"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ledClrState</span><span class="p">:</span> <span class="s2">"LED_CLR_STATE"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ledRgb</span><span class="p">:</span> <span class="s2">"LED_RGB"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ledBlink</span><span class="p">:</span> <span class="s2">"LED_BLINK"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ledOff</span><span class="p">:</span> <span class="s2">"LED_OFF"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">ledGet</span><span class="p">:</span> <span class="s2">"LED_GET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">btAdvStart</span><span class="p">:</span> <span class="s2">"BT_ADV_START"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">btAdvStop</span><span class="p">:</span> <span class="s2">"BT_ADV_STOP"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">btAdvGet</span><span class="p">:</span> <span class="s2">"BT_ADV_GET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">btConnGet</span><span class="p">:</span> <span class="s2">"BT_CONN_GET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">btNameSet</span><span class="p">:</span> <span class="s2">"BT_NAME_SET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">btNameGet</span><span class="p">:</span> <span class="s2">"BT_NAME_GET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">btNameReset</span><span class="p">:</span> <span class="s2">"BT_NAME_RESET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">btPhySet</span><span class="p">:</span> <span class="s2">"BT_PHY_SET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">enableTap</span><span class="p">:</span> <span class="s2">"ENABLE_TAP"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">storageRecordSet</span><span class="p">:</span> <span class="s2">"STORAGE_RECORD_SET"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">storageRecordState</span><span class="p">:</span> <span class="s2">"STORAGE_RECORD_STATE"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">storageNextFileNum</span><span class="p">:</span> <span class="s2">"STORAGE_NEXT_FILE_NUM"</span><span class="p">,</span>
+            <span class="n">UltimateFirmwareCommand</span><span class="o">.</span><span class="n">systemUserIdSet</span><span class="p">:</span> <span class="s2">"SYSTEM_USER_ID_SET"</span><span class="p">,</span>
+        <span class="p">}[</span><span class="bp">self</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">op_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk.models.computation_wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">ComputationWrapper</span>
+        <span class="k">return</span> <span class="n">ComputationWrapper</span><span class="o">.</span><span class="n">get_ultimate_firmware_command_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op_code</span><span class="p">)</span>
+
+<div class="viewcode-block" id="UltimateFirmwareCommand.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.UltimateFirmwareCommand.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"UltimateFirmwareCommand"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">UltimateFirmwareCommand</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+
+<div class="viewcode-block" id="FirmwareDataType">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.FirmwareDataType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FirmwareDataType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">emg</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">imuH</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">imuF</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ppg</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="FirmwareDataType.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.FirmwareDataType.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"FirmwareDataType"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">FirmwareDataType</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+<div class="viewcode-block" id="RecordingDataType">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.RecordingDataType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RecordingDataType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">button</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fsr</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">endAppTS</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">emg1</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">emg2</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">emg3</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">emgTS</span> <span class="o">=</span> <span class="mi">6</span>
+
+    <span class="c1"># Hand IMU (FirmwareDataType.imuH)</span>
+    <span class="n">acc1</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">acc2</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">acc3</span> <span class="o">=</span> <span class="mi">9</span>
+    <span class="n">accTS</span> <span class="o">=</span> <span class="mi">10</span>
+
+    <span class="n">gyro1</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">gyro2</span> <span class="o">=</span> <span class="mi">12</span>
+    <span class="n">gyro3</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">gyroTS</span> <span class="o">=</span> <span class="mi">14</span>
+
+    <span class="c1"># Finger IMU (FirmwareDataType.imuF)</span>
+    <span class="n">accF1</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">accF2</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">accF3</span> <span class="o">=</span> <span class="mi">17</span>
+    <span class="n">accFTS</span> <span class="o">=</span> <span class="mi">18</span>
+
+    <span class="n">gyroF1</span> <span class="o">=</span> <span class="mi">19</span>
+    <span class="n">gyroF2</span> <span class="o">=</span> <span class="mi">20</span>
+    <span class="n">gyroF3</span> <span class="o">=</span> <span class="mi">21</span>
+    <span class="n">gyroFTS</span> <span class="o">=</span> <span class="mi">22</span>
+
+    <span class="n">ppg1</span> <span class="o">=</span> <span class="mi">23</span>
+    <span class="n">ppg2</span> <span class="o">=</span> <span class="mi">24</span>
+    <span class="n">ppg3</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">ppg4</span> <span class="o">=</span> <span class="mi">26</span>
+    <span class="n">ppgTS</span> <span class="o">=</span> <span class="mi">27</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="RecordingDataType.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.RecordingDataType.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"RecordingDataType"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">RecordingDataType</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EventType">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.EventType">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EventType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">buttonType</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="EventType.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.EventType.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"EventType"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">EventType</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EmgRes">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.EmgRes">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmgRes</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">emgRes16</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">emgRes24</span> <span class="o">=</span> <span class="mi">24</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Wire value for EMG_RES SET/GET and STATUS (firmware uses 16 or 24)."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="EmgRes.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.EmgRes.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"EmgRes"</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Accept wire 16/24 and legacy 0/1 encodings."""</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">EmgRes</span><span class="o">.</span><span class="n">emgRes16</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">24</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">EmgRes</span><span class="o">.</span><span class="n">emgRes24</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="EmgRes.from_bits">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.EmgRes.from_bits">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_bits</span><span class="p">(</span><span class="n">bits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"EmgRes"</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">EmgRes</span><span class="o">.</span><span class="n">from_value</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ProEMGODR">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.ProEMGODR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProEMGODR</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Valid EMG output data rates on Mudra Pro's ADS1293 AFE (see</span>
+<span class="sd">    sensor_core/.../components/ads1293/ads1293.h — ADS1293_ODR_200..6400).</span>
+<span class="sd">    A SET above the connected license tier's ceiling (license.c's CAPS[]:</span>
+<span class="sd">    FREE 200, PLUS 800, PRO 6400) is rejected with ERR_LICENSE."""</span>
+
+    <span class="n">emgOdr200</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">emgOdr400</span> <span class="o">=</span> <span class="mi">400</span>
+    <span class="n">emgOdr800</span> <span class="o">=</span> <span class="mi">800</span>
+    <span class="n">emgOdr1600</span> <span class="o">=</span> <span class="mi">1600</span>
+    <span class="n">emgOdr2133</span> <span class="o">=</span> <span class="mi">2133</span>
+    <span class="n">emgOdr3200</span> <span class="o">=</span> <span class="mi">3200</span>
+    <span class="n">emgOdr4267</span> <span class="o">=</span> <span class="mi">4267</span>
+    <span class="n">emgOdr6400</span> <span class="o">=</span> <span class="mi">6400</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="ProEMGODR.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.ProEMGODR.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"ProEMGODR"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ProEMGODR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="UltimateEMGODR">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.UltimateEMGODR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">UltimateEMGODR</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Valid EMG output data rates on Mudra Ultimate's ADS1298 AFE (see</span>
+<span class="sd">    sensor_core/.../components/ads1298/ads1298.h: "Allowed:</span>
+<span class="sd">    500/1000/2000/4000/8000"). 8000 is intentionally omitted — no license</span>
+<span class="sd">    tier ever permits it (license.c's CAPS[] comment: "no tier permits it —</span>
+<span class="sd">    4000 is the ULTIMATE ceiling"), so listing it would only offer a value</span>
+<span class="sd">    guaranteed to fail with ERR_LICENSE."""</span>
+
+    <span class="n">emgOdr500</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="n">emgOdr1000</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">emgOdr2000</span> <span class="o">=</span> <span class="mi">2000</span>
+    <span class="n">emgOdr4000</span> <span class="o">=</span> <span class="mi">4000</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="UltimateEMGODR.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.UltimateEMGODR.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"UltimateEMGODR"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">UltimateEMGODR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="IMUODR">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.IMUODR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IMUODR</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">imuHOdr25</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">imuHOdr50</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">imuHOdr100</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">imuHOdr200</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">imuHOdr400</span> <span class="o">=</span> <span class="mi">400</span>
+    <span class="n">imuHOdr800</span> <span class="o">=</span> <span class="mi">800</span>
+    <span class="n">imuHOdr1600</span> <span class="o">=</span> <span class="mi">1600</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="IMUODR.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.IMUODR.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"IMUODR"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">IMUODR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+<div class="viewcode-block" id="PPGODR">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.PPGODR">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PPGODR</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">ppgOdr25</span> <span class="o">=</span> <span class="mi">25</span>
+    <span class="n">ppgOdr50</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">ppgOdr100</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">ppgOdr200</span> <span class="o">=</span> <span class="mi">200</span>
+    <span class="n">ppgOdr400</span> <span class="o">=</span> <span class="mi">400</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        
+<div class="viewcode-block" id="PPGODR.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.PPGODR.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"PPGODR"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">PPGODR</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+<div class="viewcode-block" id="PPGChannelCount">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.PPGChannelCount">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PPGChannelCount</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">ppgChannelCount1</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">ppgChannelCount2</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">ppgChannelCount3</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">ppgChannelCount4</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        
+<div class="viewcode-block" id="PPGChannelCount.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.PPGChannelCount.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"PPGChannelCount"</span><span class="p">]:</span>
+
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">PPGChannelCount</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+<div class="viewcode-block" id="IMUAccRange">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.IMUAccRange">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IMUAccRange</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">imuAccRange2</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">imuAccRange4</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">imuAccRange8</span> <span class="o">=</span> <span class="mi">8</span>
+    <span class="n">imuAccRange16</span> <span class="o">=</span> <span class="mi">16</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        
+<div class="viewcode-block" id="IMUAccRange.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.IMUAccRange.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"IMUAccRange"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">IMUAccRange</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+<div class="viewcode-block" id="IMUGyrRange">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.IMUGyrRange">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IMUGyrRange</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">imuGyrRange125</span> <span class="o">=</span> <span class="mi">125</span>
+    <span class="n">imuGyrRange250</span> <span class="o">=</span> <span class="mi">250</span>
+    <span class="n">imuGyrRange500</span> <span class="o">=</span> <span class="mi">500</span>
+    <span class="n">imuGyrRange1000</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">imuGyrRange2000</span> <span class="o">=</span> <span class="mi">2000</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        
+<div class="viewcode-block" id="IMUGyrRange.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.IMUGyrRange.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"IMUGyrRange"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">IMUGyrRange</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LicenseTier">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.LicenseTier">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LicenseTier</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Firmware license tier byte, as reported in ``BT_SYS_DEVICE_INFO`` (see ``LicenseDeviceInfo.tier``)."""</span>
+
+    <span class="n">FREE</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">PLUS</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PRO</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_int</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="LicenseTier.from_value">
+<a class="viewcode-back" href="../../../api_reference.html#mudra_sdk.models.mudra_device.LicenseTier.from_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_value</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="s2">"LicenseTier"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">LicenseTier</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">value</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">item</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wearable Devices
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=03f3338f"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="../../../_static/collapsible.js?v=6ff1e7b4"></script>
+    </body>
+</html>

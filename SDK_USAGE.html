@@ -1,0 +1,595 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Mudra SDK — Connection Guide (Scan, BLE, CDC)" href="CONNECTION.html"><link rel="prev" title="Supported devices" href="supported_devices.html">
+        <link rel="prefetch" href="_static/brand-logo-dark.svg" as="image">
+        <link rel="prefetch" href="_static/brand-logo.svg" as="image">
+
+    <link rel="shortcut icon" href="_static/brand-favicon.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Mudra SDK — Usage Guide - Indriya 0.4.6</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/tokens.css?v=c2ff8f60" />
+    <link rel="stylesheet" type="text/css" href="_static/collapsible.css?v=9ff2bea0" />
+    <link rel="stylesheet" type="text/css" href="_static/examples.css?v=5bd11adc" />
+    <link rel="stylesheet" type="text/css" href="_static/led.css?v=91a52dbe" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #0d7d6e;
+  --color-brand-content: #0d7d6e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #5fd6cb;
+  --color-brand-content: #5fd6cb;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #5fd6cb;
+  --color-brand-content: #5fd6cb;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Indriya 0.4.6</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/brand-logo-dark.svg" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/brand-logo.svg" alt="Dark Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_devices.html">Supported devices</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Mudra SDK — Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONNECTION.html">Mudra SDK — Connection Guide (Scan, BLE, CDC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SENSORS.html">Mudra SDK — Sensors Guide (Enable / Disable / Status / Config)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CALLBACKS.html">Mudra SDK — Callbacks Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AUTH.html">Mudra SDK — Account Sign-In &amp; Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_format.html">Data format</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Under the hood</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="native_library.html">Native library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/SDK_USAGE.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="mudra-sdk-usage-guide">
+<h1>Mudra SDK — Usage Guide<a class="headerlink" href="#mudra-sdk-usage-guide" title="Link to this heading">¶</a></h1>
+<p>Python SDK for the <strong>Mudra Pro</strong> wearable device. It supports two transports —
+<strong>BLE</strong> (Bluetooth Low Energy) and <strong>CDC</strong> (USB serial) — behind one unified,
+<code class="docutils literal notranslate"><span class="pre">asyncio</span></code>-based API.</p>
+<p>It is written to be usable both by humans and by other coding agents/bots
+that need to integrate against this SDK — every code snippet in this guide
+set is a real, runnable pattern taken from the SDK itself and from the
+reference app at <a class="reference download internal" download="" href="_downloads/0fbefbec8694668c1cb478928f451337/connect_app.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">examples/connect_app.py</span></code></span></a> /
+<a class="reference internal" href="#../examples/mudra_connect/"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">examples/mudra_connect/</span></code></span></a>.</p>
+<p>This guide is split into focused pages:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Page</p></th>
+<th class="head"><p>Covers</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>This page</strong></p></td>
+<td><p>Package layout, setup, core architecture, a minimal end-to-end example</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><a class="reference internal" href="CONNECTION.html"><span class="std std-doc">CONNECTION.md</span></a></strong></p></td>
+<td><p>Scanning, connecting/disconnecting over BLE and CDC, ping, licensing/account sign-in, raw/advanced commands, firmware update (DFU)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong><a class="reference internal" href="AUTH.html"><span class="std std-doc">AUTH.md</span></a></strong></p></td>
+<td><p>Account sign-in and device licensing — <strong>read this before building an app</strong>, not just a script</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong><a class="reference internal" href="SENSORS.html"><span class="std std-doc">SENSORS.md</span></a></strong></p></td>
+<td><p>Enabling/disabling sensor streams, querying/configuring status (ODR, resolution, ranges), packet-loss test mode, SD card recording</p></td>
+</tr>
+<tr class="row-even"><td><p><strong><a class="reference internal" href="CALLBACKS.html"><span class="std std-doc">CALLBACKS.md</span></a></strong></p></td>
+<td><p>Every callback in the SDK — the global <code class="docutils literal notranslate"><span class="pre">MudraDelegate</span></code> and all per-device <code class="docutils literal notranslate"><span class="pre">set_on_*</span></code> callbacks — with signatures and firing conditions</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<section id="package-layout">
+<h2>1. Package layout<a class="headerlink" href="#package-layout" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mudra_sdk/
+  models/
+    mudra.py             Mudra — top-level singleton: scan/connect/disconnect, delegate dispatch
+    mudra_device.py      MudraDevice — per-device API: sensors, streaming, storage
+    cdc_device.py         CdcDevice — CDC device identity (address/ports)
+    callbacks.py          MudraDelegate / BleServiceDelegate / CdcServiceDelegate ABCs
+    enums.py              FirmwareCommand, SensorTypes, ODR/range enums, status/error codes
+    computation_wrapper.py Thin wrapper around the native MudraSDK library (parsing, packet loss)
+    firmware_protocol.py  Binary CONFIG-frame builders used by the BLE transport
+  service/
+    ble_service.py        BLE transport (bleak) — scanning, GATT, notifications
+    cdc_service.py         CDC transport (pyserial) — USB serial scanning, ASCII protocol
+    dfu_service.py         Firmware update (MCUmgr/SMP over a third USB-CDC port) — USB only
+  libs/                   Native MudraSDK shared library (.dll/.so/.dylib), loaded via ctypes
+</pre></div>
+</div>
+<p>The public surface is re-exported from the package root:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mudra</span><span class="p">,</span> <span class="n">MudraDevice</span><span class="p">,</span> <span class="n">FirmwareCallbacks</span><span class="p">,</span> <span class="n">FirmwareDetails</span>
+</pre></div>
+</div>
+</section>
+<section id="setup">
+<h2>2. Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
+<p>There is no PyPI package / <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code> yet — the SDK is used by adding the
+repo root to <code class="docutils literal notranslate"><span class="pre">sys.path</span></code>, exactly as the example app does:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">_REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>  <span class="c1"># wherever mudra_sdk/ lives</span>
+<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">_REPO_ROOT</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_REPO_ROOT</span><span class="p">))</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mudra</span><span class="p">,</span> <span class="n">MudraDevice</span>
+</pre></div>
+</div>
+<p>Dependencies: <code class="docutils literal notranslate"><span class="pre">bleak</span></code> (BLE), <code class="docutils literal notranslate"><span class="pre">pyserial</span></code> (CDC), <code class="docutils literal notranslate"><span class="pre">smpclient</span></code> (firmware update
+over CDC — see <a class="reference internal" href="CONNECTION.html#firmware-update-dfu-usb-only"><span class="std std-ref">CONNECTION.md §6</span></a>).
+The native <code class="docutils literal notranslate"><span class="pre">MudraSDK</span></code>
+shared library under <code class="docutils literal notranslate"><span class="pre">mudra_sdk/libs/&lt;platform&gt;/&lt;arch&gt;/</span></code> is loaded
+automatically and does the binary sensor-data parsing; if it’s missing for
+your platform, <code class="docutils literal notranslate"><span class="pre">Mudra()</span></code> still constructs but logs a warning and native-side
+features (data parsing, packet-loss stats) won’t work.</p>
+<p>Everything in the SDK is <code class="docutils literal notranslate"><span class="pre">async</span></code> — call it from inside an asyncio event
+loop. The example app runs its own asyncio loop on a background thread (see
+<a class="reference download internal" download="" href="_downloads/9bb7746e183a0cc94d3b09997315a4ca/async_bridge.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">examples/mudra_connect/async_bridge.py</span></code></span></a>)
+because it’s a Tkinter GUI; a plain script can just use <code class="docutils literal notranslate"><span class="pre">asyncio.run(...)</span></code>.</p>
+</section>
+<section id="core-architecture">
+<h2>3. Core architecture<a class="headerlink" href="#core-architecture" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">Mudra</span></code></strong> — a process-wide singleton. Owns both transports
+(<code class="docutils literal notranslate"><span class="pre">BleService</span></code>, <code class="docutils literal notranslate"><span class="pre">CdcService</span></code>) and dispatches every device event to <em>your</em>
+delegate. You never construct more than one; <code class="docutils literal notranslate"><span class="pre">Mudra()</span></code> always returns the
+same instance.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">MudraDevice</span></code></strong> — one object per physical device, valid for either
+transport. Check <code class="docutils literal notranslate"><span class="pre">device.transport</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;ble&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;cdc&quot;</span></code>) if you need to
+branch — most callers don’t need to, since every method already branches
+internally and picks the right wire format.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">MudraDelegate</span></code></strong> — an abstract base class you implement to receive
+connection lifecycle events and device-discovery events. Register it once
+via <code class="docutils literal notranslate"><span class="pre">Mudra().set_delegate(...)</span></code>. See <a class="reference internal" href="CALLBACKS.html"><span class="std std-doc">CALLBACKS.md</span></a>.</p></li>
+<li><p><strong>Per-device callbacks</strong> — sensor data, status replies, errors, etc. are
+delivered per-device via <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">device.set_on_..._callback(fn)</span></code> setters,
+not through the global delegate. See <a class="reference internal" href="CALLBACKS.html"><span class="std std-doc">CALLBACKS.md</span></a>.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Mudra()  ── scan_ble()/scan_cdc() ──► MudraDelegate.on_device_discovered(device)
+        │                                     │
+        │                          device.connect() (transport-aware)
+        │                                     ▼
+        │                    MudraDelegate.on_mudra_device_connected(device)
+        │                                     │
+        │                device.set_on_emg_ready(cb) / set_on_emg_status_received(cb) / ...
+        ▼                                     ▼
+   device.disconnect()              cb(...) fires as data/status arrives
+</pre></div>
+</div>
+</section>
+<section id="minimal-end-to-end-example">
+<h2>4. Minimal end-to-end example<a class="headerlink" href="#minimal-end-to-end-example" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mudra</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk.models.callbacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">MudraDelegate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk.models.mudra_device</span><span class="w"> </span><span class="kn">import</span> <span class="n">MudraDevice</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyDelegate</span><span class="p">(</span><span class="n">MudraDelegate</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">found</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">:</span> <span class="n">MudraDevice</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_device_discovered</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">MudraDevice</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">transport</span><span class="si">}</span><span class="s2">) @ </span><span class="si">{</span><span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">found</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mudra_device_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">MudraDevice</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"connected"</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mudra_device_connecting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">MudraDevice</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"connecting..."</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mudra_device_disconnecting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">MudraDevice</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"disconnecting..."</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mudra_device_disconnected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">MudraDevice</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="s2">"disconnected"</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mudra_device_connection_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="n">MudraDevice</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"connect failed: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_bluetooth_state_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"BT on=</span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">mudra</span> <span class="o">=</span> <span class="n">Mudra</span><span class="p">()</span>
+    <span class="n">delegate</span> <span class="o">=</span> <span class="n">MyDelegate</span><span class="p">()</span>
+    <span class="n">mudra</span><span class="o">.</span><span class="n">set_delegate</span><span class="p">(</span><span class="n">delegate</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">mudra</span><span class="o">.</span><span class="n">scan_ble</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">mudra</span><span class="o">.</span><span class="n">scan_cdc</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait_for</span><span class="p">(</span><span class="n">delegate</span><span class="o">.</span><span class="n">found</span><span class="o">.</span><span class="n">wait</span><span class="p">(),</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">mudra</span><span class="o">.</span><span class="n">stop_scan_ble</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">mudra</span><span class="o">.</span><span class="n">stop_scan_cdc</span><span class="p">()</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="n">delegate</span><span class="o">.</span><span class="n">device</span>
+    <span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>          <span class="c1"># waits for the connect() coroutine, not the "connected" event</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_emg</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">frequency_std</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"EMG @ </span><span class="si">{</span><span class="n">frequency</span><span class="si">}</span><span class="s2">Hz: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples"</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">set_on_emg_ready</span><span class="p">(</span><span class="n">on_emg</span><span class="p">)</span>   <span class="c1"># enables the EMG sensor + starts streaming</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">set_on_emg_ready</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>     <span class="c1"># disables it again</span>
+
+    <span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+
+<span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Note the ordering subtlety: <code class="docutils literal notranslate"><span class="pre">device.connect()</span></code> <em>returns</em> once the transport
+handshake is done, but <code class="docutils literal notranslate"><span class="pre">MudraDelegate.on_mudra_device_connected</span></code> may still
+be about to fire (BLE: after GATT discovery; CDC: after the SDK’s own
+readiness queries + <code class="docutils literal notranslate"><span class="pre">START</span></code>). If your logic depends on the device being
+fully ready (not just the socket open), drive it off the delegate callback
+rather than the <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">device.connect()</span></code> return, same as the reference app
+does in <a class="reference download internal" download="" href="_downloads/c2d4f2365e8b7eaf3fe76c8602cfff6f/delegate.py"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">delegate.py</span></code></span></a>.</p>
+<p>For everything beyond this minimal example, see:
+<a class="reference internal" href="CONNECTION.html"><span class="std std-doc">CONNECTION.md</span></a> · <a class="reference internal" href="SENSORS.html"><span class="std std-doc">SENSORS.md</span></a> · <a class="reference internal" href="CALLBACKS.html"><span class="std std-doc">CALLBACKS.md</span></a></p>
+</section>
+<section id="quick-reference-key-enums-mudra-sdk-models-enums">
+<h2>5. Quick reference — key enums (<code class="docutils literal notranslate"><span class="pre">mudra_sdk.models.enums</span></code>)<a class="headerlink" href="#quick-reference-key-enums-mudra-sdk-models-enums" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Enum</p></th>
+<th class="head"><p>Values</p></th>
+<th class="head"><p>Used for</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SensorTypes</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">EMG</span></code>, <code class="docutils literal notranslate"><span class="pre">H_IMU</span></code>, <code class="docutils literal notranslate"><span class="pre">F_IMU</span></code>, <code class="docutils literal notranslate"><span class="pre">PPG</span></code></p></td>
+<td><p>Identifying a sensor in status/error callbacks</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">FirmwareDataType</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">emg</span></code>, <code class="docutils literal notranslate"><span class="pre">imuH</span></code>, <code class="docutils literal notranslate"><span class="pre">imuF</span></code>, <code class="docutils literal notranslate"><span class="pre">ppg</span></code></p></td>
+<td><p>Identifying a sensor when enabling/disabling streams</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ProEMGODR</span></code></p></td>
+<td><p>200/400/800/1600/2133/3200/4267/6400 (Hz)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set/get_emg_odr</span></code> on MudraPro</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">UltimateEMGODR</span></code></p></td>
+<td><p>500/1000/2000/4000 (Hz)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set/get_emg_odr</span></code> on MudraUltimate</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">EmgRes</span></code></p></td>
+<td><p>16, 24 (bits)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set/get_emg_res</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">IMUODR</span></code></p></td>
+<td><p>25/50/100/200/400/800/1600 (Hz)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set/get_{h,f}_imu_odr</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">IMUAccRange</span></code></p></td>
+<td><p>2/4/8/16 (g)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set/get_{h,f}_imu_acc</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">IMUGyrRange</span></code></p></td>
+<td><p>125/250/500/1000/2000 (dps)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set/get_{h,f}_imu_gyr</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PPGODR</span></code></p></td>
+<td><p>25/50/100/200/400 (Hz)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set/get_ppg_odr</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PPGChannelCount</span></code></p></td>
+<td><p>1–4</p></td>
+<td><p>Reported in <code class="docutils literal notranslate"><span class="pre">PpgStatus.channel_count</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BtCmdId</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SYSTEM</span></code>, <code class="docutils literal notranslate"><span class="pre">EMG</span></code>, <code class="docutils literal notranslate"><span class="pre">H_IMU</span></code>, <code class="docutils literal notranslate"><span class="pre">F_IMU</span></code>, <code class="docutils literal notranslate"><span class="pre">PPG</span></code>, <code class="docutils literal notranslate"><span class="pre">BAT</span></code>, <code class="docutils literal notranslate"><span class="pre">LED</span></code>, <code class="docutils literal notranslate"><span class="pre">BT_CTRL</span></code>, <code class="docutils literal notranslate"><span class="pre">TAP</span></code>, <code class="docutils literal notranslate"><span class="pre">STORAGE</span></code></p></td>
+<td><p>Identifying which subsystem a command-error is about</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BtCmdStatus</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OK</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_UNKNOWN</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_INVALID</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_BUSY</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_STATE</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_HARDWARE</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_INTERNAL</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_BT_NOT_READY</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_LICENSE</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_BLE_RATE</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_FILE_EXISTS</span></code>, <code class="docutils literal notranslate"><span class="pre">ERR_SD_WRITE</span></code></p></td>
+<td><p>Error codes on any failed command</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Every enum has <code class="docutils literal notranslate"><span class="pre">.value_int</span></code> and a static <code class="docutils literal notranslate"><span class="pre">.from_value(int)</span></code>; several also
+have <code class="docutils literal notranslate"><span class="pre">.description</span></code> (human-readable name) — use those rather than the raw
+<code class="docutils literal notranslate"><span class="pre">.value</span></code> for anything user-facing or logged.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="CONNECTION.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Mudra SDK — Connection Guide (Scan, BLE, CDC)</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="supported_devices.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Supported devices</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wearable Devices
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Mudra SDK — Usage Guide</a><ul>
+<li><a class="reference internal" href="#package-layout">1. Package layout</a></li>
+<li><a class="reference internal" href="#setup">2. Setup</a></li>
+<li><a class="reference internal" href="#core-architecture">3. Core architecture</a></li>
+<li><a class="reference internal" href="#minimal-end-to-end-example">4. Minimal end-to-end example</a></li>
+<li><a class="reference internal" href="#quick-reference-key-enums-mudra-sdk-models-enums">5. Quick reference — key enums (<code class="docutils literal notranslate"><span class="pre">mudra_sdk.models.enums</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=03f3338f"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/collapsible.js?v=6ff1e7b4"></script>
+    </body>
+</html>

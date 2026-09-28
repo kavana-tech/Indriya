@@ -1,0 +1,794 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Mudra SDK — Usage Guide" href="SDK_USAGE.html"><link rel="prev" title="Quickstart" href="getting_started.html">
+        <link rel="prefetch" href="_static/brand-logo-dark.svg" as="image">
+        <link rel="prefetch" href="_static/brand-logo.svg" as="image">
+
+    <link rel="shortcut icon" href="_static/brand-favicon.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Supported devices - Indriya 0.4.6</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/tokens.css?v=c2ff8f60" />
+    <link rel="stylesheet" type="text/css" href="_static/collapsible.css?v=9ff2bea0" />
+    <link rel="stylesheet" type="text/css" href="_static/examples.css?v=5bd11adc" />
+    <link rel="stylesheet" type="text/css" href="_static/led.css?v=91a52dbe" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #0d7d6e;
+  --color-brand-content: #0d7d6e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #5fd6cb;
+  --color-brand-content: #5fd6cb;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #5fd6cb;
+  --color-brand-content: #5fd6cb;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Indriya 0.4.6</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/brand-logo-dark.svg" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/brand-logo.svg" alt="Dark Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Quickstart</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Supported devices</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="SDK_USAGE.html">Mudra SDK — Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONNECTION.html">Mudra SDK — Connection Guide (Scan, BLE, CDC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SENSORS.html">Mudra SDK — Sensors Guide (Enable / Disable / Status / Config)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CALLBACKS.html">Mudra SDK — Callbacks Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AUTH.html">Mudra SDK — Account Sign-In &amp; Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_format.html">Data format</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Under the hood</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="native_library.html">Native library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/supported_devices.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="supported-devices">
+<h1>Supported devices<a class="headerlink" href="#supported-devices" title="Link to this heading">¶</a></h1>
+<p>The SDK supports two hardware models, both exposed as a shared
+<code class="docutils literal notranslate"><span class="pre">MudraDevice</span></code> API with a small set of model-specific extras:</p>
+<ul class="simple">
+<li><p><strong>Mudra Pro</strong> (<code class="docutils literal notranslate"><span class="pre">MudraPro</span></code>) — 3-channel EMG (ADS1293 AFE).</p></li>
+<li><p><strong>Mudra Ultimate</strong> (<code class="docutils literal notranslate"><span class="pre">MudraUltimate</span></code>) — 8-channel EMG (ADS1298 AFE).</p></li>
+</ul>
+<p>Every method common to both — connect/disconnect, sensor enable/disable,
+status, config, licensing, recording — is defined once on the shared
+<code class="docutils literal notranslate"><span class="pre">MudraDevice</span></code> base (<code class="docutils literal notranslate"><span class="pre">mudra_sdk/models/mudra_device.py</span></code>) and works identically
+on either model. <code class="docutils literal notranslate"><span class="pre">MudraPro</span></code>/<code class="docutils literal notranslate"><span class="pre">MudraUltimate</span></code> (<code class="docutils literal notranslate"><span class="pre">mudra_sdk/models/mudra_pro.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">mudra_sdk/models/mudra_ultimate.py</span></code>) only add what differs.</p>
+<section id="model-detection">
+<h2>Model detection<a class="headerlink" href="#model-detection" title="Link to this heading">¶</a></h2>
+<p>You never construct <code class="docutils literal notranslate"><span class="pre">MudraPro</span></code>/<code class="docutils literal notranslate"><span class="pre">MudraUltimate</span></code> directly — the SDK detects
+the model automatically (from the BLE advertised name, or the CDC device
+identity) both when a device is found via <code class="docutils literal notranslate"><span class="pre">scan_ble()</span></code>/<code class="docutils literal notranslate"><span class="pre">scan_cdc()</span></code> and via
+<code class="docutils literal notranslate"><span class="pre">get_connected_devices()</span></code>, and hands you back the right subclass. Check
+<code class="docutils literal notranslate"><span class="pre">device.MODEL</span></code> (a <code class="docutils literal notranslate"><span class="pre">MudraModel.PRO</span></code>/<code class="docutils literal notranslate"><span class="pre">MudraModel.ULTIMATE</span></code> value) if your code
+needs to branch on it — most callers don’t, since the shared API covers
+everything but the extras below.</p>
+</section>
+<section id="what-differs">
+<h2>What differs<a class="headerlink" href="#what-differs" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>Mudra Pro</p></th>
+<th class="head"><p>Mudra Ultimate</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>EMG channels</p></td>
+<td><p>3 (<code class="docutils literal notranslate"><span class="pre">EMG_CHANNEL_COUNT</span> <span class="pre">=</span> <span class="pre">3</span></code>)</p></td>
+<td><p>8 (<code class="docutils literal notranslate"><span class="pre">EMG_CHANNEL_COUNT</span> <span class="pre">=</span> <span class="pre">8</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EMG AFE</p></td>
+<td><p>ADS1293</p></td>
+<td><p>ADS1298</p></td>
+</tr>
+<tr class="row-even"><td><p>EMG ODR enum</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ProEMGODR</span></code> — 200/400/800/1600/2133/3200/4267/6400 Hz</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">UltimateEMGODR</span></code> — 500/1000/2000/4000 Hz</p></td>
+</tr>
+<tr class="row-odd"><td><p>Packet-loss test mode</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set_emg_test_mode</span></code> / <code class="docutils literal notranslate"><span class="pre">set_h_imu_test_mode</span></code> / <code class="docutils literal notranslate"><span class="pre">set_f_imu_test_mode</span></code> / <code class="docutils literal notranslate"><span class="pre">set_ppg_test_mode</span></code> — Pro-only firmware-side counter overlay per sensor (see <a class="reference internal" href="SENSORS.html#packet-loss-test-mode"><span class="std std-ref">SENSORS.md §4</span></a>)</p></td>
+<td><p>Not present — Ultimate has no equivalent</p></td>
+</tr>
+<tr class="row-even"><td><p>EMG bench self-test</p></td>
+<td><p>Not present</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">set_emg_test(mode)</span></code> (input-mux self-test: normal / test signal / inputs shorted / temp sensor / supply monitor), <code class="docutils literal notranslate"><span class="pre">set_emg_channel_mask(mask)</span></code>, <code class="docutils literal notranslate"><span class="pre">set_emg_rld(enable)</span></code>, <code class="docutils literal notranslate"><span class="pre">emg_isolate()</span></code> — see <code class="docutils literal notranslate"><span class="pre">mudra_sdk/models/mudra_ultimate.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Host clock-sync / link stats</p></td>
+<td><p>Not present</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">get_tsync()</span></code> (echoes the firmware’s 64-bit GRTC cycle counter), <code class="docutils literal notranslate"><span class="pre">get_linkstats()</span></code> (BLE notification-drop stats + connection params, BLE-only)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">device.EMG_ODR_ENUM</span></code> always points at the right enum for whichever model
+<code class="docutils literal notranslate"><span class="pre">device</span></code> actually is, so generic code can do
+<code class="docutils literal notranslate"><span class="pre">device.set_emg_odr(device.EMG_ODR_ENUM.&lt;value&gt;)</span></code> without an <code class="docutils literal notranslate"><span class="pre">isinstance</span></code>
+check.</p>
+</section>
+<section id="shared-sensors">
+<h2>Shared sensors<a class="headerlink" href="#shared-sensors" title="Link to this heading">¶</a></h2>
+<p>Both models expose the same four sensor streams, IMU/PPG config ranges, and
+license-gated feature set — see the
+<a class="reference internal" href="SDK_USAGE.html#quick-reference-key-enums-mudra-sdk-models-enums"><span class="std std-ref">key enums quick reference</span></a>
+for the full table (IMU ODR/accel/gyro ranges, PPG ODR/channel count, EMG
+resolution).</p>
+<p><code class="docutils literal notranslate"><span class="pre">Format</span></code>/<code class="docutils literal notranslate"><span class="pre">Bytes</span> <span class="pre">per</span> <span class="pre">sample</span></code> below describe the raw <strong>wire</strong> encoding (before
+the native parser scales it into the <code class="docutils literal notranslate"><span class="pre">samples:</span> <span class="pre">list[float]</span></code> your callback
+receives — see <a class="reference internal" href="data_format.html"><span class="std std-doc">data_format.md</span></a> for that shape). Both are
+runtime-configurable, so treat these as defaults, not fixed values.</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Sensor</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">FirmwareDataType</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">SensorTypes</span></code></p></th>
+<th class="head"><p>Format</p></th>
+<th class="head"><p>Bytes/sample</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>EMG</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">emg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">EMG</span></code></p></td>
+<td><p>channels × (i16 or i24), per <code class="docutils literal notranslate"><span class="pre">EmgRes</span></code></p></td>
+<td><p>6/9 B (Mudra Pro, 3 ch) · 16/24 B (Mudra Ultimate, 8 ch)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hand IMU</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">imuH</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">H_IMU</span></code></p></td>
+<td><p>6 × i16 (<code class="docutils literal notranslate"><span class="pre">ax,ay,az,gx,gy,gz</span></code>)</p></td>
+<td><p>12 B (fixed)</p></td>
+</tr>
+<tr class="row-even"><td><p>Finger IMU</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">imuF</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">F_IMU</span></code></p></td>
+<td><p>6 × i16 (<code class="docutils literal notranslate"><span class="pre">ax,ay,az,gx,gy,gz</span></code>)</p></td>
+<td><p>12 B (fixed)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PPG</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ppg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PPG</span></code></p></td>
+<td><p>channels × i24, per <code class="docutils literal notranslate"><span class="pre">channel_count</span></code></p></td>
+<td><p>3–12 B (1–4 channels)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="transports">
+<h2>Transports<a class="headerlink" href="#transports" title="Link to this heading">¶</a></h2>
+<p>Both models connect over either transport, unified behind the same API (see
+<a class="reference internal" href="CONNECTION.html"><span class="std std-doc">CONNECTION.md</span></a>):</p>
+<ul class="simple">
+<li><p><strong>BLE</strong> — advertised name containing <code class="docutils literal notranslate"><span class="pre">&quot;Mudra</span> <span class="pre">Pro&quot;</span></code> (both models share this
+advertising prefix; the model is disambiguated from other fields in the
+advertisement/GATT data, not the name alone).</p></li>
+<li><p><strong>USB-CDC</strong> — USB VID/PID <code class="docutils literal notranslate"><span class="pre">0x2FE3</span></code>/<code class="docutils literal notranslate"><span class="pre">0x0001</span></code>, two serial ports (<code class="docutils literal notranslate"><span class="pre">CONFIG</span></code> +
+<code class="docutils literal notranslate"><span class="pre">DATA</span></code>), disambiguated with a <code class="docutils literal notranslate"><span class="pre">CDC?</span></code> handshake.</p></li>
+</ul>
+</section>
+<section id="status-led">
+<h2>Status LED<a class="headerlink" href="#status-led" title="Link to this heading">¶</a></h2>
+<p>Both models drive a single RGB status LED through a <strong>priority-based state
+machine</strong> (<code class="docutils literal notranslate"><span class="pre">src/logic_layer/led_manager/</span></code> in each firmware repo). Several
+states can be active at once; the <strong>highest-priority active state owns the
+LED</strong>. This SDK doesn’t wrap it in a typed method — see
+<a class="reference internal" href="#controlling-it-raw-commands-only">“Controlling it”</a> below — so the table
+here is sourced directly from the firmware (<code class="docutils literal notranslate"><span class="pre">mudra_pro</span></code>/<code class="docutils literal notranslate"><span class="pre">mudra_ultimate</span></code>
+repos, <code class="docutils literal notranslate"><span class="pre">led_manager.h</span></code>/<code class="docutils literal notranslate"><span class="pre">.c</span></code>, branch <code class="docutils literal notranslate"><span class="pre">main</span></code>), not from this SDK’s own code.</p>
+<p>Brightness is capped at 10% of the PWM duty cycle; RGB below is <code class="docutils literal notranslate"><span class="pre">(R,</span> <span class="pre">G,</span> <span class="pre">B)</span></code>,
+each <code class="docutils literal notranslate"><span class="pre">0–100</span></code> as a percentage <em>of that cap</em> — <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">100,</span> <span class="pre">0)</span></code> is full-intensity
+green at the 10% ceiling, not the LED’s absolute maximum.</p>
+<section id="mudra-pro">
+<h3>Mudra Pro<a class="headerlink" href="#mudra-pro" title="Link to this heading">¶</a></h3>
+<p>Listed highest priority first:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>State</p></th>
+<th class="head"><p>ID</p></th>
+<th class="head"><p>Priority</p></th>
+<th class="head"><p>Color (R,G,B)</p></th>
+<th class="head"><p>Animation</p></th>
+<th class="head"><p>Shown when</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ERROR</span></code></p></td>
+<td><p>9</p></td>
+<td><p>255</p></td>
+<td><p>(100, 0, 0) red</p></td>
+<td><p>constant</p></td>
+<td><p>a fault is signalled</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DFU_ACTIVE</span></code></p></td>
+<td><p>10</p></td>
+<td><p>80</p></td>
+<td><p>(100, 0, 100) purple</p></td>
+<td><p>pulse</p></td>
+<td><p>a firmware update (MCUmgr/SMP) is uploading — see <a class="reference internal" href="CONNECTION.html#firmware-update-dfu-usb-only"><span class="std std-ref">CONNECTION.md §6</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">STARTUP</span></code></p></td>
+<td><p>1</p></td>
+<td><p>75</p></td>
+<td><p>(50, 100, 85) white</p></td>
+<td><p>one-shot fade</p></td>
+<td><p>boot (runs to completion before lower states)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BATTERY_FULL</span></code></p></td>
+<td><p>8</p></td>
+<td><p>70</p></td>
+<td><p>(0, 10, 100) blue+green</p></td>
+<td><p>constant</p></td>
+<td><p>charger attached, charge complete</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CHARGING</span></code></p></td>
+<td><p>7</p></td>
+<td><p>60</p></td>
+<td><p>(0, 10, 100) blue+green</p></td>
+<td><p>pulse</p></td>
+<td><p>charging</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">STREAMING</span></code></p></td>
+<td><p>6</p></td>
+<td><p>50</p></td>
+<td><p>(0, 100, 100) teal</p></td>
+<td><p>constant</p></td>
+<td><p>a sensor is streaming data</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SENSOR_ON</span></code></p></td>
+<td><p>5</p></td>
+<td><p>40</p></td>
+<td><p>(0, 100, 0) green</p></td>
+<td><p>constant</p></td>
+<td><p>a sensor is on but not streaming</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ADVERTISING</span></code></p></td>
+<td><p>4</p></td>
+<td><p>30</p></td>
+<td><p>(100, 100, 0) yellow</p></td>
+<td><p>pulse</p></td>
+<td><p>BLE advertising (not connected)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">IDLE</span></code></p></td>
+<td><p>3</p></td>
+<td><p>15</p></td>
+<td><p>(0, 100, 0) green</p></td>
+<td><p>pulse</p></td>
+<td><p>idle / connected, nothing active</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code></p></td>
+<td><p>2</p></td>
+<td><p>10</p></td>
+<td><p>caller-set</p></td>
+<td><p>const / pulse / blink / one-shot</p></td>
+<td><p>app drives it (see below)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="mudra-ultimate">
+<h3>Mudra Ultimate<a class="headerlink" href="#mudra-ultimate" title="Link to this heading">¶</a></h3>
+<p>Same state machine and priorities, <strong>except</strong>: no <code class="docutils literal notranslate"><span class="pre">DFU_ACTIVE</span></code> (this
+firmware has no DFU/MCUmgr LED hook), and what Mudra Pro calls a single
+<code class="docutils literal notranslate"><span class="pre">ERROR</span></code> state is split into two:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>State</p></th>
+<th class="head"><p>ID</p></th>
+<th class="head"><p>Priority</p></th>
+<th class="head"><p>Color (R,G,B)</p></th>
+<th class="head"><p>Animation</p></th>
+<th class="head"><p>Shown when</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CHARGE_FAULT</span></code></p></td>
+<td><p>9</p></td>
+<td><p>72</p></td>
+<td><p>(100, 0, 0) red</p></td>
+<td><p>constant</p></td>
+<td><p>charger attached but refusing to charge</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">BATTERY_LOW</span></code></p></td>
+<td><p>10</p></td>
+<td><p>55</p></td>
+<td><p>(100, 0, 0) red</p></td>
+<td><p>pulse</p></td>
+<td><p>battery SOC ≤ 15% (clears at ≥ 20%, hysteresis)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">CHARGE_FAULT</span></code> outranks <code class="docutils literal notranslate"><span class="pre">BATTERY_FULL</span></code> (70) so a refused charge can’t read
+as a finished one, but stays below <code class="docutils literal notranslate"><span class="pre">STARTUP</span></code> (75). <code class="docutils literal notranslate"><span class="pre">BATTERY_LOW</span></code> outranks
+<code class="docutils literal notranslate"><span class="pre">STREAMING</span></code> (50) so a capture that’s about to be cut short says so, but sits
+below <code class="docutils literal notranslate"><span class="pre">CHARGING</span></code>/<code class="docutils literal notranslate"><span class="pre">BATTERY_FULL</span></code> (60/70) — a charger being attached takes
+precedence over the low-battery warning, by construction of the priority
+table rather than a special case at every call site. Every other state
+(<code class="docutils literal notranslate"><span class="pre">STARTUP</span></code> 75, <code class="docutils literal notranslate"><span class="pre">BATTERY_FULL</span></code> 70, <code class="docutils literal notranslate"><span class="pre">CHARGING</span></code> 60, <code class="docutils literal notranslate"><span class="pre">STREAMING</span></code> 50,
+<code class="docutils literal notranslate"><span class="pre">SENSOR_ON</span></code> 40, <code class="docutils literal notranslate"><span class="pre">ADVERTISING</span></code> 30, <code class="docutils literal notranslate"><span class="pre">IDLE</span></code> 15, <code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code> 10) is identical to
+Mudra Pro’s table above, including IDs.</p>
+<p>Two pairs share a color on both models and differ only by animation +
+priority: <strong><code class="docutils literal notranslate"><span class="pre">CHARGING</span></code> vs <code class="docutils literal notranslate"><span class="pre">BATTERY_FULL</span></code></strong> (blue+green; pulse vs. constant)
+and <strong><code class="docutils literal notranslate"><span class="pre">IDLE</span></code> vs <code class="docutils literal notranslate"><span class="pre">SENSOR_ON</span></code></strong> (green; pulse vs. constant) — Mudra Ultimate
+adds a third, <strong><code class="docutils literal notranslate"><span class="pre">CHARGE_FAULT</span></code> vs <code class="docutils literal notranslate"><span class="pre">BATTERY_LOW</span></code></strong> (red; constant vs. pulse).</p>
+</section>
+<section id="controlling-it-raw-commands-only">
+<h3>Controlling it (raw commands only)<a class="headerlink" href="#controlling-it-raw-commands-only" title="Link to this heading">¶</a></h3>
+<p>This SDK exposes the LED only as raw, untyped commands — there’s no
+<code class="docutils literal notranslate"><span class="pre">MudraDevice.set_led(...)</span></code>/<code class="docutils literal notranslate"><span class="pre">get_led_state()</span></code> method. Send these via
+<code class="docutils literal notranslate"><span class="pre">send_command()</span></code>/<code class="docutils literal notranslate"><span class="pre">send_cdc_command()</span></code>
+(<a class="reference internal" href="CONNECTION.html#raw-advanced-commands"><span class="std std-ref">CONNECTION.md §4</span></a>) using the
+matching <code class="docutils literal notranslate"><span class="pre">ProFirmwareCommand</span></code>/<code class="docutils literal notranslate"><span class="pre">UltimateFirmwareCommand</span></code> member (<code class="docutils literal notranslate"><span class="pre">BT_CMD_LED</span></code>
+/ <code class="docutils literal notranslate"><span class="pre">0x60</span></code> on the wire):</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command</p></th>
+<th class="head"><p>CDC token</p></th>
+<th class="head"><p>Payload</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ledSetState</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LED_STATE</span></code></p></td>
+<td><p>1 byte: <code class="docutils literal notranslate"><span class="pre">state_id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">state_id</span></code> is the raw enum ordinal from the table above — any state can be forced this way, not just <code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ledClrState</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LED_CLR</span></code></p></td>
+<td><p>1 byte: <code class="docutils literal notranslate"><span class="pre">state_id</span></code></p></td>
+<td><p>Clears that state’s vote; another active state (or none) then shows</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ledRgb</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LED_RGB</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">r,</span> <span class="pre">g,</span> <span class="pre">b,</span> <span class="pre">anim</span></code> (4 bytes, each <code class="docutils literal notranslate"><span class="pre">0–100</span></code> / anim code)</p></td>
+<td><p>Sets <code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code>; firmware stashes every other currently-active state first so the custom color is actually visible, and restores them on <code class="docutils literal notranslate"><span class="pre">LED_OFF</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ledBlink</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LED_BLINK</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">r,</span> <span class="pre">g,</span> <span class="pre">b,</span> <span class="pre">count</span></code> (4 bytes; <code class="docutils literal notranslate"><span class="pre">count</span> <span class="pre">=</span> <span class="pre">0</span></code> is infinite)</p></td>
+<td><p>Same stash/restore behavior as <code class="docutils literal notranslate"><span class="pre">ledRgb</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ledOff</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LED_OFF</span></code></p></td>
+<td><p><em>(none)</em></p></td>
+<td><p>Clears <code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code> and restores whatever was stashed — pair every finite <code class="docutils literal notranslate"><span class="pre">ledBlink</span></code> with this, or the stashed states stay cleared</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ledGet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LED?</span></code></p></td>
+<td><p><em>(none)</em></p></td>
+<td><p>Replies with 1 byte: the <strong>currently displayed</strong> (highest-priority active) <code class="docutils literal notranslate"><span class="pre">state_id</span></code>, not necessarily whatever you last set</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="what-it-looks-like">
+<h3>What it looks like<a class="headerlink" href="#what-it-looks-like" title="Link to this heading">¶</a></h3>
+<p>Close-ups of the status LED in the states shared by both models — the
+renders are zoomed to the LED recess; the rest of the band is cropped away.
+Pulsing states animate. (<code class="docutils literal notranslate"><span class="pre">DFU_ACTIVE</span></code>, <code class="docutils literal notranslate"><span class="pre">CHARGE_FAULT</span></code>, and <code class="docutils literal notranslate"><span class="pre">BATTERY_LOW</span></code>
+have no photographed render yet; <code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code> has no fixed look, so it isn’t
+shown either.)</p>
+<div class="led-grid">
+  <figure class="led-card" style="--led:#ff3b30">
+    <img loading="lazy" src="_static/led_renders/closeups/Mudra_Pro_error.png"
+         alt="Status LED in the ERROR state: solid red">
+    <figcaption><span class="led-name">ERROR</span>
+      <span class="led-anim">constant</span></figcaption>
+  </figure>
+  <figure class="led-card" style="--led:#dfe9e4">
+    <img loading="lazy" src="_static/led_renders/closeups/Mudra_Pro_startup.png"
+         alt="Status LED in the STARTUP state: white fade at boot">
+    <figcaption><span class="led-name">STARTUP</span>
+      <span class="led-anim">fade</span></figcaption>
+  </figure>
+  <figure class="led-card" style="--led:#2f6bff">
+    <img loading="lazy" src="_static/led_renders/closeups/Mudra_Pro_battery_full.png"
+         alt="Status LED in the BATTERY_FULL state: constant blue with green">
+    <figcaption><span class="led-name">BATTERY_FULL</span>
+      <span class="led-anim">constant</span></figcaption>
+  </figure>
+  <figure class="led-card" style="--led:#2f6bff">
+    <img loading="lazy" src="_static/led_renders/closeups/Mudra_Pro_charging_pulse.gif"
+         alt="Status LED in the CHARGING state: pulsing blue with green">
+    <figcaption><span class="led-name">CHARGING</span>
+      <span class="led-anim led-anim--pulse">pulse</span></figcaption>
+  </figure>
+  <figure class="led-card" style="--led:#14b8b8">
+    <img loading="lazy" src="_static/led_renders/closeups/Mudra_Pro_streaming.png"
+         alt="Status LED in the STREAMING state: constant teal">
+    <figcaption><span class="led-name">STREAMING</span>
+      <span class="led-anim">constant</span></figcaption>
+  </figure>
+  <figure class="led-card" style="--led:#22c55e">
+    <img loading="lazy" src="_static/led_renders/closeups/Mudra_Pro_sensor_on.png"
+         alt="Status LED in the SENSOR_ON state: constant green">
+    <figcaption><span class="led-name">SENSOR_ON</span>
+      <span class="led-anim">constant</span></figcaption>
+  </figure>
+  <figure class="led-card" style="--led:#d9a400">
+    <img loading="lazy" src="_static/led_renders/closeups/Mudra_Pro_advertising_pulse.gif"
+         alt="Status LED in the ADVERTISING state: pulsing yellow">
+    <figcaption><span class="led-name">ADVERTISING</span>
+      <span class="led-anim led-anim--pulse">pulse</span></figcaption>
+  </figure>
+  <figure class="led-card" style="--led:#22c55e">
+    <img loading="lazy" src="_static/led_renders/closeups/Mudra_Pro_idle_pulse.gif"
+         alt="Status LED in the IDLE state: pulsing green">
+    <figcaption><span class="led-name">IDLE</span>
+      <span class="led-anim led-anim--pulse">pulse</span></figcaption>
+  </figure>
+</div><p>The swatch dots are indicative; the precise per-channel values are in the
+tables above.</p>
+<p>If you need the specific <code class="docutils literal notranslate"><span class="pre">state_id</span></code>/<code class="docutils literal notranslate"><span class="pre">anim</span></code> value meanings (e.g. an
+“advertising” or “charging” state), they live in this device’s firmware
+source, outside this repo — nothing here documents them. Treat the table
+above as the full extent of what’s verified: the command surface exists,
+its semantics don’t ship with this SDK.</p>
+</section>
+</section>
+<section id="license-tiers">
+<h2>License tiers<a class="headerlink" href="#license-tiers" title="Link to this heading">¶</a></h2>
+<p>Every device enforces a capability tier — <strong><code class="docutils literal notranslate"><span class="pre">FREE</span></code></strong>, <strong><code class="docutils literal notranslate"><span class="pre">PLUS</span></code></strong>, <strong><code class="docutils literal notranslate"><span class="pre">PRO</span></code></strong>
+(<code class="docutils literal notranslate"><span class="pre">LicenseTier</span></code> in <code class="docutils literal notranslate"><span class="pre">mudra_sdk.models.enums</span></code>) — via a signed token, independent
+of hardware model:</p>
+<ul class="simple">
+<li><p>Higher tiers unlock faster ODRs, wider EMG resolution, and extra ranges.</p></li>
+<li><p>SD-card recording (<a class="reference internal" href="SENSORS.html#sd-card-recording-ble-only"><span class="std std-ref">SENSORS.md §5</span></a>)
+requires <strong><code class="docutils literal notranslate"><span class="pre">PRO</span></code></strong> specifically — starting a recording on <code class="docutils literal notranslate"><span class="pre">FREE</span></code>/<code class="docutils literal notranslate"><span class="pre">PLUS</span></code> is
+rejected with <code class="docutils literal notranslate"><span class="pre">BtCmdStatus.ERR_LICENSE</span></code>.</p></li>
+</ul>
+<p>See <a class="reference internal" href="AUTH.html"><span class="std std-doc">AUTH.md</span></a> for how a tier gets onto a device in the first place —
+connecting never requires an account, but reaching anything above <code class="docutils literal notranslate"><span class="pre">FREE</span></code>
+usually does.</p>
+</section>
+<section id="platform-support-host-side">
+<h2>Platform support (host side)<a class="headerlink" href="#platform-support-host-side" title="Link to this heading">¶</a></h2>
+<p>The native <code class="docutils literal notranslate"><span class="pre">MudraSDK</span></code> library ships prebuilt for:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Platform</p></th>
+<th class="head"><p>Architectures</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Windows</p></td>
+<td><p>x64, x86</p></td>
+</tr>
+<tr class="row-odd"><td><p>macOS</p></td>
+<td><p>arm64, x86_64</p></td>
+</tr>
+<tr class="row-even"><td><p>Linux</p></td>
+<td><p>x86_64, aarch64</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>See <a class="reference internal" href="native_library.html"><span class="std std-doc">native_library.md</span></a> for how these are built and what
+happens if one is missing for your platform.</p>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="SDK_USAGE.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Mudra SDK — Usage Guide</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="getting_started.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Quickstart</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wearable Devices
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Supported devices</a><ul>
+<li><a class="reference internal" href="#model-detection">Model detection</a></li>
+<li><a class="reference internal" href="#what-differs">What differs</a></li>
+<li><a class="reference internal" href="#shared-sensors">Shared sensors</a></li>
+<li><a class="reference internal" href="#transports">Transports</a></li>
+<li><a class="reference internal" href="#status-led">Status LED</a><ul>
+<li><a class="reference internal" href="#mudra-pro">Mudra Pro</a></li>
+<li><a class="reference internal" href="#mudra-ultimate">Mudra Ultimate</a></li>
+<li><a class="reference internal" href="#controlling-it-raw-commands-only">Controlling it (raw commands only)</a></li>
+<li><a class="reference internal" href="#what-it-looks-like">What it looks like</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#license-tiers">License tiers</a></li>
+<li><a class="reference internal" href="#platform-support-host-side">Platform support (host side)</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=03f3338f"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/collapsible.js?v=6ff1e7b4"></script>
+    </body>
+</html>
