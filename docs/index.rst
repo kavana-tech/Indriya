@@ -1,5 +1,5 @@
-Mudra Pro SDK
-=============
+Indriya
+=======
 
 The **Mudra SDK** (``mudra_sdk``) is a Python library for the **Mudra Pro** and
 **Mudra Ultimate** wrist-worn sensor devices by Wearable Devices. It presents

@@ -1,4 +1,4 @@
-# AGENTS.md — Mudra Pro SDK
+# AGENTS.md — Indriya
 
 Instructions for AI coding agents working in, or on top of, this SDK. Humans want
 [`README.md`](README.md) and [`docs/SDK_USAGE.md`](docs/SDK_USAGE.md) instead.
@@ -72,4 +72,4 @@ The next session to connect will find it still on.
 
 - Doc index: **[`docs/DOCS_MAP.md`](docs/DOCS_MAP.md)** · Repo landing: **[`README.md`](README.md)**
 - Sign-in & licensing reference: **[`docs/AUTH.md`](docs/AUTH.md)**
-- Docs site (built from these same docs): **[wearable-devices.github.io/mudra_pro_sdk](https://wearable-devices.github.io/mudra_pro_sdk/)**
+- Docs site (built from these same docs): **[kavana-tech.github.io/Indriya](https://kavana-tech.github.io/Indriya/)**

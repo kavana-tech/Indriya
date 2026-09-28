@@ -1,12 +1,12 @@
 <img src="docs/_static/brand-logo.svg" alt="Mudra" height="44">
 
-# Mudra Pro SDK — mudra_pro_sdk
+# Indriya
 
 Python SDK for the **Mudra Pro** and **Mudra Ultimate** wrist-worn sensor devices —
 one unified, `asyncio`-based API over two transports (**BLE** and **USB-CDC**) for
 four sensor streams, SD-card recording, firmware update, and account sign-in/licensing.
 
-📖 **Docs site: [wearable-devices.github.io/mudra_pro_sdk](https://wearable-devices.github.io/mudra_pro_sdk/)**
+📖 **Docs site: [kavana-tech.github.io/Indriya](https://kavana-tech.github.io/Indriya/)**
 — installation, quickstart, guides, and the full API reference, built from the same
 `docs/*.md` files linked below.
 
@@ -46,5 +46,5 @@ SD-card recording (**`PRO`** tier, BLE only) — see
   other coding agents/bots integrating against this SDK, not just humans.
 - **Sign-in & licensing:** [docs/AUTH.md](docs/AUTH.md).
 - **Examples:** two runnable reference apps under [`examples/`](examples/) — see the
-  [docs site's examples page](https://wearable-devices.github.io/mudra_pro_sdk/examples.html).
+  [docs site's examples page](https://kavana-tech.github.io/Indriya/examples.html).
 - **What changed, release by release:** [CHANGELOG.md](CHANGELOG.md).
