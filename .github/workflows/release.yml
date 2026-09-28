@@ -1,0 +1,69 @@
+name: Publish release
+
+# On a push to main that lands a new version (i.e. a merged release PR),
+# creates a GitHub Release -- and its tag -- for the version in
+# mudra_sdk/__init__.py, with that version's CHANGELOG.md section as notes.
+# Also creates releases for any existing version tags that don't have one yet
+# (backfill). Versions that already have a release are left alone.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mudra_sdk/__init__.py"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Create releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          current=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' mudra_sdk/__init__.py)
+          versions=$( (git tag -l; echo "$current") | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -uV)
+          highest=$(echo "$versions" | tail -n 1)
+
+          for v in $versions; do
+            if gh release view "$v" > /dev/null 2>&1; then
+              echo "Release $v already exists."
+              continue
+            fi
+
+            # An existing tag keeps its commit; the current version is tagged here.
+            if git rev-parse -q --verify "refs/tags/$v" > /dev/null; then
+              target=$(git rev-list -n 1 "$v")
+            elif [ "$v" = "$current" ]; then
+              target=$GITHUB_SHA
+            else
+              continue
+            fi
+
+            awk -v v="$v" '
+              index($0, "## [" v "]") == 1 { on = 1; next }
+              on && /^## \[/ { exit }
+              on { print }
+            ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+            grep -q '[^[:space:]]' "$RUNNER_TEMP/notes.md" || echo "Release $v." > "$RUNNER_TEMP/notes.md"
+
+            # Only the highest version is "Latest" -- a backfilled older one isn't.
+            [ "$v" = "$highest" ] && latest=true || latest=false
+            echo "Creating release $v at $target (latest=$latest)"
+            gh release create "$v" --target "$target" --title "$v" \
+              --notes-file "$RUNNER_TEMP/notes.md" --latest="$latest"
+          done
