@@ -19,6 +19,7 @@ This guide is split into focused pages:
 | **[AUTH.md](AUTH.md)** | Account sign-in and device licensing — **read this before building an app**, not just a script |
 | **[SENSORS.md](SENSORS.md)** | Enabling/disabling sensor streams, querying/configuring status (ODR, resolution, ranges), packet-loss test mode, SD card recording |
 | **[CALLBACKS.md](CALLBACKS.md)** | Every callback in the SDK — the global `MudraDelegate` and all per-device `set_on_*` callbacks — with signatures and firing conditions |
+| **[LSL.md](LSL.md)** | Lab Streaming Layer integration — publishing a device's sensors as LSL streams (`mudra_sdk.lsl.MudraLslBridge`, `examples/lsl_app.py`) |
 
 ---
 
@@ -38,6 +39,7 @@ mudra_sdk/
     ble_service.py        BLE transport (bleak) — scanning, GATT, notifications
     cdc_service.py         CDC transport (pyserial) — USB serial scanning, ASCII protocol
     dfu_service.py         Firmware update (MCUmgr/SMP over a third USB-CDC port) — USB only
+  lsl/                    Optional Lab Streaming Layer publisher (MudraLslBridge) — see LSL.md
   libs/                   Native MudraSDK shared library (.dll/.so/.dylib), loaded via ctypes
 ```
 

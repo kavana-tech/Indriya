@@ -43,3 +43,19 @@ every panel maps to one guide page:
 
 `delegate.py` is the reference `MudraDelegate` implementation — a good
 template for your own ([CALLBACKS.md §1](CALLBACKS.md#1-mudradelegate-global-one-per-process)).
+
+## Headless: stream to Lab Streaming Layer
+
+Not a GUI, but the second runnable entry point — `python examples/lsl_app.py`
+(a launcher over the `examples/mudra_lsl/` package, same shape as the app
+above) finds a device, connects, and publishes its sensors as LSL streams until
+stopped, so LabRecorder or any `pylsl` consumer can record them time-aligned
+with other instruments:
+
+```
+pip install -r examples/requirements.txt      # includes pylsl
+python examples/lsl_app.py --name 48-25 --sensors emg imu_hand --duration 60
+```
+
+See [LSL.md](LSL.md) for the options and for the library API
+(`MudraLslBridge`) behind it.

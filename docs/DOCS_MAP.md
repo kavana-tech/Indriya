@@ -15,6 +15,7 @@
 | **[`AGENTS.md`](../AGENTS.md)** | Agent entry point: **Rule 0** (sign in → provision the device before assuming a tier) and a signpost to the rest. Auto-loaded by most coding agents, so it's the first thing a downstream project's agent reads. |
 | **[`docs/SDK_USAGE.md`](SDK_USAGE.md)** | The main usage guide: package layout, setup, core architecture, a minimal end-to-end example. Links out to every page below. |
 | **[`CHANGELOG.md`](../CHANGELOG.md)** | What changed, release by release. |
+| **[`supported_firmware.json`](../supported_firmware.json)** | The one firmware version per model this SDK version supports. Single source for the "Firmware compatibility" statements in `README.md`, `AGENTS.md`, `docs/installation.md` and `docs/supported_devices.md` (generated blocks — see the root `CLAUDE.md`). |
 | **[Docs site](https://kavana-tech.github.io/Indriya/)** | Everything below, published as a browsable Sphinx site (installation, quickstart, API reference). Built from these same files. |
 
 ## SDK usage guide (`docs/`)
@@ -26,6 +27,7 @@
 | **[`CONNECTION.md`](CONNECTION.md)** | Scanning, connecting/disconnecting over BLE and CDC, ping, licensing/account sign-in (short version — see `AUTH.md` for the full one), raw/advanced commands, firmware update (DFU). |
 | **[`SENSORS.md`](SENSORS.md)** | Enabling/disabling sensor streams, querying/configuring status (ODR, resolution, ranges), packet-loss test mode, SD card recording. |
 | **[`CALLBACKS.md`](CALLBACKS.md)** | Every callback in the SDK — the global `MudraDelegate` and all per-device `set_on_*` callbacks — with signatures and firing conditions. |
+| **[`LSL.md`](LSL.md)** | Lab Streaming Layer integration (`mudra_sdk.lsl`): publish a connected Pro/Ultimate device's sensors as LSL streams via `MudraLslBridge` or the `examples/lsl_app.py` CLI — stream layout, device-clock timestamps, reconfiguring and reconnecting, multiple devices. |
 
 ## Native library (`mudra_sdk/core/`, `mudra_sdk/libs/`)
 
@@ -39,6 +41,7 @@
 | Doc | What it is |
 | --- | --- |
 | `examples/connect_app.py` / `examples/mudra_connect/` | The full reference app (scan, connect, sensors, recording, auth) that every code snippet in `docs/SDK_USAGE.md` and its sub-pages is taken from. No separate README — the module docstrings and `docs/SDK_USAGE.md` are the guide. |
+| `examples/lsl_app.py` / `examples/mudra_lsl/` | Headless command-line streamer: scan, optionally sign in, connect, optionally change sensor ODRs, and publish the sensors to Lab Streaming Layer until stopped. Guide: [`docs/LSL.md`](LSL.md) §2. |
 
 ---
 
