@@ -3,3 +3,8 @@
 -r ../mudra_sdk/requirements.txt
 
 matplotlib
+
+# Lab Streaming Layer streamer (lsl_app.py) - also what mudra_sdk.lsl needs.
+# liblsl ships inside the pylsl wheels on Windows/macOS; on Linux install it
+# separately (distro package or github.com/sccn/liblsl/releases).
+pylsl>=1.16

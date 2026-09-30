@@ -75,4 +75,5 @@ A few things worth knowing before you build on this:
 - [Connection guide](CONNECTION.md) — scanning, connect/disconnect, ping, raw commands, firmware update.
 - [Sensors guide](SENSORS.md) — enabling streams, status/config, packet-loss test mode, SD recording.
 - [Callbacks reference](CALLBACKS.md) — every callback in the SDK.
+- [Lab Streaming Layer guide](LSL.md) — publish a device's sensors to LSL for LabRecorder and other consumers.
 - [Examples](examples.md) — two full runnable reference apps.

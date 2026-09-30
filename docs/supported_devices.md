@@ -22,6 +22,35 @@ identity) both when a device is found via `scan_ble()`/`scan_cdc()` and via
 needs to branch on it — most callers don't, since the shared API covers
 everything but the extras below.
 
+## Firmware compatibility
+
+<!-- firmware-versions:table -->
+
+This SDK version (**0.4.8**) supports:
+
+| Model | Firmware |
+|---|---|
+| Mudra Pro | 2.0.2.5 |
+| Mudra Ultimate | 1.0.3.7 |
+
+<!-- /firmware-versions -->
+
+Keep your devices on these versions — other firmware versions aren't
+supported by this SDK release. The same versions are available
+programmatically in `supported_firmware.json` at the root of the SDK.
+
+Versions are written the way the SDK reports them: `major.minor.patch.build`.
+To read a device's version, call `await device.get_firmware_version()`; the
+reply arrives through the `set_on_firmware_version_received` callback, and
+afterwards `device.get_firmware_version_info().version_string` returns it
+(e.g. `"2.0.2.5"`). Update a device's firmware over USB with the SDK's DFU
+support — see [CONNECTION.md §6](CONNECTION.md#6-firmware-update-dfu-usb-only).
+
+**No finger IMU on Mudra Pro** — Mudra Pro firmware has no finger (ring)
+IMU: those pins are used by the SD-card slot. Enabling the finger IMU
+(`F_IMU`) or querying its status reports `BtCmdStatus.ERR_STATE` through the
+command-error callback instead of streaming.
+
 ## What differs
 
 | | Mudra Pro | Mudra Ultimate |

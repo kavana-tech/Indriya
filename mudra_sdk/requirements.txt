@@ -3,3 +3,10 @@ pyserial
 requests
 urllib3
 smpclient
+
+# Optional: only the Lab Streaming Layer publisher (mudra_sdk.lsl) uses it, and
+# imports it lazily when a MudraLslBridge is started. Install with
+# `pip install pylsl` (examples/requirements.txt includes it). liblsl ships
+# inside the pylsl wheels on Windows/macOS; on Linux install it separately
+# (distro package or https://github.com/sccn/liblsl/releases).
+# pylsl>=1.16
