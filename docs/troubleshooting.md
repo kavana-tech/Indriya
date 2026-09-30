@@ -91,6 +91,28 @@ work; only binary sensor-data parsing and packet-loss stats are affected.
 
 See [CONNECTION.md §6](CONNECTION.md#6-firmware-update-dfu-usb-only).
 
+## LSL consumers can't see the streams
+
+`MudraLslBridge.start()` returned and `bridge.streams` lists the streams, but
+LabRecorder / `pylsl.resolve_streams()` on another machine shows nothing:
+
+- **Firewall / several network interfaces.** `liblsl` finds streams over UDP
+  multicast and sends data over TCP — both must be allowed, on the interface
+  that actually reaches the other machine. This is by far the most common
+  cause and has nothing to do with the bridge. Check on the publishing
+  machine first (`python -c "import pylsl; print(pylsl.resolve_streams(2.0))"`).
+- **`ImportError: mudra_sdk.lsl needs pylsl`** — install the optional
+  dependency: `pip install pylsl`. On Linux, also install `liblsl` itself.
+- **`RuntimeError: none of the requested sensors reported status`** — you
+  started the bridge before the device was ready; wait for
+  `on_mudra_device_connected` (see "Sensor data never arrives" above).
+- **A stream went quiet after you registered your own callback** — the
+  bridge uses the `set_on_*_ready` slot of every sensor it publishes; read
+  the samples back from LSL instead. See [LSL.md §4](LSL.md#4-the-bridge-turns-sensors-on-and-off).
+- **Streams went quiet after the device reconnected** — a disconnect clears
+  the bridge's callbacks; call `bridge.start()` again. See
+  [LSL.md §6](LSL.md#6-changing-configuration-and-reconnecting).
+
 ## `bleak`/`smpclient` import errors when installing
 
 `bleak` is pinned to the [wearable-devices fork's](https://github.com/wearable-devices/bleak)

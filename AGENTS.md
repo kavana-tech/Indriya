@@ -57,6 +57,22 @@ The next session to connect will find it still on.
 
 👉 Details: [`docs/SENSORS.md`](docs/SENSORS.md#turning-sensors-off-is-the-apps-job).
 
+## Supported firmware
+
+<!-- firmware-versions:sentence -->
+
+This SDK version (**0.4.8**) supports Mudra Pro firmware **2.0.2.5** and Mudra Ultimate firmware **1.0.3.7**.
+
+<!-- /firmware-versions -->
+
+Each SDK release supports exactly one firmware version per model — there's no minimum
+version or range. If a device misbehaves, check its firmware first
+(`device.get_firmware_version_info().version_string` after
+`await device.get_firmware_version()`). Need the versions in code? Read
+[`supported_firmware.json`](supported_firmware.json) rather than hardcoding them.
+
+👉 Details: [`docs/supported_devices.md`](docs/supported_devices.md#firmware-compatibility).
+
 ## Where the rest lives
 
 | Need | Read |
@@ -67,6 +83,7 @@ The next session to connect will find it still on.
 | Scanning/connecting (BLE + CDC), firmware update (DFU) | [`docs/CONNECTION.md`](docs/CONNECTION.md) |
 | Sensor streams, status/config, SD recording | [`docs/SENSORS.md`](docs/SENSORS.md) |
 | Every callback in the SDK | [`docs/CALLBACKS.md`](docs/CALLBACKS.md) |
+| Publishing sensors to Lab Streaming Layer (`mudra_sdk.lsl`) | [`docs/LSL.md`](docs/LSL.md) |
 
 ## Related documentation
 

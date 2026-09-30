@@ -78,6 +78,7 @@ Pick your path
    CONNECTION
    SENSORS
    CALLBACKS
+   LSL
    AUTH
    examples
 

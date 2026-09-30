@@ -30,11 +30,29 @@ What that installs, and why:
 - **`requests`** / **`urllib3`** — the cloud client behind `mudra_sdk.auth` (sign-in, license token fetch).
 - **`smpclient`** — firmware update (DFU) over USB-CDC via MCUmgr/SMP.
 
+Your device also needs the firmware this SDK release supports:
+
+<!-- firmware-versions:sentence -->
+
+This SDK version (**0.4.8**) supports Mudra Pro firmware **2.0.2.5** and Mudra Ultimate firmware **1.0.3.7**.
+
+<!-- /firmware-versions -->
+
+See [Firmware compatibility](supported_devices.md#firmware-compatibility).
+
 If you're also running the reference GUI app, install its extra
 dependencies too (this pulls in `mudra_sdk/requirements.txt` transitively):
 
 ```bash
 pip install -r examples/requirements.txt   # adds matplotlib
+```
+
+To publish sensor streams onto the Lab Streaming Layer (`mudra_sdk.lsl`,
+[LSL.md](LSL.md)), install the optional `pylsl` dependency — nothing else in
+the SDK needs it:
+
+```bash
+pip install pylsl   # liblsl ships in the Windows/macOS wheels; examples/requirements.txt includes it
 ```
 
 ## The native library

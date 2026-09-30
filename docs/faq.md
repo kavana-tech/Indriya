@@ -50,6 +50,14 @@ native `MudraSDK` library is missing for your platform. Everything except
 binary sensor-data parsing and packet-loss statistics still works. See
 [native_library.md](native_library.md).
 
+## Can I record Mudra data with LabRecorder / alongside an EEG system?
+
+Yes — `mudra_sdk.lsl` publishes each sensor as a Lab Streaming Layer stream,
+timestamped from the device's own clock, so LabRecorder (or any LSL consumer)
+records it time-aligned with everything else on the network. It takes one
+line of code (`async with MudraLslBridge(device): ...`), or none at all
+(`python examples/lsl_app.py`). `pylsl` is an optional extra. See [LSL.md](LSL.md).
+
 ## Is there a PyPI package?
 
 Not yet — add the repo root to `sys.path` and `import mudra_sdk` directly.

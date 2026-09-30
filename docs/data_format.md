@@ -56,8 +56,11 @@ never see raw ADC/register counts:
 
 The other three callback arguments, per package (not per individual sample):
 
-- **`timestamp`** — the package's last-sample device clock reading
-  (`ts_cyc`, GRTC-backed, 64-bit, no rollover). A device clock value, not a
+- **`timestamp`** — the device clock reading for the package's **first**
+  sample (`ts_cyc`, GRTC-backed, 64-bit, no rollover). Measured on Mudra Pro
+  fw 2.0.2.0 and Mudra Ultimate fw 1.0.3.0: where package sizes vary,
+  consecutive stamps differ by the *previous* package's sample count × the
+  sample period. A device clock value, not a
   host wall-clock time — don't compare it directly against
   `time.time()`/`time.perf_counter()`.
 - **`frequency`** — **packages per second** observed over roughly the last

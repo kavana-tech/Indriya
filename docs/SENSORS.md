@@ -59,6 +59,13 @@ still wanting that stream) and only then sends the firmware enable/disable
 command over BLE or the `<SENSOR>_ON`/`<SENSOR>_OFF` CDC token — you don't
 send power commands directly.
 
+Each sensor has exactly **one** callback slot — a second `set_on_<sensor>_ready`
+call replaces the first, it doesn't add a listener. If a
+[`MudraLslBridge`](LSL.md) is publishing a sensor, it already uses that slot:
+registering your own callback would replace the bridge's and silence its
+stream — read the samples back from LSL instead
+([LSL.md §4](LSL.md#4-the-bridge-turns-sensors-on-and-off)).
+
 ### Turning sensors off is the app's job
 
 Enabling a sensor powers it on **on the device**, not just in your process.
