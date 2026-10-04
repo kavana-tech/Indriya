@@ -1,0 +1,138 @@
+/* Shared design tokens for the Indriya docs.
+ *
+ * This is the single source of truth for the custom-component palette used by
+ * examples.css (.ex-*), auth.css (.mp-*), led.css (.led-*) and collapsible.css.
+ * Loaded first (see conf.py html_css_files), it sits ON TOP of Furo's own theme
+ * variables: the surface/text tokens *reference* Furo's --color-* vars, so every
+ * card, panel, gallery tile and flow step flips with the light/dark toggle for
+ * free instead of rendering white-on-dark. Only the brand accents and the tier /
+ * gate tints carry concrete values, with explicit dark-mode overrides below.
+ *
+ * Brand colour comes from the logo's teal->blue gradient (#B1F2EF -> #76A1DF).
+ * The brand teal proper (--color-brand-primary) is set in conf.py to a deepened
+ * ~#0d7d6e in light (link text clears 4.5:1 on white) and a lighter ~#5fd6cb in
+ * dark; --ex-teal tracks it, so the ▸ glyphs, connectors and icon chips stay on
+ * brand in both themes. */
+
+:root {
+  --ex-mono: "Cascadia Code", "SF Mono", Consolas, "Liberation Mono", monospace;
+
+  /* ── Surfaces & text — track Furo so light AND dark resolve automatically ── */
+  --ex-ink: var(--color-foreground-primary);
+  --ex-muted: var(--color-foreground-secondary);
+  --ex-faint: var(--color-foreground-muted);
+  --ex-border: var(--color-background-border);
+  --ex-border-strong: var(--color-foreground-border);
+  --ex-surface: var(--color-background-secondary);
+  --ex-surface-2: var(--color-background-secondary);
+  --ex-card: var(--color-background-primary);
+
+  /* Brand teal (links, glyphs, connectors) follows Furo's brand var. */
+  --ex-teal: var(--color-brand-primary);
+  /* Muted "schematic ink" for the ASCII signal-flow diagrams. */
+  --ex-schematic: var(--color-foreground-secondary);
+
+  /* Card / panel elevation. Decomposed so dark mode can swap the base hue. */
+  --ex-shadow-rgb: 16, 24, 40;
+
+  /* ── Accent tints — light mode ─────────────────────────────────────────── */
+  /* Teal sign-in gate + step icons. */
+  --mp-teal-tint: #e7f3f1;
+  --mp-teal-border: #c4e3dd;
+  /* Indigo tier gate — set apart from the teal sign-in gate. */
+  --mp-indigo: #4338ca;
+  --mp-indigo-tint: #ecebfc;
+  --mp-indigo-border: #d6d3f7;
+
+  /* ── License-tier badges — light mode (each pair clears 4.5:1 on its tint) ─ */
+  --tier-free-ink: #1a7f5e;
+  --tier-free-bg: #e7f5ef;
+  --tier-free-border: #c4e7d8;
+  --tier-plus-ink: #1c5fc4;
+  --tier-plus-bg: #e8f0fe;
+  --tier-plus-border: #cadbfb;
+  --tier-pro-ink: #4338ca;
+  --tier-pro-bg: #ecebfc;
+  --tier-pro-border: #d6d3f7;
+}
+
+/* ── Dark-mode overrides ─────────────────────────────────────────────────────
+ * Furo applies its dark palette both via an explicit toggle ([data-theme="dark"])
+ * and, when the theme is "auto", via prefers-color-scheme. Mirror both so the
+ * accent tints and tier badges track the toggle exactly like the base surfaces.
+ * The accent tints become translucent washes of the accent colour (legible on a
+ * dark surface), and tier text shifts to the light end of each hue. */
+@media (prefers-color-scheme: dark) {
+  body:not([data-theme="light"]) {
+    --ex-shadow-rgb: 0, 0, 0;
+
+    --mp-teal-tint: rgba(95, 214, 203, 0.14);
+    --mp-teal-border: rgba(95, 214, 203, 0.34);
+    --mp-indigo: #b3aef5;
+    --mp-indigo-tint: rgba(125, 116, 240, 0.18);
+    --mp-indigo-border: rgba(125, 116, 240, 0.38);
+
+    --tier-free-ink: #7fe0b8;
+    --tier-free-bg: rgba(26, 127, 94, 0.18);
+    --tier-free-border: rgba(26, 127, 94, 0.42);
+    --tier-plus-ink: #8fb8ff;
+    --tier-plus-bg: rgba(28, 95, 196, 0.2);
+    --tier-plus-border: rgba(28, 95, 196, 0.44);
+    --tier-pro-ink: #b3aef5;
+    --tier-pro-bg: rgba(99, 91, 226, 0.24);
+    --tier-pro-border: rgba(99, 91, 226, 0.46);
+  }
+}
+
+body[data-theme="dark"] {
+  --ex-shadow-rgb: 0, 0, 0;
+
+  --mp-teal-tint: rgba(95, 214, 203, 0.14);
+  --mp-teal-border: rgba(95, 214, 203, 0.34);
+  --mp-indigo: #b3aef5;
+  --mp-indigo-tint: rgba(125, 116, 240, 0.18);
+  --mp-indigo-border: rgba(125, 116, 240, 0.38);
+
+  --tier-free-ink: #7fe0b8;
+  --tier-free-bg: rgba(26, 127, 94, 0.18);
+  --tier-free-border: rgba(26, 127, 94, 0.42);
+  --tier-plus-ink: #8fb8ff;
+  --tier-plus-bg: rgba(28, 95, 196, 0.2);
+  --tier-plus-border: rgba(28, 95, 196, 0.44);
+  --tier-pro-ink: #b3aef5;
+  --tier-pro-bg: rgba(99, 91, 226, 0.24);
+  --tier-pro-border: rgba(99, 91, 226, 0.46);
+}
+
+/* ── Furo chrome: make the light/dark switch discoverable ────────────────────
+ * Furo renders the theme toggle as a bare, unlabelled icon (top-right of the
+ * content on desktop, in the bar on mobile) that readers routinely miss. Give
+ * it a pill-button affordance and an on-brand icon colour so the
+ * light / dark / auto switch reads clearly as a control. Loaded after Furo's
+ * own CSS, so these win at equal specificity without !important. */
+.theme-toggle {
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  border-radius: 999px;
+  border: 1px solid var(--color-background-border);
+  background: var(--color-background-secondary);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--color-background-hover);
+  border-color: var(--color-foreground-border);
+}
+
+.theme-toggle svg {
+  color: var(--color-brand-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle {
+    transition: none;
+  }
+}

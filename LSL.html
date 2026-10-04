@@ -1,0 +1,684 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Mudra SDK — Account Sign-In &amp; Licensing" href="AUTH.html"><link rel="prev" title="Mudra SDK — Callbacks Reference" href="CALLBACKS.html">
+        <link rel="prefetch" href="_static/brand-logo-dark.svg" as="image">
+        <link rel="prefetch" href="_static/brand-logo.svg" as="image">
+
+    <link rel="shortcut icon" href="_static/brand-favicon.svg"><!-- Generated with Sphinx 9.1.0 and Furo 2025.12.19 -->
+        <title>Mudra SDK — Lab Streaming Layer (LSL) Guide - Indriya 0.4.8</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/tokens.css?v=c2ff8f60" />
+    <link rel="stylesheet" type="text/css" href="_static/collapsible.css?v=9ff2bea0" />
+    <link rel="stylesheet" type="text/css" href="_static/examples.css?v=5bd11adc" />
+    <link rel="stylesheet" type="text/css" href="_static/led.css?v=91a52dbe" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #0d7d6e;
+  --color-brand-content: #0d7d6e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #5fd6cb;
+  --color-brand-content: #5fd6cb;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #5fd6cb;
+  --color-brand-content: #5fd6cb;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Indriya 0.4.8</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="_static/brand-logo-dark.svg" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="_static/brand-logo.svg" alt="Dark Logo"/>
+  </div>
+  
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Get started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supported_devices.html">Supported devices</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="SDK_USAGE.html">Mudra SDK — Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONNECTION.html">Mudra SDK — Connection Guide (Scan, BLE, CDC)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SENSORS.html">Mudra SDK — Sensors Guide (Enable / Disable / Status / Config)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CALLBACKS.html">Mudra SDK — Callbacks Reference</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Mudra SDK — Lab Streaming Layer (LSL) Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AUTH.html">Mudra SDK — Account Sign-In &amp; Licensing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_format.html">Data format</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Under the hood</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="native_library.html">Native library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/LSL.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="mudra-sdk-lab-streaming-layer-lsl-guide">
+<h1>Mudra SDK — Lab Streaming Layer (LSL) Guide<a class="headerlink" href="#mudra-sdk-lab-streaming-layer-lsl-guide" title="Link to this heading">¶</a></h1>
+<blockquote>
+<div><p>Part of the <a class="reference internal" href="SDK_USAGE.html"><span class="std std-doc">Mudra SDK usage guide</span></a>. See also:
+<a class="reference internal" href="SENSORS.html"><span class="std std-doc">SENSORS.md</span></a> · <a class="reference internal" href="CALLBACKS.html"><span class="std std-doc">CALLBACKS.md</span></a> · <a class="reference internal" href="data_format.html"><span class="std std-doc">data_format.md</span></a></p>
+</div></blockquote>
+<p><a class="reference external" href="https://labstreaminglayer.org/">Lab Streaming Layer</a> is the standard way
+research labs record several devices on one timeline: each device publishes
+its data as named streams on the local network, and a recorder such as
+<a class="reference external" href="https://github.com/labstreaminglayer/App-LabRecorder">LabRecorder</a> saves them
+all — a Mudra band, an EEG cap, an eye tracker — into one <code class="docutils literal notranslate"><span class="pre">.xdf</span></code> file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">mudra_sdk.lsl</span></code> publishes a connected Mudra Pro or Mudra Ultimate device’s
+sensors as LSL streams, one stream per sensor. It is a thin layer on top of the
+SDK’s per-sensor streaming callbacks
+(<a class="reference internal" href="SENSORS.html#enable-disable-a-sensor-s-data-stream"><span class="std std-ref">SENSORS.md §1</span></a>), with no
+device I/O of its own, so BLE and USB-CDC, Mudra Pro and Mudra Ultimate all
+work the same.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>mudra_sdk/lsl/
+  bridge.py      MudraLslBridge — the part you use
+  clock.py       DeviceClockMapper — device timestamps -&gt; LSL time
+  metadata.py    stream names, channel labels and units
+examples/
+  lsl_app.py     command-line streamer: `python examples/lsl_app.py` (§2)
+  mudra_lsl/     the CLI itself (cli.py)
+</pre></div>
+</div>
+<section id="install">
+<h2>1. Install<a class="headerlink" href="#install" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pylsl</span></code> is an <strong>optional</strong> dependency — nothing else in the SDK needs it, and
+<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">mudra_sdk.lsl</span></code> works without it. Only <code class="docutils literal notranslate"><span class="pre">MudraLslBridge.start()</span></code> does:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pylsl
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pylsl</span></code> includes the native <code class="docutils literal notranslate"><span class="pre">liblsl</span></code> library on Windows and macOS. On Linux,
+install <code class="docutils literal notranslate"><span class="pre">liblsl</span></code> separately (your distro’s package, or a release from
+<a class="reference external" href="https://github.com/sccn/liblsl/releases">sccn/liblsl</a>).</p>
+</section>
+<section id="quickstart">
+<h2>2. Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading">¶</a></h2>
+<p>Connect as usual and wait for the device to be <strong>ready</strong>
+(<code class="docutils literal notranslate"><span class="pre">on_mudra_device_connected</span></code>, not the <code class="docutils literal notranslate"><span class="pre">connect()</span></code> return — see
+<a class="reference internal" href="SDK_USAGE.html#minimal-end-to-end-example"><span class="std std-ref">SDK_USAGE.md §4</span></a>). Then hand the
+device to a <code class="docutils literal notranslate"><span class="pre">MudraLslBridge</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk.lsl</span><span class="w"> </span><span class="kn">import</span> <span class="n">MudraLslBridge</span>
+
+<span class="c1"># `device` is a connected MudraDevice (MudraPro or MudraUltimate, BLE or CDC)</span>
+<span class="k">async</span> <span class="k">with</span> <span class="n">MudraLslBridge</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">device_id</span><span class="o">=</span><span class="s2">"band0"</span><span class="p">)</span> <span class="k">as</span> <span class="n">bridge</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">bridge</span><span class="o">.</span><span class="n">streams</span><span class="p">)</span>
+    <span class="c1"># {'emg': 'MudraPro-band0-EMG', 'imu_hand': 'MudraPro-band0-IMU_HAND',</span>
+    <span class="c1">#  'imu_ring': 'MudraPro-band0-IMU_RING', 'ppg': 'MudraPro-band0-PPG'}</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>          <span class="c1"># the sensors are on and live on LSL</span>
+<span class="c1"># leaving the block turns the sensors off and closes the streams</span>
+
+<span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Open LabRecorder on any machine on the same network, and the streams appear in
+its list.</p>
+<p>Without <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">with</span></code>, call <code class="docutils literal notranslate"><span class="pre">start()</span></code> and <code class="docutils literal notranslate"><span class="pre">stop()</span></code> yourself — put <code class="docutils literal notranslate"><span class="pre">stop()</span></code> in a
+<code class="docutils literal notranslate"><span class="pre">finally</span></code> block, so the sensors are turned off even on errors (§4):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">bridge</span> <span class="o">=</span> <span class="n">MudraLslBridge</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">sensors</span><span class="o">=</span><span class="p">[</span><span class="s2">"emg"</span><span class="p">,</span> <span class="s2">"imu_hand"</span><span class="p">])</span>
+<span class="k">await</span> <span class="n">bridge</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="o">...</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">bridge</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Argument</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">device</span></code></p></td>
+<td><p>—</p></td>
+<td><p>A connected <code class="docutils literal notranslate"><span class="pre">MudraDevice</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">device_id</span></code></p></td>
+<td><p>device serial, else its name</p></td>
+<td><p>Label in every stream name. Must differ per device when you stream several.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sensors</span></code></p></td>
+<td><p>all four</p></td>
+<td><p>Any of <code class="docutils literal notranslate"><span class="pre">&quot;emg&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;imu_hand&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;imu_ring&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ppg&quot;</span></code> — which sensors to publish <strong>and turn on</strong>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">status_timeout</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">3.0</span></code></p></td>
+<td><p>Seconds <code class="docutils literal notranslate"><span class="pre">start()</span></code> waits for each sensor’s status reply.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="from-the-command-line">
+<h3>From the command line<a class="headerlink" href="#from-the-command-line" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">examples/lsl_app.py</span></code> does all of the above with no code: it finds a device,
+connects, and publishes its sensors until you press Ctrl-C (run it from the
+repo root; the source is <code class="docutils literal notranslate"><span class="pre">examples/mudra_lsl/cli.py</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">lsl_app</span><span class="o">.</span><span class="n">py</span>                                  <span class="c1"># first device found, all sensors</span>
+<span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">lsl_app</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">transport</span> <span class="n">ble</span> <span class="o">--</span><span class="n">name</span> <span class="mi">48</span><span class="o">-</span><span class="mi">25</span>     <span class="c1"># a specific BLE device</span>
+<span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">lsl_app</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">transport</span> <span class="n">cdc</span> <span class="o">--</span><span class="n">sensors</span> <span class="n">emg</span> <span class="n">imu_hand</span> <span class="o">--</span><span class="n">duration</span> <span class="mi">60</span>
+<span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">lsl_app</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">emg</span><span class="o">-</span><span class="n">odr</span> <span class="mi">3200</span> <span class="o">--</span><span class="n">emg</span><span class="o">-</span><span class="n">res</span> <span class="mi">24</span> <span class="o">--</span><span class="n">device</span><span class="o">-</span><span class="nb">id</span> <span class="n">band0</span>
+<span class="n">python</span> <span class="n">examples</span><span class="o">/</span><span class="n">lsl_app</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="nb">list</span>                           <span class="c1"># list the devices found, then exit</span>
+</pre></div>
+</div>
+<p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">examples/lsl_app.py</span> <span class="pre">--help</span></code> for every option. Worth knowing:</p>
+<ul class="simple">
+<li><p><strong>Devices already connected to the computer are found first.</strong> A band paired
+to a Windows PC is connected by Windows automatically and stops advertising,
+so a scan alone never finds it; the CLI asks <code class="docutils literal notranslate"><span class="pre">Mudra.get_connected_devices()</span></code>
+(<a class="reference internal" href="CONNECTION.html#scanning"><span class="std std-ref">CONNECTION.md §1</span></a>) before scanning.</p></li>
+<li><p><strong>Signing in is optional, but it decides the tier</strong>
+(<a class="reference internal" href="AUTH.html"><span class="std std-doc">AUTH.md</span></a>). Without an account the device streams at whatever tier
+it already holds. Pass <code class="docutils literal notranslate"><span class="pre">--email</span></code>/<code class="docutils literal notranslate"><span class="pre">--password</span></code> (or set <code class="docutils literal notranslate"><span class="pre">MUDRA_EMAIL</span></code> /
+<code class="docutils literal notranslate"><span class="pre">MUDRA_PASSWORD</span></code>) and the device gets the account’s tier on connect — needed
+for higher ODRs and 24-bit EMG.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--emg-odr</span></code>, <code class="docutils literal notranslate"><span class="pre">--emg-res</span></code>, <code class="docutils literal notranslate"><span class="pre">--imu-odr</span></code> and <code class="docutils literal notranslate"><span class="pre">--ppg-odr</span></code> are applied after
+connecting and <strong>before</strong> any sensor is turned on, as
+<a class="reference internal" href="SENSORS.html#configure-a-sensor-odr-resolution-ranges-etc"><span class="std std-ref">SENSORS.md §3</span></a>
+requires. <code class="docutils literal notranslate"><span class="pre">--emg-odr</span></code> is checked against the connected model’s rates.</p></li>
+<li><p>The CLI exits with status 1 if the device disconnects while streaming.</p></li>
+</ul>
+</section>
+</section>
+<section id="what-it-publishes">
+<h2>3. What it publishes<a class="headerlink" href="#what-it-publishes" title="Link to this heading">¶</a></h2>
+<p><strong>One stream per sensor.</strong> An LSL stream has one fixed sample rate and channel
+count, so the sensors can’t share one. Both are read from the device’s status
+when the bridge starts, never hard-coded:</p>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Sensor key</p></th>
+<th class="head"><p>Stream name</p></th>
+<th class="head"><p>LSL type</p></th>
+<th class="head"><p>Channels</p></th>
+<th class="head"><p>Units</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">emg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MudraPro-&lt;device_id&gt;-EMG</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">EMG</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ch0</span></code>…<code class="docutils literal notranslate"><span class="pre">chN</span></code> — <strong>3 on Pro, 8 on Ultimate</strong></p></td>
+<td><p>normalized (about −1…1)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imu_hand</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MudraPro-&lt;device_id&gt;-IMU_HAND</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">IMU</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">acc_x</span> <span class="pre">acc_y</span> <span class="pre">acc_z</span> <span class="pre">gyr_x</span> <span class="pre">gyr_y</span> <span class="pre">gyr_z</span></code></p></td>
+<td><p>g ×3, dps ×3</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">imu_ring</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MudraPro-&lt;device_id&gt;-IMU_RING</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">IMU</span></code></p></td>
+<td><p>same as <code class="docutils literal notranslate"><span class="pre">imu_hand</span></code></p></td>
+<td><p>g / dps</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ppg</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MudraPro-&lt;device_id&gt;-PPG</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PPG</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ch0</span></code>…<code class="docutils literal notranslate"><span class="pre">chN</span></code> — 1 to 4, as configured</p></td>
+<td><p>microvolts</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>On a Mudra Ultimate, names start with <code class="docutils literal notranslate"><span class="pre">MudraUltimate-</span></code> instead.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">imu_hand</span></code> and <code class="docutils literal notranslate"><span class="pre">imu_ring</span></code> are what the rest of this SDK calls the hand IMU
+(<code class="docutils literal notranslate"><span class="pre">H_IMU</span></code>) and the finger IMU (<code class="docutils literal notranslate"><span class="pre">F_IMU</span></code>). The stream names match the Mudra Pro
+C++ SDK’s LSL streams, so a lab set up for one finds the other’s streams
+unchanged.</p></li>
+<li><p><strong>Sample rate</strong> (<code class="docutils literal notranslate"><span class="pre">nominal_srate</span></code>) is the sensor’s current ODR. Values are
+<code class="docutils literal notranslate"><span class="pre">float32</span></code>, in the physical units the SDK already delivers
+(<a class="reference internal" href="data_format.html"><span class="std std-doc">data_format.md</span></a>) — the bridge doesn’t rescale anything.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">source_id</span></code></strong> is <code class="docutils literal notranslate"><span class="pre">mudra_pro:&lt;serial&gt;:&lt;sensor&gt;</span></code> (<code class="docutils literal notranslate"><span class="pre">mudra_ultimate:…</span></code> on
+Ultimate). It stays the same across restarts, which is how a recorder
+reconnects to a stream that went away and came back.</p></li>
+<li><p><strong>Stream description</strong> (the XML LabRecorder saves into the file):
+manufacturer, model, <code class="docutils literal notranslate"><span class="pre">device_id</span></code>, serial, transport, and each channel’s
+label, unit and type (<code class="docutils literal notranslate"><span class="pre">Accelerometer</span></code> / <code class="docutils literal notranslate"><span class="pre">Gyroscope</span></code> for the IMU channels).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">bridge.streams</span></code></strong> maps each published sensor to its stream name.</p></li>
+</ul>
+<p>A sensor the device doesn’t answer for within <code class="docutils literal notranslate"><span class="pre">status_timeout</span></code> is <strong>skipped</strong>
+with a warning and listed in <code class="docutils literal notranslate"><span class="pre">bridge.skipped</span></code> — for example <code class="docutils literal notranslate"><span class="pre">imu_ring</span></code> on a band
+without a finger IMU. <code class="docutils literal notranslate"><span class="pre">start()</span></code> raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> only if <em>no</em> requested
+sensor answers.</p>
+</section>
+<section id="the-bridge-turns-sensors-on-and-off">
+<h2>4. The bridge turns sensors on and off<a class="headerlink" href="#the-bridge-turns-sensors-on-and-off" title="Link to this heading">¶</a></h2>
+<p>In this SDK, registering a sensor’s <code class="docutils literal notranslate"><span class="pre">set_on_*_ready</span></code> callback <strong>is</strong> what turns
+the sensor on, and each sensor has exactly one callback slot
+(<a class="reference internal" href="SENSORS.html#enable-disable-a-sensor-s-data-stream"><span class="std std-ref">SENSORS.md §1</span></a>). So:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">start()</span></code> turns on</strong> every sensor it publishes, by registering the
+bridge’s own callback for it. Don’t turn them on yourself first.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">stop()</span></code> turns them off.</strong> Nothing else does — not <code class="docutils literal notranslate"><span class="pre">disconnect()</span></code>, and not
+your app exiting
+(<a class="reference internal" href="SENSORS.html#turning-sensors-off-is-the-app-s-job"><span class="std std-ref">Turning sensors off is the app’s job</span></a>).
+Call <code class="docutils literal notranslate"><span class="pre">stop()</span></code> before disconnecting, or use <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">with</span></code>.</p></li>
+<li><p><strong>Don’t register a published sensor’s callback yourself.</strong> It would replace
+the bridge’s, and the stream would go silent. To also use the samples in
+your own code (a live chart, a local recorder), read them back from LSL
+with a <code class="docutils literal notranslate"><span class="pre">pylsl.StreamInlet</span></code>, like any other LSL consumer (§3).</p></li>
+<li><p>Sensors the bridge doesn’t publish are left alone — register your own
+callbacks on those as usual.</p></li>
+</ul>
+<p>The bridge publishes each package right inside its callback: it reorders the
+samples into rows (the SDK delivers them channel by channel), timestamps them,
+and calls <code class="docutils literal notranslate"><span class="pre">push_chunk</span></code>. That only copies the data into liblsl’s send buffer,
+so it doesn’t hold up the device connection.</p>
+</section>
+<section id="timestamps-how-devices-get-aligned">
+<h2>5. Timestamps — how devices get aligned<a class="headerlink" href="#timestamps-how-devices-get-aligned" title="Link to this heading">¶</a></h2>
+<p>Every package the SDK delivers carries <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>: the device’s clock reading
+(1 MHz, counting from boot) for the package’s <strong>first</strong> sample
+(<a class="reference internal" href="data_format.html#timestamp-frequency-and-frequency-std"><span class="std std-ref">data_format.md</span></a>). It is
+precise — taken on the sensor when the data was sampled, before any radio or
+USB delay — but it isn’t in the host’s clock. The bridge converts it with a
+<code class="docutils literal notranslate"><span class="pre">DeviceClockMapper</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">r</span>        <span class="o">=</span> <span class="n">arrival</span> <span class="n">time</span> <span class="o">-</span> <span class="n">device</span> <span class="n">time</span>     <span class="c1"># per package: clock offset + transport delay</span>
+<span class="n">offset</span>   <span class="o">=</span> <span class="n">smallest</span> <span class="n">r</span> <span class="n">of</span> <span class="n">the</span> <span class="n">last</span> <span class="mi">20</span> <span class="n">s</span>    <span class="c1"># delay only adds, so the smallest r is closest to the truth</span>
+<span class="n">sample</span> <span class="n">i</span> <span class="o">=</span> <span class="n">device</span> <span class="n">time</span> <span class="o">+</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">i</span><span class="o">/</span><span class="n">ODR</span>   <span class="c1"># the package's first sample, then 1/ODR apart</span>
+</pre></div>
+</div>
+<p>What that gives you:</p>
+<ul class="simple">
+<li><p><strong>Stamps follow the device’s own sample timing.</strong> BLE and USB deliver
+packages in bursts, with delays that vary by tens of milliseconds; none of
+that jitter reaches the timestamps.</p></li>
+<li><p><strong>A small constant lag.</strong> Stamps are late by the smallest transport delay
+seen (about one BLE connection interval or USB transfer). Every sensor of a
+device shares one mapper, so the lag is the same for all of them and they
+stay aligned with each other.</p></li>
+<li><p><strong>Aligned with every other LSL device.</strong> Stamps are in LSL’s clock, so a
+recorder lines Mudra data up with everything else. Across machines, LSL’s
+own clock synchronization takes care of the rest.</p></li>
+<li><p><strong>The first second after <code class="docutils literal notranslate"><span class="pre">start()</span></code> is not published.</strong> The first packages
+arrive late, so the offset improves quickly at first; the bridge drops
+packages until it has settled. After that, the offset only changes slowly
+(at most 0.2 ms per second), so timestamps never jump backwards — EMG at
+3200 Hz has only 0.3 ms between samples.</p></li>
+<li><p><strong>After a reboot or reconnect, call <code class="docutils literal notranslate"><span class="pre">start()</span></code> again</strong> (§6). It resets the
+clock conversion, so there’s another second of warm-up.</p></li>
+</ul>
+</section>
+<section id="changing-configuration-and-reconnecting">
+<h2>6. Changing configuration, and reconnecting<a class="headerlink" href="#changing-configuration-and-reconnecting" title="Link to this heading">¶</a></h2>
+<p><strong>Changing a sensor’s configuration.</strong> A sensor must be off while its ODR,
+resolution, or channel count changes
+(<a class="reference internal" href="SENSORS.html#configure-a-sensor-odr-resolution-ranges-etc"><span class="std std-ref">SENSORS.md §3</span></a>),
+and a stream’s sample rate and channel count are fixed when it’s created. So
+stop the bridge, change the configuration, and start it again:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mudra_sdk.models.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProEMGODR</span>
+
+<span class="k">await</span> <span class="n">bridge</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>                               <span class="c1"># turns the sensors off</span>
+<span class="k">await</span> <span class="n">device</span><span class="o">.</span><span class="n">set_emg_odr</span><span class="p">(</span><span class="n">ProEMGODR</span><span class="o">.</span><span class="n">emgOdr3200</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">bridge</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>                              <span class="c1"># new streams at the new rate</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">start()</span></code> asks the device for each sensor’s current status, so the new streams
+always match the new configuration. The streams keep their <code class="docutils literal notranslate"><span class="pre">source_id</span></code>, so
+LabRecorder picks them back up.</p>
+<p>If the channel count changes while the bridge is running anyway, packages stop
+fitting the stream: the bridge logs a warning and drops them until you call
+<code class="docutils literal notranslate"><span class="pre">start()</span></code> again.</p>
+<p><strong>After a disconnect.</strong> A disconnect clears every per-device callback
+(<a class="reference internal" href="CALLBACKS.html#callbacks-don-t-survive-a-disconnect"><span class="std std-ref">CALLBACKS.md §3</span></a>),
+including the bridge’s, so the streams go silent. Once the device is ready
+again (<code class="docutils literal notranslate"><span class="pre">on_mudra_device_connected</span></code>), call <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">bridge.start()</span></code> — it rebuilds
+the streams and turns the sensors back on.</p>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">start()</span></code> on a running bridge is always safe: it stops it first, then
+starts again.</p>
+</section>
+<section id="multiple-devices">
+<h2>7. Multiple devices<a class="headerlink" href="#multiple-devices" title="Link to this heading">¶</a></h2>
+<p>Use one bridge per device, each with its own <code class="docutils literal notranslate"><span class="pre">device_id</span></code> (the default, the
+device serial, already differs from band to band). <code class="docutils literal notranslate"><span class="pre">Mudra</span></code> supports several
+connected devices at once
+(<a class="reference internal" href="CONNECTION.html#multiple-devices-at-once"><span class="std std-ref">CONNECTION.md §8</span></a>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">with</span> <span class="n">MudraLslBridge</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="s2">"left"</span><span class="p">),</span> <span class="n">MudraLslBridge</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="s2">"right"</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3600</span><span class="p">)</span>       <span class="c1"># MudraPro-left-EMG, MudraPro-right-EMG, ...</span>
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>8. Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ImportError</span></code> from <code class="docutils literal notranslate"><span class="pre">start()</span></code></strong> — <code class="docutils literal notranslate"><span class="pre">pylsl</span></code> isn’t installed, or on Linux,
+<code class="docutils literal notranslate"><span class="pre">liblsl</span></code> is missing. See §1.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> from <code class="docutils literal notranslate"><span class="pre">start()</span></code></strong> — no sensor answered. The device is
+probably not ready yet: start the bridge after <code class="docutils literal notranslate"><span class="pre">on_mudra_device_connected</span></code>.</p></li>
+<li><p><strong>A sensor is missing from <code class="docutils literal notranslate"><span class="pre">bridge.streams</span></code></strong> — the device didn’t report
+that sensor’s status; <code class="docutils literal notranslate"><span class="pre">bridge.skipped</span></code> says so. A band without a finger IMU
+never reports <code class="docutils literal notranslate"><span class="pre">imu_ring</span></code>.</p></li>
+<li><p><strong>A stream exists but carries no data</strong> — look for the bridge’s warning that
+the device didn’t turn the sensor on. The device refused the “turn on”
+command, often because the configuration exceeds its license tier: sign in
+first (<a class="reference internal" href="AUTH.html"><span class="std std-doc">AUTH.md</span></a>), and register <code class="docutils literal notranslate"><span class="pre">set_on_command_error_received</span></code> to
+see the device’s reason. Also check that nothing else in your app registered
+that sensor’s callback (§4).</p></li>
+<li><p><strong>A “package … doesn’t fit N channels” warning</strong> — the channel count changed
+while the bridge was running. Use stop → configure → start (§6).</p></li>
+<li><p><strong>LabRecorder on another machine doesn’t see the streams</strong> — LSL finds
+streams by UDP multicast and sends data over TCP; both must get through the
+firewall, on the network interface that reaches the other machine. Try a
+recorder on the same machine first. See
+<a class="reference internal" href="troubleshooting.html#lsl-consumers-can-t-see-the-streams"><span class="std std-ref">troubleshooting.md</span></a>.</p></li>
+</ul>
+</section>
+<section id="related-documentation">
+<h2>Related documentation<a class="headerlink" href="#related-documentation" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Sensor streams and configuration: <a class="reference internal" href="SENSORS.html"><span class="std std-doc">SENSORS.md</span></a> · sample layout
+and units: <a class="reference internal" href="data_format.html"><span class="std std-doc">data_format.md</span></a> · callbacks: <a class="reference internal" href="CALLBACKS.html"><span class="std std-doc">CALLBACKS.md</span></a></p></li>
+<li><p>API reference: <a class="reference internal" href="api_reference.html"><span class="std std-doc">api_reference</span></a> → “Lab Streaming Layer”</p></li>
+<li><p>Usage guide (package layout, architecture): <a class="reference internal" href="SDK_USAGE.html"><span class="std std-doc">SDK_USAGE.md</span></a></p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="AUTH.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Mudra SDK — Account Sign-In &amp; Licensing</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="CALLBACKS.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Mudra SDK — Callbacks Reference</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, Wearable Devices
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Mudra SDK — Lab Streaming Layer (LSL) Guide</a><ul>
+<li><a class="reference internal" href="#install">1. Install</a></li>
+<li><a class="reference internal" href="#quickstart">2. Quickstart</a><ul>
+<li><a class="reference internal" href="#from-the-command-line">From the command line</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#what-it-publishes">3. What it publishes</a></li>
+<li><a class="reference internal" href="#the-bridge-turns-sensors-on-and-off">4. The bridge turns sensors on and off</a></li>
+<li><a class="reference internal" href="#timestamps-how-devices-get-aligned">5. Timestamps — how devices get aligned</a></li>
+<li><a class="reference internal" href="#changing-configuration-and-reconnecting">6. Changing configuration, and reconnecting</a></li>
+<li><a class="reference internal" href="#multiple-devices">7. Multiple devices</a></li>
+<li><a class="reference internal" href="#troubleshooting">8. Troubleshooting</a></li>
+<li><a class="reference internal" href="#related-documentation">Related documentation</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=4f911454"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script src="_static/collapsible.js?v=6ff1e7b4"></script>
+    </body>
+</html>
