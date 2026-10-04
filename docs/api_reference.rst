@@ -202,6 +202,26 @@ the two independent halves, a practical checklist).
 .. automodule:: mudra_sdk.auth
    :members:
 
+Lab Streaming Layer
+--------------------
+
+:mod:`mudra_sdk.lsl` — publish a connected device's sensors as LSL streams.
+See :doc:`LSL` for the guide (stream layout, timestamps, reconfiguring and
+reconnecting). ``pylsl`` is optional: importing the package never requires
+it, only starting a bridge does.
+
+.. autoclass:: mudra_sdk.lsl.bridge.MudraLslBridge
+   :members:
+
+.. autoclass:: mudra_sdk.lsl.clock.DeviceClockMapper
+   :members:
+
+.. autodata:: mudra_sdk.lsl.clock.GRTC_CPS
+
+.. automodule:: mudra_sdk.lsl.metadata
+   :members: EMG, IMU_HAND, IMU_RING, PPG, SENSOR_KEYS, SENSORS, SensorSpec,
+             IMU_CHANNELS, normalize_sensors, channels
+
 Firmware update (DFU)
 ----------------------
 
