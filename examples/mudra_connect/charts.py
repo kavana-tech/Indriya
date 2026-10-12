@@ -48,7 +48,7 @@ DISPLAY_BINS = 800
 # ---- Group definitions -----------------------------------------------------
 #
 # A "group" is one native data series (EMG's N channels, IMU_H's 3-axis accel,
-# a single PPG channel, ...). Groups are the unit of ingestion (SensorCharts
+# a single PPG_H/PPG_F channel, ...). Groups are the unit of ingestion (SensorCharts
 # always writes incoming samples into per-group buffers, e.g. self._buffers
 # ["EMG"]) and of ODR/window sizing (set_odr() takes a group name) — both
 # unaffected by how a group is currently drawn.
@@ -57,7 +57,7 @@ DISPLAY_BINS = 800
 # derived from groups at render time via _rebuild_panels(): a group renders
 # as ONE combined panel (all its channels overlaid, e.g. today's single EMG
 # chart with up to 8 lines) or as N single-channel panels (see set_split()) —
-# the split state is per SENSOR (the Streams tab's EMG/IMU_H/IMU_F/PPG
+# the split state is per SENSOR (the Streams tab's EMG/IMU_H/IMU_F
 # toggles), applied to every group that sensor owns (e.g. splitting IMU_H
 # splits both IMU_H_ACC and IMU_H_GYRO).
 
@@ -67,8 +67,10 @@ SENSOR_ODR_HZ: Dict[str, int] = {
     "IMU_H_GYRO": 100,
     "IMU_F_ACC": 100,
     "IMU_F_GYRO": 100,
-    "PPG1": 100,
-    "PPG2": 100,
+    "PPG_H_CH0": 100,
+    "PPG_H_CH1": 100,
+    "PPG_F_CH0": 100,
+    "PPG_F_CH1": 100,
 }
 
 SENSOR_CHANNELS: Dict[str, List[str]] = {
@@ -77,15 +79,18 @@ SENSOR_CHANNELS: Dict[str, List[str]] = {
     "IMU_H_GYRO": ["gx", "gy", "gz"],
     "IMU_F_ACC": ["ax", "ay", "az"],
     "IMU_F_GYRO": ["gx", "gy", "gz"],
-    "PPG1": ["ch0"],
-    "PPG2": ["ch1"],
+    "PPG_H_CH0": ["ch0"],
+    "PPG_H_CH1": ["ch1"],
+    "PPG_F_CH0": ["ch0"],
+    "PPG_F_CH1": ["ch1"],
 }
 
 SENSOR_PANELS: Dict[str, List[str]] = {
     "EMG": ["EMG"],
     "IMU_H": ["IMU_H_ACC", "IMU_H_GYRO"],
     "IMU_F": ["IMU_F_ACC", "IMU_F_GYRO"],
-    "PPG": ["PPG1", "PPG2"],
+    "PPG_H": ["PPG_H_CH0", "PPG_H_CH1"],
+    "PPG_F": ["PPG_F_CH0", "PPG_F_CH1"],
 }
 
 # Display order: one full-width row per rendered panel, stacked top to
@@ -98,13 +103,15 @@ GROUP_ORDER: List[str] = [
     "IMU_H_GYRO",
     "IMU_F_ACC",
     "IMU_F_GYRO",
-    "PPG1",
-    "PPG2",
+    "PPG_H_CH0",
+    "PPG_H_CH1",
+    "PPG_F_CH0",
+    "PPG_F_CH1",
 ]
 
-# Which Streams-tab sensor's "Split" checkbox controls a group. PPG's groups
-# already carry exactly one channel each, so splitting them is a no-op —
-# omitted here, and sensors.py doesn't offer a PPG split control.
+# Which Streams-tab sensor's "Split" checkbox controls a group. PPG_H's and
+# PPG_F's groups already carry exactly one channel each, so splitting them is
+# a no-op — omitted here, and sensors.py doesn't offer a PPG split control.
 GROUP_SENSOR: Dict[str, str] = {
     "EMG": "EMG",
     "IMU_H_ACC": "IMU_H",
@@ -120,8 +127,10 @@ PANEL_HEIGHT_RATIOS: Dict[str, float] = {
     "IMU_H_GYRO": 1.0,
     "IMU_F_ACC": 1.0,
     "IMU_F_GYRO": 1.0,
-    "PPG1": 0.9,
-    "PPG2": 0.9,
+    "PPG_H_CH0": 0.9,
+    "PPG_H_CH1": 0.9,
+    "PPG_F_CH0": 0.9,
+    "PPG_F_CH1": 0.9,
 }
 # Height ratio for a single-channel panel produced by splitting a group —
 # smaller than any combined panel's ratio above since there are many more
@@ -132,8 +141,8 @@ SPLIT_HEIGHT_RATIO = 0.55
 
 # Content inches (i.e. excluding margins/gaps) per unit of a panel's height
 # ratio — chosen, together with the fixed-inch margins/gaps above, so the
-# default all-combined layout (n=7, total ratio 7.1) reproduces this file's
-# previous fixed 13.5" figure exactly: 13.5 = _MARGIN_TOP_INCHES +
+# all-combined layout as it was before PPG split into PPG_H/PPG_F (n=7,
+# total ratio 7.1) reproduced this file's previous fixed 13.5" figure exactly: 13.5 = _MARGIN_TOP_INCHES +
 # _MARGIN_BOTTOM_INCHES + _ROW_GAP_INCHES*(7-1) + 7.1*_INCHES_PER_RATIO_UNIT.
 # Each panel's own height in inches is `ratio * _INCHES_PER_RATIO_UNIT` —
 # a function of ONLY that panel's ratio, not of how many other panels
@@ -153,8 +162,10 @@ SENSOR_COLORS = {
     "IMU_H_GYRO": ["#e74c3c", "#2ecc71", "#3498db"],
     "IMU_F_ACC": ["#e74c3c", "#2ecc71", "#3498db"],
     "IMU_F_GYRO": ["#e74c3c", "#2ecc71", "#3498db"],
-    "PPG1": ["#00bcd4"],
-    "PPG2": ["#e91e63"],
+    "PPG_H_CH0": ["#00bcd4"],
+    "PPG_H_CH1": ["#e91e63"],
+    "PPG_F_CH0": ["#00bcd4"],
+    "PPG_F_CH1": ["#e91e63"],
 }
 
 SENSOR_TITLES = {
@@ -163,8 +174,10 @@ SENSOR_TITLES = {
     "IMU_H_GYRO": "IMU hand gyro (dps)",
     "IMU_F_ACC": "IMU finger accel (g)",
     "IMU_F_GYRO": "IMU finger gyro (dps)",
-    "PPG1": "PPG ch0 (µV)",
-    "PPG2": "PPG ch1 (µV)",
+    "PPG_H_CH0": "PPG hand ch0 (µV)",
+    "PPG_H_CH1": "PPG hand ch1 (µV)",
+    "PPG_F_CH0": "PPG finger ch0 (µV)",
+    "PPG_F_CH1": "PPG finger ch1 (µV)",
 }
 
 SENSOR_YLIM: Dict[str, Optional[tuple[float, float]]] = {
@@ -173,8 +186,10 @@ SENSOR_YLIM: Dict[str, Optional[tuple[float, float]]] = {
     "IMU_H_GYRO": (-500.0, 500.0),
     "IMU_F_ACC": (-4.0, 4.0),
     "IMU_F_GYRO": (-500.0, 500.0),
-    "PPG1": None,
-    "PPG2": None,
+    "PPG_H_CH0": None,
+    "PPG_H_CH1": None,
+    "PPG_F_CH0": None,
+    "PPG_F_CH1": None,
 }
 
 # Left/right margins are FIXED INCHES, same rationale as the vertical
@@ -201,8 +216,9 @@ _MARGIN_RIGHT_INCHES = 0.1
 # margins/gaps make each panel's absolute pixel height a pure function of
 # its own PANEL_HEIGHT_RATIOS/SPLIT_HEIGHT_RATIO entry, independent of how
 # many other panels currently exist. Values below reproduce this file's
-# original fixed-13.5"-figure, n=7, all-combined layout exactly (e.g. PPG1's
-# height comes out to the same ~112.5px either way) — see _relayout().
+# original fixed-13.5"-figure, n=7, all-combined layout exactly (e.g. a PPG
+# channel panel's height comes out to the same ~112.5px either way) — see
+# _relayout().
 _MARGIN_TOP_INCHES = 0.27
 _MARGIN_BOTTOM_INCHES = 0.61
 _ROW_GAP_INCHES = 0.46
@@ -474,8 +490,8 @@ class SensorCharts:
     def set_split(self, sensor: str, enabled: bool) -> None:
         """Toggle whether `sensor`'s groups render as one combined panel (N
         overlaid lines) or N separate single-channel panels. `sensor` is a
-        Streams-tab name (EMG, IMU_H, IMU_F) — PPG's groups already carry
-        one channel each, so this is a no-op for it (and sensors.py doesn't
+        Streams-tab name (EMG, IMU_H, IMU_F) — PPG_H's/PPG_F's groups already
+        carry one channel each, so this is a no-op for them (and sensors.py doesn't
         offer a PPG split control). Must run on the Tk main thread."""
         if sensor not in self._split or self._split[sensor] == enabled:
             return
@@ -659,16 +675,6 @@ class SensorCharts:
             self._rate_counts[sensor] += max(1, len(flat_raw) // max(1, ch))
             self._pending[sensor].append(flat_raw)
 
-    @staticmethod
-    def _infer_ppg_channels(flat_len: int) -> Optional[int]:
-        if flat_len <= 0:
-            return None
-        if flat_len % 2 == 0:
-            return 2
-        if flat_len % 4 == 0:
-            return 4
-        return None
-
     def _extend_strided(self, group: str, flat_data: List[float], channel_count: int) -> None:
         if channel_count <= 0 or len(flat_data) % channel_count != 0:
             return
@@ -692,14 +698,12 @@ class SensorCharts:
                     self._buffers[group][i].extend(chunk)
                 self._dirty.add(group)
             return
-        if sensor == "PPG":
-            channel_count = self._infer_ppg_channels(len(flat))
-            if channel_count is None:
+        if sensor in ("PPG_H", "PPG_F"):
+            # Always 2 channels (local ch0, ch1), channel-major.
+            if len(flat) % 2 != 0:
                 return
-            samples_per = len(flat) // channel_count
-            for ch, group in enumerate(("PPG1", "PPG2")):
-                if ch >= channel_count:
-                    break
+            samples_per = len(flat) // 2
+            for ch, group in enumerate(SENSOR_PANELS[sensor]):
                 chunk = flat[ch * samples_per : (ch + 1) * samples_per]
                 self._buffers[group][0].extend(chunk)
                 self._dirty.add(group)
@@ -729,7 +733,8 @@ class SensorCharts:
                 f"EMG: {self._rate_hz['EMG']:.1f} Hz",
                 f"IMU_H: {self._rate_hz['IMU_H']:.1f} Hz",
                 f"IMU_F: {self._rate_hz['IMU_F']:.1f} Hz",
-                f"PPG: {self._rate_hz['PPG']:.1f} Hz",
+                f"PPG_H: {self._rate_hz['PPG_H']:.1f} Hz",
+                f"PPG_F: {self._rate_hz['PPG_F']:.1f} Hz",
             ]
         return "Rates — " + " · ".join(parts)
 

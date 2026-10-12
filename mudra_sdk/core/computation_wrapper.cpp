@@ -150,27 +150,40 @@ extern "C" {
         });
     }
 
-    MUDRA_API void set_on_ppg_ready(ComputationManagerHandle computation, OnRawDataCallback callback) {
+    static void set_on_ppg_ready_impl(ComputationManagerHandle computation, OnRawDataCallback callback, bool hand) {
         if (!computation) {
             return;
         }
         ComputationManager* manager = static_cast<ComputationManager*>(computation);
-        if (callback == nullptr) {
-            manager->SetOnPpgPackageReadyCallBack(nullptr);
-            return;
+        OnPpgPackageReadyCallbackType wrapped = nullptr;
+        if (callback != nullptr) {
+            wrapped = [callback](PpgPackageData& package) {
+                std::vector<float> flattened;
+                for (int ch = 0; ch < package.channelCount; ++ch) {
+                    flattened.insert(flattened.end(), package.data[ch].begin(), package.data[ch].end());
+                }
+                callback(
+                    package.timeStamp,
+                    flattened.data(),
+                    static_cast<int>(flattened.size()),
+                    static_cast<int>(package.frequency),
+                    package.frequencyStd);
+            };
         }
-        manager->SetOnPpgPackageReadyCallBack([callback](PpgPackageData& package) {
-            std::vector<float> flattened;
-            for (int ch = 0; ch < package.channelCount; ++ch) {
-                flattened.insert(flattened.end(), package.data[ch].begin(), package.data[ch].end());
-            }
-            callback(
-                package.timeStamp,
-                flattened.data(),
-                static_cast<int>(flattened.size()),
-                static_cast<int>(package.frequency),
-                package.frequencyStd);
-        });
+        if (hand) {
+            manager->SetOnPpgHPackageReadyCallBack(wrapped);
+        }
+        else {
+            manager->SetOnPpgFPackageReadyCallBack(wrapped);
+        }
+    }
+
+    MUDRA_API void set_on_ppg_h_ready(ComputationManagerHandle computation, OnRawDataCallback callback) {
+        set_on_ppg_ready_impl(computation, callback, true);
+    }
+
+    MUDRA_API void set_on_ppg_f_ready(ComputationManagerHandle computation, OnRawDataCallback callback) {
+        set_on_ppg_ready_impl(computation, callback, false);
     }
 
     MUDRA_API void set_parser_emg_resolution(ComputationManagerHandle computation, uint8_t bits) {
@@ -182,12 +195,6 @@ extern "C" {
     MUDRA_API void set_parser_emg_channel_count(ComputationManagerHandle computation, uint8_t channels) {
         if (computation) {
             static_cast<ComputationManager*>(computation)->SetEmgChannelCount(channels);
-        }
-    }
-
-    MUDRA_API void set_parser_ppg_channel_count(ComputationManagerHandle computation, uint8_t channels) {
-        if (computation) {
-            static_cast<ComputationManager*>(computation)->SetPpgChannelCount(channels);
         }
     }
 

@@ -23,7 +23,8 @@ namespace Mudra
             OnEmgPackageReadyCallbackType m_onEmgReady;
             OnImuPackageReadyCallbackType m_onImuHReady;
             OnImuPackageReadyCallbackType m_onImuFReady;
-            OnPpgPackageReadyCallbackType m_onPpgReady;
+            OnPpgPackageReadyCallbackType m_onPpgHReady;
+            OnPpgPackageReadyCallbackType m_onPpgFReady;
 
             void HandlePackages(vector<PackageData*>& packages);
 
@@ -35,7 +36,6 @@ namespace Mudra
 
             void SetEmgResolutionBits(uint8_t bits);
             void SetEmgChannelCount(uint8_t channels);
-            void SetPpgChannelCount(uint8_t channels);
             void SetImuHRanges(uint8_t accelRangeG, uint16_t gyroRangeDps);
             void SetImuFRanges(uint8_t accelRangeG, uint16_t gyroRangeDps);
 
@@ -45,7 +45,8 @@ namespace Mudra
             void SetOnEmgPackageReadyCallBack(OnEmgPackageReadyCallbackType callback);
             void SetOnImuHPackageReadyCallBack(OnImuPackageReadyCallbackType callback);
             void SetOnImuFPackageReadyCallBack(OnImuPackageReadyCallbackType callback);
-            void SetOnPpgPackageReadyCallBack(OnPpgPackageReadyCallbackType callback);
+            void SetOnPpgHPackageReadyCallBack(OnPpgPackageReadyCallbackType callback);
+            void SetOnPpgFPackageReadyCallBack(OnPpgPackageReadyCallbackType callback);
             bool IsDataNeeded(FirmwareDataType dataType) const;
 
             static string ToString(RecordingDataType type);
@@ -122,12 +123,6 @@ namespace Mudra
             m_parser->SetEmgChannelCount(channels);
         }
 
-        void ComputationManager::impl::SetPpgChannelCount(uint8_t channels)
-        {
-            lock_guard<recursive_mutex> lck(m_mutex);
-            m_parser->SetPpgChannelCount(channels);
-        }
-
         void ComputationManager::impl::SetImuHRanges(uint8_t accelRangeG, uint16_t gyroRangeDps)
         {
             lock_guard<recursive_mutex> lck(m_mutex);
@@ -184,13 +179,22 @@ namespace Mudra
                     m_dataRecorder->RecordImuF(imuFPackage);
                 }
                 break;
-                case PackageType::Ppg:
+                case PackageType::PpgH:
                 {
-                    PpgPackageData& ppgPackage = static_cast<PpgPackageData&>(*package);
-                    if (m_onPpgReady) {
-                        m_onPpgReady(ppgPackage);
+                    PpgPackageData& ppgHPackage = static_cast<PpgPackageData&>(*package);
+                    if (m_onPpgHReady) {
+                        m_onPpgHReady(ppgHPackage);
                     }
-                    m_dataRecorder->RecordPPG(ppgPackage);
+                    m_dataRecorder->RecordPpgH(ppgHPackage);
+                }
+                break;
+                case PackageType::PpgF:
+                {
+                    PpgPackageData& ppgFPackage = static_cast<PpgPackageData&>(*package);
+                    if (m_onPpgFReady) {
+                        m_onPpgFReady(ppgFPackage);
+                    }
+                    m_dataRecorder->RecordPpgF(ppgFPackage);
                 }
                 break;
                 default:
@@ -209,37 +213,39 @@ namespace Mudra
             case RecordingDataType::GyrTS:
             case RecordingDataType::AccFTS:
             case RecordingDataType::GyrFTS:
-            case RecordingDataType::PpgTS:
+            case RecordingDataType::PpgHTS:
+            case RecordingDataType::PpgFTS:
                 return "ts";
             case RecordingDataType::Emg1:
             case RecordingDataType::Acc1:
             case RecordingDataType::Gyro1:
             case RecordingDataType::AccF1:
             case RecordingDataType::GyroF1:
-            case RecordingDataType::Ppg1:
+            case RecordingDataType::PpgH1:
+            case RecordingDataType::PpgF1:
                 return "1";
             case RecordingDataType::Emg2:
             case RecordingDataType::Acc2:
             case RecordingDataType::Gyro2:
             case RecordingDataType::AccF2:
             case RecordingDataType::GyroF2:
-            case RecordingDataType::Ppg2:
+            case RecordingDataType::PpgH2:
+            case RecordingDataType::PpgF2:
                 return "2";
             case RecordingDataType::Emg3:
             case RecordingDataType::Acc3:
             case RecordingDataType::Gyro3:
             case RecordingDataType::AccF3:
             case RecordingDataType::GyroF3:
-            case RecordingDataType::Ppg3:
                 return "3";
-            case RecordingDataType::Ppg4:
-                return "4";
             case RecordingDataType::EndAppTS:
                 return "end_app_ts";
             case RecordingDataType::Button:
                 return "button";
             case RecordingDataType::FSR:
                 return "fsr";
+            case RecordingDataType::NumOfRecordingTypes:
+                break;
             }
 
             return "none";
@@ -258,8 +264,10 @@ namespace Mudra
                 return static_cast<bool>(m_onImuHReady);
             case FirmwareDataType::IMU_F:
                 return static_cast<bool>(m_onImuFReady);
-            case FirmwareDataType::PPG:
-                return static_cast<bool>(m_onPpgReady);
+            case FirmwareDataType::PPG_H:
+                return static_cast<bool>(m_onPpgHReady);
+            case FirmwareDataType::PPG_F:
+                return static_cast<bool>(m_onPpgFReady);
             default:
                 return false;
             }
@@ -283,10 +291,16 @@ namespace Mudra
             m_onImuFReady = callback;
         }
 
-        void ComputationManager::impl::SetOnPpgPackageReadyCallBack(OnPpgPackageReadyCallbackType callback)
+        void ComputationManager::impl::SetOnPpgHPackageReadyCallBack(OnPpgPackageReadyCallbackType callback)
         {
             lock_guard<recursive_mutex> lck(m_mutex);
-            m_onPpgReady = callback;
+            m_onPpgHReady = callback;
+        }
+
+        void ComputationManager::impl::SetOnPpgFPackageReadyCallBack(OnPpgPackageReadyCallbackType callback)
+        {
+            lock_guard<recursive_mutex> lck(m_mutex);
+            m_onPpgFReady = callback;
         }
 
         bool ComputationManager::impl::IsRecordingEnabled() {
@@ -359,7 +373,6 @@ namespace Mudra
 
         void ComputationManager::SetEmgResolutionBits(uint8_t bits) { m_impl->SetEmgResolutionBits(bits); }
         void ComputationManager::SetEmgChannelCount(uint8_t channels) { m_impl->SetEmgChannelCount(channels); }
-        void ComputationManager::SetPpgChannelCount(uint8_t channels) { m_impl->SetPpgChannelCount(channels); }
         void ComputationManager::SetImuHRanges(uint8_t accelRangeG, uint16_t gyroRangeDps) { m_impl->SetImuHRanges(accelRangeG, gyroRangeDps); }
         void ComputationManager::SetImuFRanges(uint8_t accelRangeG, uint16_t gyroRangeDps) { m_impl->SetImuFRanges(accelRangeG, gyroRangeDps); }
 
@@ -373,7 +386,8 @@ namespace Mudra
         void ComputationManager::SetOnEmgPackageReadyCallBack(OnEmgPackageReadyCallbackType callback) { m_impl->SetOnEmgPackageReadyCallBack(callback); }
         void ComputationManager::SetOnImuHPackageReadyCallBack(OnImuPackageReadyCallbackType callback) { m_impl->SetOnImuHPackageReadyCallBack(callback); }
         void ComputationManager::SetOnImuFPackageReadyCallBack(OnImuPackageReadyCallbackType callback) { m_impl->SetOnImuFPackageReadyCallBack(callback); }
-        void ComputationManager::SetOnPpgPackageReadyCallBack(OnPpgPackageReadyCallbackType callback) { m_impl->SetOnPpgPackageReadyCallBack(callback); }
+        void ComputationManager::SetOnPpgHPackageReadyCallBack(OnPpgPackageReadyCallbackType callback) { m_impl->SetOnPpgHPackageReadyCallBack(callback); }
+        void ComputationManager::SetOnPpgFPackageReadyCallBack(OnPpgPackageReadyCallbackType callback) { m_impl->SetOnPpgFPackageReadyCallBack(callback); }
 
         void ComputationManager::EnableRecording() { m_impl->EnableRecording(); }
         void ComputationManager::DisableRecording() { m_impl->DisableRecording(); }

@@ -3,6 +3,10 @@
 Instructions for AI coding agents working in, or on top of, this SDK. Humans want
 [`README.md`](README.md) and [`docs/SDK_USAGE.md`](docs/SDK_USAGE.md) instead.
 
+**Indriya** is the SDK's name; the Python package is `mudra_sdk` (older page titles
+still say "Mudra SDK" — same thing). It supports **Mudra Pro** and **Mudra Ultimate**,
+over BLE and USB-CDC.
+
 ## Rule 0 — sign-in is what unlocks the device's tier
 
 **Connecting to a device never requires an account** — a signed-out app connects and
@@ -10,22 +14,30 @@ streams fine, at whatever tier the device already holds (usually `FREE`). That m
 easy to ship an app that silently caps every user at `FREE` forever, because nothing
 raises an exception when you skip this.
 
-- If your app is meant to entitle users to `PLUS`/`PRO` features, sign in and provision
-  the device on every connect:
+- If your app is meant to entitle users to `PLUS`/`PRO` features, **sign in before
+  connecting**. While signed in, the SDK itself provisions the device's license (and
+  user ID) on every connect — no extra call needed:
 
   ```python
   from mudra_sdk import auth
 
   tier = auth.sign_in_email(email, password)   # raises on bad credentials/no connectivity
-  await auth.provision_device(device)           # call this unconditionally, right after connect()
+  await device.connect()                        # SDK provisions license + user ID itself
   ```
 
-- `provision_device()` is a no-op if nobody's signed in, so it's always safe to call —
-  don't gate it behind an `if signed_in` check.
+- Only if the user signs in *after* the device is already connected, provision it
+  yourself (or reconnect): `await auth.provision_device(device)` and
+  `await auth.provision_user_id(device)`. Both are no-ops when nobody's signed in, so
+  they're always safe to call — don't gate them behind an `if signed_in` check.
 - Renewal after that is automatic: each connected `MudraDevice` owns a `LicenseManager`
-  that re-provisions before the token expires. **Don't add your own renewal loop.**
-- The session is **in-memory only, for the current process** — there's no persisted
-  login across restarts (unlike some other SDKs in this org). Sign in again each run.
+  that re-provisions before the token expires (while signed in). **Don't add your own
+  renewal loop.**
+- The signed-in **tier** lives in memory only, for the current process — after a restart
+  `provision_device()` does nothing until you call `sign_in_email()` again. The cloud
+  client's **tokens**, though, are written to `~/.mudra_sdk/auth_storage.json`; they
+  survive restarts and `auth.logout()`, so `MudraServerClient` calls keep
+  working. For a full sign-out, also call
+  `from mudra_sdk.cloud import AuthStorage; AuthStorage().clear()`.
 
 👉 **Read [`docs/AUTH.md`](docs/AUTH.md) before writing sign-in/licensing code.** That
 file is the single source of truth: the full API, the `LicenseManager` renewal
@@ -57,19 +69,36 @@ The next session to connect will find it still on.
 
 👉 Details: [`docs/SENSORS.md`](docs/SENSORS.md#turning-sensors-off-is-the-apps-job).
 
+## Two more easy mistakes
+
+- **`await device.connect()` returning is the "ready" point**, not
+  `MudraDelegate.on_mudra_device_connected` — that fires earlier, as soon as the link
+  opens, before the SDK has finished setting the device up. Enable sensors after
+  `connect()` returns. `connect()` never raises on failure: failures arrive via
+  `on_mudra_device_connection_failed`, so check `await Mudra().is_connected(device)`
+  afterwards. Details: [`docs/CONNECTION.md`](docs/CONNECTION.md).
+- **Callbacks must be plain `def`.** Delegate methods and per-device `set_on_*`
+  callbacks are called directly (not awaited) on the asyncio loop thread — an
+  `async def` callback never runs. Keep them fast; start async work with
+  `asyncio.create_task(...)`. Details: [`docs/CALLBACKS.md`](docs/CALLBACKS.md).
+
 ## Supported firmware
 
 <!-- firmware-versions:sentence -->
 
-This SDK version (**0.4.8**) supports Mudra Pro firmware **2.0.2.5** and Mudra Ultimate firmware **1.0.3.7**.
+This SDK version (**0.5.0**) supports Mudra Pro firmware **2.0.2.6** and Mudra Ultimate firmware **1.0.3.8**.
 
 <!-- /firmware-versions -->
 
 Each SDK release supports exactly one firmware version per model — there's no minimum
-version or range. If a device misbehaves, check its firmware first
-(`device.get_firmware_version_info().version_string` after
-`await device.get_firmware_version()`). Need the versions in code? Read
-[`supported_firmware.json`](supported_firmware.json) rather than hardcoding them.
+version or range. If a device misbehaves, check its firmware first:
+`await device.get_firmware_version()` only sends the request — read the reply in the
+`set_on_firmware_version_received` callback, or from
+`device.get_firmware_version_info().version_string` once that's no longer `None`. Need
+the versions in code? Read [`supported_firmware.json`](supported_firmware.json) rather
+than hardcoding them — **not** `FirmwareDetails.*`, which holds constants for a
+different product (Mudra Band). Never hand-edit the text between the
+`firmware-versions` markers above; it's generated.
 
 👉 Details: [`docs/supported_devices.md`](docs/supported_devices.md#firmware-compatibility).
 

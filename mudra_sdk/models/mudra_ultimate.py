@@ -83,7 +83,7 @@ class MudraUltimate(MudraDevice):
         await self.send_command(fp.set_bool(self.CMD.emgRld, enable))
 
     async def emg_isolate(self) -> None:
-        """Stop PPG/IMUs/TinyTap/LEDs/advertising, leave EMG running
+        """Stop PPG (both PPG_H and PPG_F)/IMUs/TinyTap/LEDs/advertising, leave EMG running
         (BT_EMG_ISOLATE / CDC "EMG_ISOLATE") — bare action, no action byte,
         no GET."""
         if self.transport == "cdc":

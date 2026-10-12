@@ -22,7 +22,6 @@ from mudra_sdk.models.enums import (
     IMUGyrRange,
     LicenseTier,
     MudraModel,
-    PPGChannelCount,
     RecordingDataType,
     SensorTypes,
 )
@@ -52,13 +51,18 @@ logger = get_logger(__name__)
 _STATUS_HDR_LEN = 3
 _EMG_STATUS_PAYLOAD_LEN = 4   # enabled, odr u16 LE, resolution_bits
 _IMU_STATUS_PAYLOAD_LEN = 6  # enabled, odr u16 LE, accel_g, gyro u16 LE
-_PPG_STATUS_PAYLOAD_LEN = 4  # enabled, odr u16 LE, channel_count
-_RECORD_STATUS_PAYLOAD_LEN = 6  # active, emg, ppg, imu_hand, imu_ring, file_num
+_PPG_STATUS_PAYLOAD_LEN = 3  # enabled, odr u16 LE (same shape for PPG_H / PPG_F)
+_RECORD_STATUS_PAYLOAD_LEN = 7  # active, emg, ppg_h, imu_hand, imu_ring, ppg_f, file_num
 
-# BT_STORAGE_RECORD_SET request is [cmd, feature, 4 sensor flags, is_test,
-# file_num, duration_min(u16 LE), utc_ts(u32 LE), description...] — leave
-# room under BT_CMD_MAX_LEN (96).
-_STORAGE_RECORD_SET_FIXED_LEN = 14
+# BT_STORAGE_RECORD_SET request is [cmd, feature, 5 sensor flags (emg,
+# ppg_h, imu_h, imu_f, ppg_f), is_test, file_num, duration_min(u16 LE),
+# utc_ts(u32 LE), description...] — leave room under BT_CMD_MAX_LEN (96).
+# Mirrors BT_STORAGE_RECORD_SET_FIXED_LEN in {Pro,Ultimate}FirmwareCommands.h.
+_STORAGE_RECORD_SET_FIXED_LEN = 15
+
+# PPG_H / PPG_F per-channel settings (LED/TIA/SRC) take a sensor-local
+# channel: 0-1 on each sensor (firmware maps PPG_F's to AFE channels 2-3).
+_PPG_LOCAL_CHANNELS = 2
 _STORAGE_RECORD_DESC_MAX_LEN = 96 - _STORAGE_RECORD_SET_FIXED_LEN
 _STORAGE_RECORD_DURATION_MAX_MIN = 0xFFFF
 _STORAGE_RECORD_UTC_TS_MAX = 0xFFFFFFFF
@@ -99,11 +103,16 @@ class EmgStatus:
 
 @dataclass
 class PpgStatus:
-    """Firmware ``ppg_status_t`` — PPG unified status reply payload."""
+    """Firmware ``ppg_status_t`` — PPG_H / PPG_F unified status reply payload.
+
+    ``enabled`` is that sensor's own flag (not the shared AFE chip's).
+    ``odr_hz`` is chip-wide, so PPG_H and PPG_F always report the same
+    value. Each sensor always carries 2 channels. With no ring, PPG_F has no
+    status at all: the device answers its status query with ``ERR_STATE``
+    (the command-error callback), exactly as for F_IMU."""
 
     enabled: bool
     odr_hz: PPGODR
-    channel_count: PPGChannelCount
 
 
 @dataclass
@@ -122,9 +131,10 @@ class RecordStatus:
 
     active: bool
     emg: bool
-    ppg: bool
+    ppg_h: bool
     imu_hand: bool
     imu_ring: bool
+    ppg_f: bool
     file_num: int
 
 
@@ -227,7 +237,8 @@ class MudraDevice(BLEDevice):
             FirmwareDataType.emg: False,
             FirmwareDataType.imuH: False,
             FirmwareDataType.imuF: False,
-            FirmwareDataType.ppg: False,
+            FirmwareDataType.ppgH: False,
+            FirmwareDataType.ppgF: False,
         }
 
         ### ----------------------- Data Recorder ----------------------- ###
@@ -250,12 +261,13 @@ class MudraDevice(BLEDevice):
         self._on_emg_ready_ref = None
         self._on_imu_h_ready: Optional[computationWrapperModule.OnImuReadyCallback] = None
         self._on_imu_f_ready: Optional[computationWrapperModule.OnImuReadyCallback] = None
-        self._on_ppg_ready: Optional[computationWrapperModule.OnPpgReadyCallback] = None
-        self._on_ppg_ready_ref = None
+        self._on_ppg_h_ready: Optional[computationWrapperModule.OnPpgReadyCallback] = None
+        self._on_ppg_f_ready: Optional[computationWrapperModule.OnPpgReadyCallback] = None
         self._on_emg_status: Optional[OnEmgStatusReceivedCallback] = None
         self._on_h_imu_status: Optional[OnImuStatusReceivedCallback] = None
         self._on_f_imu_status: Optional[OnImuStatusReceivedCallback] = None
-        self._on_ppg_status: Optional[OnPpgStatusReceivedCallback] = None
+        self._on_ppg_h_status: Optional[OnPpgStatusReceivedCallback] = None
+        self._on_ppg_f_status: Optional[OnPpgStatusReceivedCallback] = None
         self._on_record_status: Optional[OnRecordStatusReceivedCallback] = None
         self._on_record_error: Optional[OnRecordErrorReceivedCallback] = None
         self._on_next_file_num: Optional[OnNextFileNumReceivedCallback] = None
@@ -276,21 +288,23 @@ class MudraDevice(BLEDevice):
         self._emg_packet_loss = PacketLossWindow()
         self._h_imu_packet_loss = PacketLossWindow()
         self._f_imu_packet_loss = PacketLossWindow()
-        self._ppg_packet_loss = PacketLossWindow()
+        self._ppg_h_packet_loss = PacketLossWindow()
+        self._ppg_f_packet_loss = PacketLossWindow()
 
         ### ----------------------- Computation Wrapper ----------------------- ###
         self._computation_wrapper = computationWrapperModule.ComputationWrapper()
         # EMG channel count is fixed by hardware model (3 on Pro, 8 on
-        # Ultimate) — unlike PPG's channel count, it's never negotiated via a
-        # STATUS reply, so it's pushed once here rather than from
-        # _on_emg_status_received.
+        # Ultimate) — it's never negotiated via a STATUS reply, so it's
+        # pushed once here rather than from _on_emg_status_received. (PPG_H
+        # and PPG_F need nothing: their stride is fixed at 2 ch × int24.)
         self._computation_wrapper.set_parser_emg_channel_count(self.EMG_CHANNEL_COUNT)
 
         ### ----------------------- Sensor status (last STATUS reply) --------- ###
         self._emg_status: Optional[EmgStatus] = None
         self._h_imu_status: Optional[ImuStatus] = None
         self._f_imu_status: Optional[ImuStatus] = None
-        self._ppg_status: Optional[PpgStatus] = None
+        self._ppg_h_status: Optional[PpgStatus] = None
+        self._ppg_f_status: Optional[PpgStatus] = None
         self._record_status: Optional[RecordStatus] = None
         self._next_file_num: Optional[int] = None
         self._license_device_info: Optional[LicenseDeviceInfo] = None
@@ -343,12 +357,15 @@ class MudraDevice(BLEDevice):
         self._on_imu_h_ready = None
         self._computation_wrapper.set_on_imu_f_ready(None)
         self._on_imu_f_ready = None
-        self._computation_wrapper.set_on_ppg_ready(None)
-        self._on_ppg_ready = None
+        self._computation_wrapper.set_on_ppg_h_ready(None)
+        self._on_ppg_h_ready = None
+        self._computation_wrapper.set_on_ppg_f_ready(None)
+        self._on_ppg_f_ready = None
         self._on_emg_status = None
         self._on_h_imu_status = None
         self._on_f_imu_status = None
-        self._on_ppg_status = None
+        self._on_ppg_h_status = None
+        self._on_ppg_f_status = None
         self._on_record_status = None
         self._on_record_error = None
         self._on_next_file_num = None
@@ -356,21 +373,18 @@ class MudraDevice(BLEDevice):
         self._on_ping_response = None
         self._on_license_device_info = None
         self._on_firmware_version = None
-        for data_type in (
-            FirmwareDataType.emg,
-            FirmwareDataType.imuH,
-            FirmwareDataType.imuF,
-            FirmwareDataType.ppg,
-        ):
+        for data_type in FirmwareDataType:
             self._computation_wrapper.reset_packet_loss_stats(data_type.value)
         self._emg_packet_loss.reset()
         self._h_imu_packet_loss.reset()
         self._f_imu_packet_loss.reset()
-        self._ppg_packet_loss.reset()
+        self._ppg_h_packet_loss.reset()
+        self._ppg_f_packet_loss.reset()
         self._emg_status = None
         self._h_imu_status = None
         self._f_imu_status = None
-        self._ppg_status = None
+        self._ppg_h_status = None
+        self._ppg_f_status = None
         self._record_status = None
         self._next_file_num = None
         self._license_device_info = None
@@ -400,8 +414,10 @@ class MudraDevice(BLEDevice):
             self._on_h_imu_status_received(status)
         elif sensor_type == SensorTypes.F_IMU:
             self._on_f_imu_status_received(status)
-        elif sensor_type == SensorTypes.PPG:
-            self._on_ppg_status_received(status)
+        elif sensor_type == SensorTypes.PPG_H:
+            self._on_ppg_h_status_received(status)
+        elif sensor_type == SensorTypes.PPG_F:
+            self._on_ppg_f_status_received(status)
 
     def on_storage_record_state_received(self, status: bytes):
         logger.debug(f"Storage record state received: {status.hex(' ')}")
@@ -538,50 +554,55 @@ class MudraDevice(BLEDevice):
             gyro_range_dps=gyr,
         )
 
-    def _on_ppg_status_received(self, status: bytes) -> None:
+    def _on_ppg_h_status_received(self, status: bytes) -> None:
+        parsed = self._parse_ppg_status(status, "PPG_H")
+        if parsed is None:
+            return
+        self._ppg_h_status = parsed
+        if self._on_ppg_h_status:
+            self._on_ppg_h_status(parsed)
+
+    def _on_ppg_f_status_received(self, status: bytes) -> None:
+        parsed = self._parse_ppg_status(status, "PPG_F")
+        if parsed is None:
+            return
+        self._ppg_f_status = parsed
+        if self._on_ppg_f_status:
+            self._on_ppg_f_status(parsed)
+
+    def _parse_ppg_status(self, status: bytes, label: str) -> Optional[PpgStatus]:
+        """Shared PPG_H / PPG_F STATE decoder (same 3-byte payload shape).
+        Nothing is pushed to the native parser: both sensors' DATA stride is
+        fixed at 2 channels × int24."""
         payload = self._status_payload(status, _PPG_STATUS_PAYLOAD_LEN)
         if payload is None:
-            logger.warning(f"PPG status: bad frame len={len(status)} data={status.hex(' ')}")
-            return
-        enabled, odr_hz, channel_count = struct.unpack("<BHB", payload)
+            logger.warning(f"{label} status: bad frame len={len(status)} data={status.hex(' ')}")
+            return None
+        enabled, odr_hz = struct.unpack("<BH", payload)
         if enabled not in (0, 1):
-            logger.warning(f"PPG status: bad enabled={enabled} payload={payload.hex(' ')}")
-            return
+            logger.warning(f"{label} status: bad enabled={enabled} payload={payload.hex(' ')}")
+            return None
         odr = PPGODR.from_value(odr_hz)
-        channels = PPGChannelCount.from_value(channel_count)
-        if odr is None or channels is None:
-            logger.warning(
-                f"PPG status: unknown enum values "
-                f"odr={odr_hz} channels={channel_count} payload={payload.hex(' ')}"
-            )
-            return
-        self._ppg_status = PpgStatus(
-            enabled=bool(enabled),
-            odr_hz=odr,
-            channel_count=channels,
-        )
-        # Stride is channel_count × 3 B (ODR is not used for DATA decode).
-        self._computation_wrapper.set_parser_ppg_channel_count(channels.value_int)
-        logger.debug(
-            f"PPG status: enabled={self._ppg_status.enabled} "
-            f"odr={self._ppg_status.odr_hz.value_int} Hz "
-            f"channels={self._ppg_status.channel_count.value_int}"
-        )
-        if self._on_ppg_status:
-            self._on_ppg_status(self._ppg_status)
+        if odr is None:
+            logger.warning(f"{label} status: unknown odr={odr_hz} payload={payload.hex(' ')}")
+            return None
+        parsed = PpgStatus(enabled=bool(enabled), odr_hz=odr)
+        logger.debug(f"{label} status: enabled={parsed.enabled} odr={parsed.odr_hz.value_int} Hz")
+        return parsed
 
     def _on_record_status_received(self, status: bytes) -> None:
         payload = self._status_payload(status, _RECORD_STATUS_PAYLOAD_LEN)
         if payload is None:
             logger.warning(f"Record status: bad frame len={len(status)} data={status.hex(' ')}")
             return
-        active, emg, ppg, imu_hand, imu_ring, file_num = struct.unpack("6B", payload)
+        active, emg, ppg_h, imu_hand, imu_ring, ppg_f, file_num = struct.unpack("7B", payload)
         for label, flag in (
             ("active", active),
             ("emg", emg),
-            ("ppg", ppg),
+            ("ppg_h", ppg_h),
             ("imu_hand", imu_hand),
             ("imu_ring", imu_ring),
+            ("ppg_f", ppg_f),
         ):
             if flag not in (0, 1):
                 logger.warning(f"Record status: bad {label}={flag} payload={payload.hex(' ')}")
@@ -589,15 +610,17 @@ class MudraDevice(BLEDevice):
         self._record_status = RecordStatus(
             active=bool(active),
             emg=bool(emg),
-            ppg=bool(ppg),
+            ppg_h=bool(ppg_h),
             imu_hand=bool(imu_hand),
             imu_ring=bool(imu_ring),
+            ppg_f=bool(ppg_f),
             file_num=file_num,
         )
         logger.debug(
             f"Record status: active={self._record_status.active} "
-            f"emg={self._record_status.emg} ppg={self._record_status.ppg} "
+            f"emg={self._record_status.emg} ppg_h={self._record_status.ppg_h} "
             f"imu_h={self._record_status.imu_hand} imu_f={self._record_status.imu_ring} "
+            f"ppg_f={self._record_status.ppg_f} "
             f"file={self._record_status.file_num}"
         )
         if self._on_record_status:
@@ -663,8 +686,11 @@ class MudraDevice(BLEDevice):
     def get_f_imu_status_info(self) -> Optional[ImuStatus]:
         return self._f_imu_status
 
-    def get_ppg_status_info(self) -> Optional[PpgStatus]:
-        return self._ppg_status
+    def get_ppg_h_status_info(self) -> Optional[PpgStatus]:
+        return self._ppg_h_status
+
+    def get_ppg_f_status_info(self) -> Optional[PpgStatus]:
+        return self._ppg_f_status
 
     def get_record_status_info(self) -> Optional[RecordStatus]:
         return self._record_status
@@ -690,8 +716,11 @@ class MudraDevice(BLEDevice):
     def get_f_imu_packet_loss_stats(self) -> Tuple[int, int]:
         return self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.imuF.value)
 
-    def get_ppg_packet_loss_stats(self) -> Tuple[int, int]:
-        return self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.ppg.value)
+    def get_ppg_h_packet_loss_stats(self) -> Tuple[int, int]:
+        return self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.ppgH.value)
+
+    def get_ppg_f_packet_loss_stats(self) -> Tuple[int, int]:
+        return self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.ppgF.value)
 
     def get_emg_packet_loss_rate_hz(self) -> float:
         return self._emg_packet_loss.rate_hz
@@ -702,8 +731,11 @@ class MudraDevice(BLEDevice):
     def get_f_imu_packet_loss_rate_hz(self) -> float:
         return self._f_imu_packet_loss.rate_hz
 
-    def get_ppg_packet_loss_rate_hz(self) -> float:
-        return self._ppg_packet_loss.rate_hz
+    def get_ppg_h_packet_loss_rate_hz(self) -> float:
+        return self._ppg_h_packet_loss.rate_hz
+
+    def get_ppg_f_packet_loss_rate_hz(self) -> float:
+        return self._ppg_f_packet_loss.rate_hz
 
     def reset_emg_packet_loss_window(self) -> None:
         """Zero the windowed ('last ~1s') reading without touching the native lifetime counters."""
@@ -715,8 +747,11 @@ class MudraDevice(BLEDevice):
     def reset_f_imu_packet_loss_window(self) -> None:
         self._f_imu_packet_loss.reset()
 
-    def reset_ppg_packet_loss_window(self) -> None:
-        self._ppg_packet_loss.reset()
+    def reset_ppg_h_packet_loss_window(self) -> None:
+        self._ppg_h_packet_loss.reset()
+
+    def reset_ppg_f_packet_loss_window(self) -> None:
+        self._ppg_f_packet_loss.reset()
 
     def sample_emg_packet_loss(self) -> float:
         """Read the native counters right now and return the windowed loss %
@@ -734,9 +769,13 @@ class MudraDevice(BLEDevice):
         seen, lost = self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.imuF.value)
         return self._f_imu_packet_loss.update(seen, lost)
 
-    def sample_ppg_packet_loss(self) -> float:
-        seen, lost = self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.ppg.value)
-        return self._ppg_packet_loss.update(seen, lost)
+    def sample_ppg_h_packet_loss(self) -> float:
+        seen, lost = self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.ppgH.value)
+        return self._ppg_h_packet_loss.update(seen, lost)
+
+    def sample_ppg_f_packet_loss(self) -> float:
+        seen, lost = self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.ppgF.value)
+        return self._ppg_f_packet_loss.update(seen, lost)
 
     ### ----------------------- Setter Methods ----------------------- ###
 
@@ -766,9 +805,23 @@ class MudraDevice(BLEDevice):
         self._computation_wrapper.set_on_imu_f_ready(callback)
         await self._update_state_enabled()
 
-    async def set_on_ppg_ready(self, callback: Optional[computationWrapperModule.OnPpgReadyCallback]) -> None:
-        self._on_ppg_ready = callback
-        self._computation_wrapper.set_on_ppg_ready(callback)
+    async def set_on_ppg_h_ready(self, callback: Optional[computationWrapperModule.OnPpgReadyCallback]) -> None:
+        """Hand PPG (AFE channels 0-1): 2 channels, channel-major (``ch0``
+        samples then ``ch1``). Registering powers PPG_H on, ``None`` powers
+        it off."""
+        self._on_ppg_h_ready = callback
+        self._computation_wrapper.set_on_ppg_h_ready(callback)
+        await self._update_state_enabled()
+
+    async def set_on_ppg_f_ready(self, callback: Optional[computationWrapperModule.OnPpgReadyCallback]) -> None:
+        """Finger (ring) PPG (AFE channels 2-3, delivered as local ``ch0``,
+        ``ch1``): same layout as :meth:`set_on_ppg_h_ready`. Needs the ring:
+        without it the device rejects the power-on with ``ERR_STATE`` (via
+        the command-error callback), and if the ring is unplugged while
+        PPG_F is on, the callback simply stops firing until it is back
+        (meanwhile :meth:`get_ppg_f_status` gets ``ERR_STATE``, like F_IMU's)."""
+        self._on_ppg_f_ready = callback
+        self._computation_wrapper.set_on_ppg_f_ready(callback)
         await self._update_state_enabled()
 
     async def set_on_emg_status_received(
@@ -786,10 +839,15 @@ class MudraDevice(BLEDevice):
     ) -> None:
         self._on_f_imu_status = callback
 
-    async def set_on_ppg_status_received(
+    async def set_on_ppg_h_status_received(
         self, callback: Optional[OnPpgStatusReceivedCallback]
     ) -> None:
-        self._on_ppg_status = callback
+        self._on_ppg_h_status = callback
+
+    async def set_on_ppg_f_status_received(
+        self, callback: Optional[OnPpgStatusReceivedCallback]
+    ) -> None:
+        self._on_ppg_f_status = callback
 
     async def set_on_storage_record_state_received(
         self, callback: Optional[OnRecordStatusReceivedCallback]
@@ -845,7 +903,8 @@ class MudraDevice(BLEDevice):
         asyncio.create_task(self.get_emg_status())
         asyncio.create_task(self.get_h_imu_status())
         asyncio.create_task(self.get_f_imu_status())
-        asyncio.create_task(self.get_ppg_status())
+        asyncio.create_task(self.get_ppg_h_status())
+        asyncio.create_task(self.get_ppg_f_status())
         asyncio.create_task(self.get_storage_record_state())
         asyncio.create_task(self.get_device_info())
         asyncio.create_task(self.get_firmware_version())
@@ -870,8 +929,11 @@ class MudraDevice(BLEDevice):
     def is_on_imu_f_ready_callback_set(self) -> bool:
         return self._on_imu_f_ready is not None
 
-    def is_on_ppg_ready_callback_set(self) -> bool:
-        return self._on_ppg_ready is not None
+    def is_on_ppg_h_ready_callback_set(self) -> bool:
+        return self._on_ppg_h_ready is not None
+
+    def is_on_ppg_f_ready_callback_set(self) -> bool:
+        return self._on_ppg_f_ready is not None
 
     def is_on_emg_status_received_callback_set(self) -> bool:
         return self._on_emg_status is not None
@@ -882,8 +944,11 @@ class MudraDevice(BLEDevice):
     def is_on_f_imu_status_received_callback_set(self) -> bool:
         return self._on_f_imu_status is not None
 
-    def is_on_ppg_status_received_callback_set(self) -> bool:
-        return self._on_ppg_status is not None
+    def is_on_ppg_h_status_received_callback_set(self) -> bool:
+        return self._on_ppg_h_status is not None
+
+    def is_on_ppg_f_status_received_callback_set(self) -> bool:
+        return self._on_ppg_f_status is not None
 
     def is_on_storage_record_state_received_callback_set(self) -> bool:
         return self._on_record_status is not None
@@ -962,7 +1027,8 @@ class MudraDevice(BLEDevice):
             FirmwareDataType.emg: self.CMD.enableEmg,
             FirmwareDataType.imuH: self.CMD.enableHImu,
             FirmwareDataType.imuF: self.CMD.enableFImu,
-            FirmwareDataType.ppg: self.CMD.enablePpg,
+            FirmwareDataType.ppgH: self.CMD.enablePpgH,
+            FirmwareDataType.ppgF: self.CMD.enablePpgF,
         }.get(data_type)
 
     def _cdc_token(self, cmd, enable: bool = True) -> str:
@@ -973,7 +1039,7 @@ class MudraDevice(BLEDevice):
         back complete ("EMG?", not "EMG_STATUS"+something) — callers send
         that result as-is via `_cdc_send`; `_cdc_command` appends
         " value"/"?" itself for everything else. `enable` only matters for
-        the 5 ENABLE_* (power) commands."""
+        the 6 ENABLE_* (power) commands."""
         from mudra_sdk.models.enums import ProFirmwareCommand
         wrapper = computationWrapperModule.ComputationWrapper
         if isinstance(cmd, ProFirmwareCommand):
@@ -982,7 +1048,7 @@ class MudraDevice(BLEDevice):
 
     async def _cdc_send(self, token: str) -> None:
         """Write `token` verbatim (a resolved status/power/action command —
-        e.g. ``"EMG?"``, ``"EMG_ON"``, ``"PPG_CLEAR"`` — that needs no
+        e.g. ``"EMG?"``, ``"EMG_ON"``, ``"PPG_H_CLEAR"`` — that needs no
         further suffix)."""
         await mudraModule.Mudra().send_cdc_command(self, token)
 
@@ -1012,7 +1078,8 @@ class MudraDevice(BLEDevice):
         await self.get_emg_status()
         await self.get_h_imu_status()
         await self.get_f_imu_status()
-        await self.get_ppg_status()
+        await self.get_ppg_h_status()
+        await self.get_ppg_f_status()
         await self.get_battery_status()
         # Mirrors update_connection_properties()'s BLE equivalent: best-effort
         # provision right after connect, not gated on anything above, so a
@@ -1415,97 +1482,179 @@ class MudraDevice(BLEDevice):
         await self.send_command(bytes(self.CMD.fImuStatus.id))
 
 
-    # ---- PPG config (0x40) ------------------------------------------------ #
+    # ---- PPG_H (0x40) / PPG_F (0xA0) config ------------------------------ #
+    #
+    # One AFE4950 chip serves both sensors. ODR, DEC and PRPCT are chip-wide:
+    # setting one through either sensor changes it for both, and reading it
+    # through either returns the same value. LED/TIA/SRC are per channel and
+    # take a sensor-local ``ch`` (0-1); firmware maps PPG_F's to AFE channels
+    # 2-3. The firmware rejects config SETs on either sensor while either one
+    # is streaming. Each public method below is a thin wrapper over one shared
+    # helper, parameterised by sensor ("H" or "F").
 
-    async def set_ppg_odr(self, odr: PPGODR) -> None:
-        if self.transport == "cdc":
-            await self._cdc_command(self.CMD.ppgOdr, odr.value_int)
-            return
-        await self.send_command(fp.set_u16(self.CMD.ppgOdr, odr.value_int))
+    def _ppg_cmd(self, sensor: str, op: str):
+        """This device's command for PPG ``op`` (e.g. "Odr", "Led", "Status")
+        on ``sensor`` ("H" or "F") — ``self.CMD.ppgHOdr`` etc."""
+        return getattr(self.CMD, f"ppg{sensor}{op}")
 
-    async def get_ppg_odr(self) -> None:
-        if self.transport == "cdc":
-            await self._cdc_command(self.CMD.ppgOdr)
-            return
-        await self.send_command(fp.get_paired(self.CMD.ppgOdr))
+    @staticmethod
+    def _check_ppg_channel(ch: int) -> None:
+        if not 0 <= ch < _PPG_LOCAL_CHANNELS:
+            raise ValueError(
+                f"PPG channel must be a sensor-local 0-{_PPG_LOCAL_CHANNELS - 1}, got {ch}"
+            )
 
-    async def set_ppg_dec(self, factor: int) -> None:
+    async def _ppg_set_value(self, sensor: str, op: str, value: int, u16: bool) -> None:
+        cmd = self._ppg_cmd(sensor, op)
         if self.transport == "cdc":
-            await self._cdc_command(self.CMD.ppgDec, factor)
+            await self._cdc_command(cmd, value)
             return
-        await self.send_command(fp.set_u8(self.CMD.ppgDec, factor))
+        await self.send_command(fp.set_u16(cmd, value) if u16 else fp.set_u8(cmd, value))
 
-    async def get_ppg_dec(self) -> None:
+    async def _ppg_get_value(self, sensor: str, op: str) -> None:
+        cmd = self._ppg_cmd(sensor, op)
         if self.transport == "cdc":
-            await self._cdc_command(self.CMD.ppgDec)
+            await self._cdc_command(cmd)
             return
-        await self.send_command(fp.get_paired(self.CMD.ppgDec))
+        await self.send_command(fp.get_paired(cmd))
 
-    async def set_ppg_led(self, ch: int, drv1: int, drv2: int) -> None:
+    async def _ppg_set_channel(self, sensor: str, op: str, ch: int, a: int, b: int) -> None:
+        self._check_ppg_channel(ch)
+        cmd = self._ppg_cmd(sensor, op)
         if self.transport == "cdc":
-            token = self._cdc_token(self.CMD.ppgLed)
-            await mudraModule.Mudra().send_cdc_command(self, f"{token} {ch} {drv1} {drv2}")
+            await self._cdc_send(f"{self._cdc_token(cmd)} {ch} {a} {b}")
             return
-        await self.send_command(fp.ppg_led_set(ch, drv1, drv2))
+        await self.send_command(fp.ppg_channel_set(cmd, ch, a, b))
 
-    async def get_ppg_led(self, ch: int) -> None:
+    async def _ppg_get_channel(self, sensor: str, op: str, ch: int) -> None:
+        self._check_ppg_channel(ch)
+        cmd = self._ppg_cmd(sensor, op)
         if self.transport == "cdc":
-            token = self._cdc_token(self.CMD.ppgLed)
-            await mudraModule.Mudra().send_cdc_command(self, f"{token}? {ch}")
+            await self._cdc_send(f"{self._cdc_token(cmd)}? {ch}")
             return
-        await self.send_command(fp.ppg_led_get(ch))
+        await self.send_command(fp.ppg_channel_get(cmd, ch))
 
-    async def set_ppg_tia(self, ch: int, rf: int, cf: int) -> None:
+    async def _ppg_clear(self, sensor: str) -> None:
+        cmd = self._ppg_cmd(sensor, "Clear")
         if self.transport == "cdc":
-            token = self._cdc_token(self.CMD.ppgTia)
-            await mudraModule.Mudra().send_cdc_command(self, f"{token} {ch} {rf} {cf}")
+            await self._cdc_send(self._cdc_token(cmd))
             return
-        await self.send_command(fp.ppg_tia_set(ch, rf, cf))
+        await self.send_command(fp.ppg_clear(cmd))
 
-    async def get_ppg_tia(self, ch: int) -> None:
+    async def _ppg_get_status(self, sensor: str) -> None:
+        cmd = self._ppg_cmd(sensor, "Status")
         if self.transport == "cdc":
-            token = self._cdc_token(self.CMD.ppgTia)
-            await mudraModule.Mudra().send_cdc_command(self, f"{token}? {ch}")
+            await self._cdc_send(self._cdc_token(cmd))
             return
-        await self.send_command(fp.ppg_tia_get(ch))
+        await self.send_command(bytes(cmd.id))
 
-    async def set_ppg_prpct(self, code: int) -> None:
-        if self.transport == "cdc":
-            await self._cdc_command(self.CMD.ppgPrpct, code)
-            return
-        await self.send_command(fp.set_u16(self.CMD.ppgPrpct, code))
+    # Hand PPG (PPG_H, 0x40) — AFE channels 0-1.
 
-    async def get_ppg_prpct(self) -> None:
-        if self.transport == "cdc":
-            await self._cdc_command(self.CMD.ppgPrpct)
-            return
-        await self.send_command(fp.get_paired(self.CMD.ppgPrpct))
+    async def set_ppg_h_odr(self, odr: PPGODR) -> None:
+        """Chip-wide: also changes PPG_F's ODR."""
+        await self._ppg_set_value("H", "Odr", odr.value_int, u16=True)
 
-    async def ppg_clear(self) -> None:
-        if self.transport == "cdc":
-            await self._cdc_send(self._cdc_token(self.CMD.ppgClear))
-            return
-        await self.send_command(fp.ppg_clear(self.model))
+    async def get_ppg_h_odr(self) -> None:
+        await self._ppg_get_value("H", "Odr")
 
-    async def set_ppg_src(self, ch: int, led: int, pd: int) -> None:
-        if self.transport == "cdc":
-            token = self._cdc_token(self.CMD.ppgSrc)
-            await mudraModule.Mudra().send_cdc_command(self, f"{token} {ch} {led} {pd}")
-            return
-        await self.send_command(fp.ppg_src_set(ch, led, pd))
+    async def set_ppg_h_dec(self, factor: int) -> None:
+        """Chip-wide: also changes PPG_F's decimation."""
+        await self._ppg_set_value("H", "Dec", factor, u16=False)
 
-    async def get_ppg_src(self, ch: int) -> None:
-        if self.transport == "cdc":
-            token = self._cdc_token(self.CMD.ppgSrc)
-            await mudraModule.Mudra().send_cdc_command(self, f"{token}? {ch}")
-            return
-        await self.send_command(fp.ppg_src_get(ch))
+    async def get_ppg_h_dec(self) -> None:
+        await self._ppg_get_value("H", "Dec")
 
-    async def get_ppg_status(self) -> None:
-        if self.transport == "cdc":
-            await self._cdc_send(self._cdc_token(self.CMD.ppgStatus))
-            return
-        await self.send_command(bytes(self.CMD.ppgStatus.id))
+    async def set_ppg_h_led(self, ch: int, drv1: int, drv2: int) -> None:
+        """LED drive for local channel ``ch`` (0-1)."""
+        await self._ppg_set_channel("H", "Led", ch, drv1, drv2)
+
+    async def get_ppg_h_led(self, ch: int) -> None:
+        await self._ppg_get_channel("H", "Led", ch)
+
+    async def set_ppg_h_tia(self, ch: int, rf: int, cf: int) -> None:
+        """TIA gain (RF/CF codes) for local channel ``ch`` (0-1)."""
+        await self._ppg_set_channel("H", "Tia", ch, rf, cf)
+
+    async def get_ppg_h_tia(self, ch: int) -> None:
+        await self._ppg_get_channel("H", "Tia", ch)
+
+    async def set_ppg_h_prpct(self, code: int) -> None:
+        """Chip-wide pulse-repetition period: also changes PPG_F's."""
+        await self._ppg_set_value("H", "Prpct", code, u16=True)
+
+    async def get_ppg_h_prpct(self) -> None:
+        await self._ppg_get_value("H", "Prpct")
+
+    async def ppg_h_clear(self) -> None:
+        """Drop this sensor's two channels' LED/TIA/SRC overrides plus the
+        shared PRPCT override."""
+        await self._ppg_clear("H")
+
+    async def set_ppg_h_src(self, ch: int, led: int, pd: int) -> None:
+        """LED (1-8) / photodiode (1-4) source for local channel ``ch`` (0-1)."""
+        await self._ppg_set_channel("H", "Src", ch, led, pd)
+
+    async def get_ppg_h_src(self, ch: int) -> None:
+        await self._ppg_get_channel("H", "Src", ch)
+
+    async def get_ppg_h_status(self) -> None:
+        """Query PPG_H STATE; the reply lands in ``get_ppg_h_status_info()``
+        and the ``set_on_ppg_h_status_received`` callback."""
+        await self._ppg_get_status("H")
+
+    # Finger PPG (PPG_F, 0xA0) — AFE channels 2-3; needs the ring.
+
+    async def set_ppg_f_odr(self, odr: PPGODR) -> None:
+        """Chip-wide: also changes PPG_H's ODR."""
+        await self._ppg_set_value("F", "Odr", odr.value_int, u16=True)
+
+    async def get_ppg_f_odr(self) -> None:
+        await self._ppg_get_value("F", "Odr")
+
+    async def set_ppg_f_dec(self, factor: int) -> None:
+        """Chip-wide: also changes PPG_H's decimation."""
+        await self._ppg_set_value("F", "Dec", factor, u16=False)
+
+    async def get_ppg_f_dec(self) -> None:
+        await self._ppg_get_value("F", "Dec")
+
+    async def set_ppg_f_led(self, ch: int, drv1: int, drv2: int) -> None:
+        """LED drive for local channel ``ch`` (0-1)."""
+        await self._ppg_set_channel("F", "Led", ch, drv1, drv2)
+
+    async def get_ppg_f_led(self, ch: int) -> None:
+        await self._ppg_get_channel("F", "Led", ch)
+
+    async def set_ppg_f_tia(self, ch: int, rf: int, cf: int) -> None:
+        """TIA gain (RF/CF codes) for local channel ``ch`` (0-1)."""
+        await self._ppg_set_channel("F", "Tia", ch, rf, cf)
+
+    async def get_ppg_f_tia(self, ch: int) -> None:
+        await self._ppg_get_channel("F", "Tia", ch)
+
+    async def set_ppg_f_prpct(self, code: int) -> None:
+        """Chip-wide pulse-repetition period: also changes PPG_H's."""
+        await self._ppg_set_value("F", "Prpct", code, u16=True)
+
+    async def get_ppg_f_prpct(self) -> None:
+        await self._ppg_get_value("F", "Prpct")
+
+    async def ppg_f_clear(self) -> None:
+        """Drop this sensor's two channels' LED/TIA/SRC overrides plus the
+        shared PRPCT override."""
+        await self._ppg_clear("F")
+
+    async def set_ppg_f_src(self, ch: int, led: int, pd: int) -> None:
+        """LED (1-8) / photodiode (1-4) source for local channel ``ch`` (0-1)."""
+        await self._ppg_set_channel("F", "Src", ch, led, pd)
+
+    async def get_ppg_f_src(self, ch: int) -> None:
+        await self._ppg_get_channel("F", "Src", ch)
+
+    async def get_ppg_f_status(self) -> None:
+        """Query PPG_F STATE; the reply lands in ``get_ppg_f_status_info()``
+        and the ``set_on_ppg_f_status_received`` callback."""
+        await self._ppg_get_status("F")
 
 
     # ---- Storage / SD recording (0x90) ------------------------------------ #
@@ -1513,9 +1662,11 @@ class MudraDevice(BLEDevice):
     async def set_storage_record(
         self,
         emg: bool,
-        ppg: bool,
+        ppg_h: bool,
         imu_h: bool,
         imu_f: bool,
+        ppg_f: bool,
+        *,
         file_num: int = 0,
         duration_min: int = 0,
         utc_ts: int = 0,
@@ -1523,6 +1674,9 @@ class MudraDevice(BLEDevice):
         is_test: bool = False,
     ) -> None:
         """Start/stop SD card recording per sensor (``BT_STORAGE_RECORD_SET``).
+
+        The five sensor flags are positional in wire order (EMG, PPG_H,
+        H_IMU, F_IMU, PPG_F); everything after them is keyword-only.
 
         Requires the device's **PRO** tier license — on FREE/PLUS a start is
         rejected with ``ERR_LICENSE`` (via the command-error callback)
@@ -1538,8 +1692,8 @@ class MudraDevice(BLEDevice):
         any other value (1-65535) arms a one-shot firmware timer that
         automatically stops the session after that many minutes — same
         sensor teardown and ``BT_STORAGE_RECORD_STATE`` push (``active=False``)
-        as calling ``set_storage_record(False, False, False, False,
-        file_num)`` yourself. Ignored when stopping. An earlier stop (manual,
+        as calling ``set_storage_record(False, False, False, False, False,
+        file_num=file_num)`` yourself. Ignored when stopping. An earlier stop (manual,
         disconnect, or a write-failure abort) cancels the pending timer.
 
         ``utc_ts``: 0 (default) supplies no timestamp; any other value is
@@ -1563,6 +1717,10 @@ class MudraDevice(BLEDevice):
         firmware's cdc_commands.c) — over CDC this immediately reports
         ``ERR_UNKNOWN`` via the command-error callback instead of sending.
         """
+        flags = (("emg", emg), ("ppg_h", ppg_h), ("imu_h", imu_h), ("imu_f", imu_f), ("ppg_f", ppg_f))
+        for label, flag in flags:
+            if flag not in (True, False):
+                raise TypeError(f"{label} must be a bool, got {flag!r}")
         if self.transport == "cdc":
             self.on_command_error_received(BtCmdId.STORAGE, BtCmdStatus.ERR_UNKNOWN)
             return
@@ -1581,18 +1739,24 @@ class MudraDevice(BLEDevice):
                     f"got {len(desc_bytes)}"
                 )
         tmpl = bytearray(self.CMD.storageRecordSet.id)
+        if len(tmpl) != _STORAGE_RECORD_SET_FIXED_LEN:
+            raise RuntimeError(
+                f"RECORD_SET template is {len(tmpl)} bytes, expected "
+                f"{_STORAGE_RECORD_SET_FIXED_LEN} — native library out of date?"
+            )
         tmpl[2] = 1 if emg else 0
-        tmpl[3] = 1 if ppg else 0
+        tmpl[3] = 1 if ppg_h else 0
         tmpl[4] = 1 if imu_h else 0
         tmpl[5] = 1 if imu_f else 0
-        tmpl[6] = 1 if is_test else 0
-        tmpl[7] = file_num & 0xFF
-        tmpl[8] = duration_min & 0xFF
-        tmpl[9] = (duration_min >> 8) & 0xFF
-        tmpl[10] = utc_ts & 0xFF
-        tmpl[11] = (utc_ts >> 8) & 0xFF
-        tmpl[12] = (utc_ts >> 16) & 0xFF
-        tmpl[13] = (utc_ts >> 24) & 0xFF
+        tmpl[6] = 1 if ppg_f else 0
+        tmpl[7] = 1 if is_test else 0
+        tmpl[8] = file_num & 0xFF
+        tmpl[9] = duration_min & 0xFF
+        tmpl[10] = (duration_min >> 8) & 0xFF
+        tmpl[11] = utc_ts & 0xFF
+        tmpl[12] = (utc_ts >> 8) & 0xFF
+        tmpl[13] = (utc_ts >> 16) & 0xFF
+        tmpl[14] = (utc_ts >> 24) & 0xFF
         await self.send_command(bytes(tmpl) + desc_bytes)
 
     async def get_storage_record_state(self) -> None:

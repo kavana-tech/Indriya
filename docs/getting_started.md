@@ -39,7 +39,9 @@ async def main():
     await mudra.stop_scan_cdc()
 
     device = delegate.device
-    await device.connect()          # waits for the connect() coroutine, not the "connected" event
+    await device.connect()          # returns after the SDK's connect sequence; never raises
+    if not await mudra.is_connected(device):
+        return                      # the reason went to on_mudra_device_connection_failed
 
     def on_emg(timestamp, samples, frequency, frequency_std):
         print(f"EMG @ {frequency}Hz: {len(samples)} samples")
@@ -58,13 +60,18 @@ A few things worth knowing before you build on this:
 - **Setting a sensor callback *is* the enable/disable action** — there's no
   separate "power on" call. `set_on_emg_ready(fn)` enables EMG and starts
   delivering samples to `fn`; `set_on_emg_ready(None)` disables it. Same
-  shape for `set_on_imu_h_ready` / `set_on_imu_f_ready` / `set_on_ppg_ready`.
+  shape for `set_on_imu_h_ready` / `set_on_imu_f_ready` / `set_on_ppg_h_ready` /
+  `set_on_ppg_f_ready`.
   See [SENSORS.md](SENSORS.md).
-- **`device.connect()` returning isn't the same as "fully ready."** BLE is
-  ready once its COMMAND characteristic is discovered; CDC needs the SDK to
-  query sensor status and then send `START` before data flows. Drive
-  readiness-dependent logic off `on_mudra_device_connected`, not the
-  `connect()` return. See [SDK_USAGE.md §4](SDK_USAGE.md#4-minimal-end-to-end-example).
+- **`await device.connect()` returning is the "ready to enable sensors"
+  point.** It returns only after the SDK's connect sequence has finished (BLE:
+  services discovered and notifications subscribed; CDC: both ports open, the
+  initial status queries sent and `START` sent by the SDK). It never raises on
+  failure — the reason goes to `on_mudra_device_connection_failed`, so check
+  `await Mudra().is_connected(device)` afterwards. `on_mudra_device_connected`
+  fires *earlier*, as soon as the link opens and before that setup, so don't
+  enable sensors from it. Status replies arrive asynchronously after
+  `connect()` returns. See [SDK_USAGE.md §4](SDK_USAGE.md#4-minimal-end-to-end-example).
 - **Connecting never requires an account.** The device streams at whatever
   license tier it already holds. See [AUTH.md](AUTH.md) before shipping an
   app that's meant to unlock `PLUS`/`PRO` features.

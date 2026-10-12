@@ -33,7 +33,6 @@
     ["auth", "sign in", "signin", "login", "account"],
     ["license", "licensing", "tier", "free", "plus", "pro"],
     ["recording", "storage", "sd card", "mrec"],
-    ["encryption", "encrypt", "ecies", "aes", "decrypt"],
     ["delegate", "callback", "callbacks"],
   ];
 

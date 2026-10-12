@@ -173,8 +173,10 @@ class BleService:
                 self._delegate.on_sensor_status_received(device.address, SensorTypes.H_IMU, bytes(data))
             case FirmwareCallbacks.F_IMU_STATUS:
                 self._delegate.on_sensor_status_received(device.address, SensorTypes.F_IMU, bytes(data))
-            case FirmwareCallbacks.PPG_STATUS:
-                self._delegate.on_sensor_status_received(device.address, SensorTypes.PPG, bytes(data))
+            case FirmwareCallbacks.PPG_H_STATUS:
+                self._delegate.on_sensor_status_received(device.address, SensorTypes.PPG_H, bytes(data))
+            case FirmwareCallbacks.PPG_F_STATUS:
+                self._delegate.on_sensor_status_received(device.address, SensorTypes.PPG_F, bytes(data))
             case FirmwareCallbacks.STORAGE_RECORD_STATE:
                 self._delegate.on_storage_record_state_received(device.address, bytes(data))
             case FirmwareCallbacks.STORAGE_RECORD_ERROR:
@@ -201,7 +203,7 @@ class BleService:
                 self._delegate.on_firmware_version_received(device.address, bytes(data))
             case _:
                 # Status-only reply: [0xF0, cmd_id, status]
-                # Covers SET/POWER acks for EMG/IMU/PPG/… and RECORD_SET errors.
+                # Covers SET/POWER acks for EMG/IMU/PPG_H/PPG_F/… and RECORD_SET errors.
                 if (
                     len(data) == 3
                     and data[0] == cmdType.BT_CMD_RESPONSE_HEADER.value_int

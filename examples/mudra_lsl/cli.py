@@ -11,7 +11,7 @@ not an installed package — see ``docs/installation.md``).
 
 Examples::
 
-    # first Mudra device found on either transport, all four sensors
+    # first Mudra device found on either transport, every sensor it has
     python examples/lsl_app.py
 
     # a specific BLE device by name substring, EMG + hand IMU only, 60 s
@@ -77,7 +77,7 @@ def _build_parser() -> argparse.ArgumentParser:
     # LSL / bridge.
     p.add_argument("--sensors", nargs="+", default=list(metadata.SENSOR_KEYS),
                    choices=metadata.SENSOR_KEYS, metavar="SENSOR",
-                   help=f"Sensors to turn on + publish (default: all four: "
+                   help=f"Sensors to turn on + publish (default: all: "
                         f"{' '.join(metadata.SENSOR_KEYS)}).")
     p.add_argument("--device-id",
                    help="Label for this device in every LSL stream name "
@@ -89,7 +89,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--imu-odr", type=int, choices=[m.value for m in IMUODR],
                    help="ODR for both IMUs (Hz).")
     p.add_argument("--ppg-odr", type=int, choices=[m.value for m in PPGODR],
-                   help="PPG ODR (Hz).")
+                   help="PPG ODR (Hz) — chip-wide, so it applies to both ppg_h and ppg_f.")
     p.add_argument("--duration", type=float, default=0.0,
                    help="Seconds to stream, then stop (0 = until Ctrl-C).")
     p.add_argument("--list", action="store_true",
@@ -229,8 +229,10 @@ async def _set_imu_odr(device: MudraDevice, hz: int) -> str:
 
 
 async def _set_ppg_odr(device: MudraDevice, hz: int) -> str:
-    await device.set_ppg_odr(PPGODR.from_value(hz))
-    return f"{hz} Hz"
+    # PPG_H and PPG_F share one AFE chip, so ODR is chip-wide: setting it
+    # through PPG_H (always present, unlike PPG_F's ring) changes both.
+    await device.set_ppg_h_odr(PPGODR.from_value(hz))
+    return f"{hz} Hz (PPG_H and PPG_F)"
 
 
 # (args attribute, label, setter) — the setter returns what to print.

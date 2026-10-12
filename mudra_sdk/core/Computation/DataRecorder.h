@@ -46,6 +46,8 @@ namespace Mudra::Computation
         void RecordImuType(ImuPackageData& data, RecordingDataType acc1, RecordingDataType acc2, RecordingDataType acc3, RecordingDataType accTS,
                             RecordingDataType gyro1, RecordingDataType gyro2, RecordingDataType gyro3, RecordingDataType gyrTS);
 
+        void RecordPpgType(PpgPackageData& data, RecordingDataType ch1, RecordingDataType ch2, RecordingDataType ts);
+
         void AddEventsToJson(json11::Json::object& data_tab, EventType eventType, const std::string& key);
 
     public:
@@ -68,7 +70,8 @@ namespace Mudra::Computation
         void RecordEMG(EmgPackageData& data);
         void RecordImuH(ImuPackageData& data);
         void RecordImuF(ImuPackageData& data);
-        void RecordPPG(PpgPackageData& data);
+        void RecordPpgH(PpgPackageData& data);
+        void RecordPpgF(PpgPackageData& data);
 
         bool IsEnabled() const {return m_isEnabled;}
         bool IsDataNeeded(FirmwareDataType dataType);

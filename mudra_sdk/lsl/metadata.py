@@ -2,17 +2,20 @@
 
 Static facts only — no device I/O, no ``pylsl``: the sensor keys, the suffix
 that goes into each stream's name, the LSL content type, and each channel's
-label and unit. The runtime facts (sample rate, and the channel count for EMG
-and PPG) are read from the device by :mod:`mudra_sdk.lsl.bridge`.
+label and unit. The runtime facts (sample rate, and the channel count for EMG)
+are read from the device by :mod:`mudra_sdk.lsl.bridge`.
 
 Units are the physical units the native parser already delivers (see
 ``docs/data_format.md``): EMG normalized to about [-1, 1], accelerometer in g,
 gyroscope in dps, PPG in microvolts.
 
-Stream suffixes match the Mudra Pro C++ SDK's LSL streams
-(``MudraPro-<id>-EMG`` / ``IMU_HAND`` / ``IMU_RING`` / ``PPG``), so consumers
-set up against one SDK find streams from the other unchanged. This SDK calls
-the same two IMUs "hand IMU" (``imu_h``) and "finger IMU" (``imu_f``).
+The EMG and IMU stream suffixes match the Mudra Pro C++ SDK's LSL streams
+(``MudraPro-<id>-EMG`` / ``IMU_HAND`` / ``IMU_RING``), so consumers set up
+against one SDK find those streams from the other unchanged. This SDK calls
+the same two IMUs "hand IMU" (``imu_h``) and "finger IMU" (``imu_f``). PPG is
+published as two streams, ``PPG_H`` (hand, AFE channels 0-1) and ``PPG_F``
+(finger/ring, AFE channels 2-3), two channels each, matching the device's
+PPG_H / PPG_F sensors.
 """
 
 from __future__ import annotations
@@ -23,10 +26,11 @@ from typing import Iterable, Optional
 EMG = "emg"
 IMU_HAND = "imu_hand"
 IMU_RING = "imu_ring"
-PPG = "ppg"
+PPG_H = "ppg_h"
+PPG_F = "ppg_f"
 
 #: Every publishable sensor, in the order streams are published.
-SENSOR_KEYS: tuple[str, ...] = (EMG, IMU_HAND, IMU_RING, PPG)
+SENSOR_KEYS: tuple[str, ...] = (EMG, IMU_HAND, IMU_RING, PPG_H, PPG_F)
 
 #: The six IMU channels as ``(label, unit, type)``: accelerometer x/y/z, then
 #: gyroscope x/y/z — the order the native parser delivers them in.
@@ -35,6 +39,12 @@ IMU_CHANNELS: tuple[tuple[str, str, str], ...] = (
     ("acc_z", "g", "Accelerometer"),
     ("gyr_x", "dps", "Gyroscope"), ("gyr_y", "dps", "Gyroscope"),
     ("gyr_z", "dps", "Gyroscope"),
+)
+
+#: The two channels of each PPG stream (PPG_H and PPG_F alike) as
+#: ``(label, unit, type)``: the sensor's local channels 0 and 1.
+PPG_CHANNELS: tuple[tuple[str, str, str], ...] = (
+    ("ch0", "microvolts", "PPG"), ("ch1", "microvolts", "PPG"),
 )
 
 
@@ -50,21 +60,21 @@ class SensorSpec:
     """Unit of every channel, for sensors whose channel count comes from the device."""
     channels: Optional[tuple[tuple[str, str, str], ...]] = None
     """Fixed ``(label, unit, type)`` per channel, or ``None`` when the device
-    decides how many channels there are (EMG: 3 on Pro / 8 on Ultimate;
-    PPG: 1–4)."""
+    decides how many channels there are (EMG: 3 on Pro / 8 on Ultimate)."""
 
 
 SENSORS: dict[str, SensorSpec] = {
     EMG: SensorSpec("EMG", "EMG", "normalized"),
     IMU_HAND: SensorSpec("IMU_HAND", "IMU", "g", IMU_CHANNELS),
     IMU_RING: SensorSpec("IMU_RING", "IMU", "g", IMU_CHANNELS),
-    PPG: SensorSpec("PPG", "PPG", "microvolts"),
+    PPG_H: SensorSpec("PPG_H", "PPG", "microvolts", PPG_CHANNELS),
+    PPG_F: SensorSpec("PPG_F", "PPG", "microvolts", PPG_CHANNELS),
 }
 
 
 def normalize_sensors(names: Optional[Iterable[str]]) -> list[str]:
     """Check a list of sensor keys and return it in publishing order, without
-    duplicates. ``None`` means all four. Raises :class:`ValueError` for an
+    duplicates. ``None`` means all of :data:`SENSOR_KEYS`. Raises :class:`ValueError` for an
     unknown key."""
     if names is None:
         return list(SENSOR_KEYS)
@@ -79,7 +89,7 @@ def normalize_sensors(names: Optional[Iterable[str]]) -> list[str]:
 def channels(sensor: str, n_channels: int) -> list[tuple[str, str, str]]:
     """``(label, unit, type)`` for each of the sensor's ``n_channels`` channels.
 
-    Fixed-layout sensors (the IMUs) return their table. The others get labels
+    Fixed-layout sensors (the IMUs and both PPGs) return their table. The others get labels
     ``ch0, ch1, …`` with the sensor's unit, and the stream type as each
     channel's type.
     """
@@ -89,5 +99,6 @@ def channels(sensor: str, n_channels: int) -> list[tuple[str, str, str]]:
     return [(f"ch{i}", spec.unit, spec.lsl_type) for i in range(n_channels)]
 
 
-__all__ = ["EMG", "IMU_HAND", "IMU_RING", "PPG", "SENSOR_KEYS", "IMU_CHANNELS",
-           "SensorSpec", "SENSORS", "normalize_sensors", "channels"]
+__all__ = ["EMG", "IMU_HAND", "IMU_RING", "PPG_H", "PPG_F", "SENSOR_KEYS",
+           "IMU_CHANNELS", "PPG_CHANNELS", "SensorSpec", "SENSORS",
+           "normalize_sensors", "channels"]

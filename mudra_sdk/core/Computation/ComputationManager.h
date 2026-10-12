@@ -34,7 +34,6 @@ namespace Mudra::Computation
         /* Push sensor STATUS into the DATA parser (stride + physical scaling). */
         void DLLEXPORT SetEmgResolutionBits(uint8_t bits);
         void DLLEXPORT SetEmgChannelCount(uint8_t channels);
-        void DLLEXPORT SetPpgChannelCount(uint8_t channels);
         void DLLEXPORT SetImuHRanges(uint8_t accelRangeG, uint16_t gyroRangeDps);
         void DLLEXPORT SetImuFRanges(uint8_t accelRangeG, uint16_t gyroRangeDps);
 
@@ -47,7 +46,8 @@ namespace Mudra::Computation
         void DLLEXPORT SetOnEmgPackageReadyCallBack(OnEmgPackageReadyCallbackType callback);
         void DLLEXPORT SetOnImuHPackageReadyCallBack(OnImuPackageReadyCallbackType callback);
         void DLLEXPORT SetOnImuFPackageReadyCallBack(OnImuPackageReadyCallbackType callback);
-        void DLLEXPORT SetOnPpgPackageReadyCallBack(OnPpgPackageReadyCallbackType callback);
+        void DLLEXPORT SetOnPpgHPackageReadyCallBack(OnPpgPackageReadyCallbackType callback);
+        void DLLEXPORT SetOnPpgFPackageReadyCallBack(OnPpgPackageReadyCallbackType callback);
         bool DLLEXPORT IsDataNeeded(FirmwareDataType dataType) const;
 
         //Recording tool callbacks.

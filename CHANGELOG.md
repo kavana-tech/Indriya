@@ -2,6 +2,99 @@
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-12
+
+### Changed
+
+- Supported Mudra Ultimate firmware is now **1.0.3.8** — see [Firmware compatibility](docs/supported_devices.md#firmware-compatibility).
+- Supported Mudra Pro firmware is now **2.0.2.6** — see [Firmware compatibility](docs/supported_devices.md#firmware-compatibility).
+- **Breaking: PPG is now two sensors, `PPG_H` (hand) and `PPG_F` (finger /
+  ring)**, mirroring the hand/finger IMU split. Each has its own stream,
+  status, enable/disable and per-channel settings, and always carries 2
+  channels (`ch0`, `ch1`); `PPG_F` needs the ring connected. Needs firmware
+  with the matching PPG_H/PPG_F protocol — the wire format changed (new
+  `0xA0` PPG_F data section, 2-channel PPG samples, `PPG_H_*`/`PPG_F_*` USB
+  commands) and older firmware won't work with this SDK. Every `*ppg*` API
+  was replaced, with no aliases:
+  - `set_on_ppg_ready` → `set_on_ppg_h_ready` / `set_on_ppg_f_ready`;
+    `set_on_ppg_status_received` → `set_on_ppg_h_status_received` /
+    `set_on_ppg_f_status_received`; `get_ppg_status` / `get_ppg_status_info`
+    → `get_ppg_h_status` / `get_ppg_h_status_info` and the `_f_` pair.
+  - Config: `set_ppg_odr`, `set_ppg_dec`, `set_ppg_led`, `set_ppg_tia`,
+    `set_ppg_prpct`, `set_ppg_src`, their `get_*` twins and `ppg_clear()` →
+    `set_ppg_h_odr` … `ppg_h_clear()` and `set_ppg_f_odr` … `ppg_f_clear()`.
+    ODR, decimation and PRPCT are shared by both sensors (setting one
+    through either changes both). LED/TIA/SRC take the sensor's own channel,
+    0 or 1 — any other `ch` raises `ValueError`.
+  - Packet loss: `get_ppg_packet_loss_stats`, `get_ppg_packet_loss_rate_hz`,
+    `reset_ppg_packet_loss_window`, `sample_ppg_packet_loss` → `_ppg_h_` /
+    `_ppg_f_` versions. Mudra Pro: `set_ppg_test_mode` →
+    `set_ppg_h_test_mode` / `set_ppg_f_test_mode`.
+  - Enums: `SensorTypes.PPG` / `BtCmdId.PPG` → `PPG_H` / `PPG_F`;
+    `FirmwareDataType.ppg` → `ppgH` / `ppgF`;
+    `FirmwareCallbacks.PPG_STATUS` → `PPG_H_STATUS` / `PPG_F_STATUS`;
+    `RecordingDataType.ppg1`…`ppg4`/`ppgTS` → `ppgH1`, `ppgH2`, `ppgHTS`,
+    `ppgF1`, `ppgF2`, `ppgFTS`; `PpgStatus.channel_count` and the
+    `PPGChannelCount` enum are gone (every PPG sensor is 2 channels; with no
+    ring, `get_ppg_f_status()` gets `ERR_STATE` like F_IMU's); `BtCmdPPG` → `BtCmdPPGH` /
+    `BtCmdPPGF`; the `ProFirmwareCommand` / `UltimateFirmwareCommand` PPG
+    members are now `ppgH*` / `ppgF*` (and `enablePpgH` / `enablePpgF`).
+  - PC-side JSON recordings have `ppg_h` and `ppg_f` sections instead of
+    `ppg`.
+  - LSL: the `ppg` stream is replaced by `ppg_h` (`…-PPG_H`) and `ppg_f`
+    (`…-PPG_F`), 2 channels each; `metadata.PPG` → `metadata.PPG_H` /
+    `metadata.PPG_F`. The bridge skips `ppg_f` when no ring is connected.
+- **Breaking: `set_storage_record()` takes a fifth sensor flag**:
+  `set_storage_record(emg, ppg_h, imu_h, imu_f, ppg_f, *, file_num=…, …)`.
+  Everything after the flags is now keyword-only, and a flag that isn't a
+  bool raises `TypeError`, so an old call that passed `file_num`
+  positionally fails instead of silently recording the wrong sensors.
+  `RecordStatus` has `ppg_h` and `ppg_f` in place of `ppg`.
+- Mudra Connect: PPG_F with no ring no longer reads as a red OFF — like F_IMU,
+  it has no status then, so its indicator stays at a neutral "—". The PPG tabs keep
+  their shared ODR in sync, pick the channel from a 0/1 list, default SRC to
+  each sensor's own optics (PPG_F: LED 5 / PD 4), and say which settings
+  are shared.
+
+### Fixed
+
+- Mudra Connect renders the same on Windows, macOS and Linux. Columns were
+  fixed pixel widths while fonts weren't (Windows-only font names, and Linux
+  desktop scaling enlarging text but nothing else), so on many machines the
+  Connect button, the sensor Disable buttons and the Sensor Config tabs were
+  cut off or squashed. Fonts, spacing and charts now follow the display's
+  scale (override with `MUDRA_UI_SCALE`), side columns start at their
+  content's width and can be dragged wider, device rows put Connect on its
+  own line, and status/data rates moved to a bottom status bar. The mouse
+  wheel now scrolls any panel under the pointer on all three OSes, and no
+  longer changes a dropdown's value (which sent a command) while scrolling.
+- Mudra Connect: a failed config command or stream toggle now shows its
+  error in the status bar instead of raising `NameError` on the UI thread.
+- Mudra Connect: the Packet Loss chart no longer smears every past spike into
+  a solid band with a black box over the legend. It kept its first-draw size
+  and background after the window (or display scale) changed, so each refresh
+  only wiped a small corner of the plot.
+
+### Documentation
+
+- The README and the docs site now carry the **Kavana** logo instead of the
+  Mudra one (README: wordmark with the "Neural Intent Data" tagline; docs
+  sidebar: wordmark only; favicon: the K mark). Both have light and dark
+  variants.
+- Corrected connect readiness: `await device.connect()` returning is the
+  point where the device is ready for sensor commands;
+  `on_mudra_device_connected` fires earlier, when the link opens; and
+  `connect()` doesn't raise on failure (check `Mudra().is_connected()`).
+- License and user-ID provisioning is automatic on every connect while
+  signed in — sign in before connecting.
+- Cloud tokens are stored on disk (`~/.mudra_sdk/auth_storage.json`) and
+  survive restarts and `auth.logout()`.
+- The native library is required for any device work, not just data
+  parsing; only cloud calls work without it.
+- Callbacks must be plain `def` functions — an `async def` callback never
+  runs.
+- Windows: only 64-bit (x64) is supported.
+
 ## [0.4.8] - 2026-09-30
 
 ### Changed

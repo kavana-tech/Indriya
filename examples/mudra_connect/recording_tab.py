@@ -15,7 +15,8 @@ from tkinter import ttk
 from .panels.pc_recording import build_pc_recording_ui
 from .panels.recording import build_sd_recording_ui
 from .state import AppState
-from .theme import ACCENT, BG_PANEL, FONT_UI_BOLD
+from .theme import ACCENT, BG_PANEL, FONT_UI_BOLD, px
+from .widgets import ScrollColumn
 
 
 def _section_header(parent: tk.Widget, text: str) -> None:
@@ -30,46 +31,20 @@ def _section_header(parent: tk.Widget, text: str) -> None:
 
 
 def build_recording_tab(parent: tk.Widget, state: AppState) -> None:
-    outer = tk.Frame(parent, bg=BG_PANEL)
-    outer.pack(fill=tk.BOTH, expand=True)
-
-    # Scrollable — same canvas+scrollbar+<Configure> pattern as sensors.py's
-    # left column; SD Recording's help text can still run tall on a short
+    # Scrollable — SD Recording's help text can still run tall on a short
     # window even with two columns instead of one.
-    canvas = tk.Canvas(outer, highlightthickness=0, bg=BG_PANEL)
-    scroll = ttk.Scrollbar(outer, orient=tk.VERTICAL, command=canvas.yview)
-    canvas.configure(yscrollcommand=scroll.set)
-    scroll.pack(side=tk.RIGHT, fill=tk.Y)
-    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    columns = tk.Frame(canvas, bg=BG_PANEL, padx=12, pady=8)
-    win_id = canvas.create_window((0, 0), window=columns, anchor="nw")
-
-    def _sync(_event=None) -> None:
-        canvas.configure(scrollregion=canvas.bbox("all"))
-        if canvas.winfo_width() > 1:
-            canvas.itemconfig(win_id, width=canvas.winfo_width())
-
-    columns.bind("<Configure>", _sync)
-    canvas.bind(
-        "<Configure>",
-        lambda e: canvas.itemconfig(win_id, width=e.width) if e.width > 1 else None,
-    )
-
-    def _wheel(event) -> None:
-        canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-    canvas.bind("<MouseWheel>", _wheel)
-    columns.bind("<MouseWheel>", _wheel)
+    column = ScrollColumn(parent, padx=px(12), pady=px(8))
+    column.outer.pack(fill=tk.BOTH, expand=True)
+    columns = column.inner
 
     sd_col = tk.Frame(columns, bg=BG_PANEL)
-    sd_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, anchor="n", padx=(0, 16))
+    sd_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, anchor="n", padx=(0, px(16)))
     _section_header(sd_col, "SD Recording")
     build_sd_recording_ui(sd_col, state)
 
     ttk.Separator(columns, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y)
 
     pc_col = tk.Frame(columns, bg=BG_PANEL)
-    pc_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, anchor="n", padx=(16, 0))
+    pc_col.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, anchor="n", padx=(px(16), 0))
     _section_header(pc_col, "PC Recording (JSON)")
     build_pc_recording_ui(pc_col, state)

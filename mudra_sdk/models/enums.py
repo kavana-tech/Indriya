@@ -102,32 +102,57 @@ class BtCmdFIMU(Enum):
         return None
 
 
-class BtCmdPPG(Enum):
-    POWER = 0x00
-    ODR = 0x01
-    DEC = 0x02
-    LED = 0x03
-    TIA = 0x04
-    PRPCT = 0x05
-    CLEAR = 0x06
-    SRC = 0x07
-    STATE = 0x08
+class BtCmdPPGH(Enum):
+    """Hand PPG (cmd 0x40, AFE channels 0-1). Same feature numbers as BtCmdPPGF."""
+    POWER = 0x00          # STOP | START (per sensor)
+    ODR = 0x01            # GET -> u16 | SET <u16> (chip-wide, shared by PPG_H/PPG_F)
+    DEC = 0x02            # GET -> u8  | SET <u8>  (chip-wide)
+    LED = 0x03            # GET <ch> -> [ch, drv1, drv2] | SET <ch, drv1, drv2>; ch = local 0-1
+    TIA = 0x04            # GET <ch> -> [ch, rf, cf] | SET <ch, rf, cf>; ch = local 0-1
+    PRPCT = 0x05          # GET -> u16 | SET <u16> (chip-wide)
+    CLEAR = 0x06          # this sensor's LED/TIA/SRC overrides + the shared PRPCT override
+    SRC = 0x07            # GET <ch> -> [ch, led, pd] | SET <ch, led, pd>; ch = local 0-1
+    STATE = 0x08          # -> [enabled u8, odr u16 LE] (3 bytes); PPG_F with no ring -> ERR_STATE, like F_IMU
 
     @property
     def value_int(self) -> int:
         return self.value
 
     @staticmethod
-    def from_value(value: int) -> Optional["BtCmdPPG"]:
-        for item in BtCmdPPG:
+    def from_value(value: int) -> Optional["BtCmdPPGH"]:
+        for item in BtCmdPPGH:
+            if item.value == value:
+                return item
+        return None
+
+
+class BtCmdPPGF(Enum):
+    """Finger (ring) PPG (cmd 0xA0, AFE channels 2-3). Same feature numbers as BtCmdPPGH."""
+    POWER = 0x00          # STOP | START (per sensor)
+    ODR = 0x01            # GET -> u16 | SET <u16> (chip-wide, shared by PPG_H/PPG_F)
+    DEC = 0x02            # GET -> u8  | SET <u8>  (chip-wide)
+    LED = 0x03            # GET <ch> -> [ch, drv1, drv2] | SET <ch, drv1, drv2>; ch = local 0-1
+    TIA = 0x04            # GET <ch> -> [ch, rf, cf] | SET <ch, rf, cf>; ch = local 0-1
+    PRPCT = 0x05          # GET -> u16 | SET <u16> (chip-wide)
+    CLEAR = 0x06          # this sensor's LED/TIA/SRC overrides + the shared PRPCT override
+    SRC = 0x07            # GET <ch> -> [ch, led, pd] | SET <ch, led, pd>; ch = local 0-1
+    STATE = 0x08          # -> [enabled u8, odr u16 LE] (3 bytes); PPG_F with no ring -> ERR_STATE, like F_IMU
+
+    @property
+    def value_int(self) -> int:
+        return self.value
+
+    @staticmethod
+    def from_value(value: int) -> Optional["BtCmdPPGF"]:
+        for item in BtCmdPPGF:
             if item.value == value:
                 return item
         return None
 
 
 class BtCmdStorage(Enum):
-    RECORD_SET = 0x00    # emg, ppg, hand_imu, finger_imu, file_num, [description...]
-    RECORD_STATE = 0x01  # -> [active, emg, ppg, hand_imu, finger_imu, file_num]
+    RECORD_SET = 0x00    # emg, ppg_h, hand_imu, finger_imu, ppg_f, is_test, file_num, duration u16, utc u32, [description...]
+    RECORD_STATE = 0x01  # -> [active, emg, ppg_h, hand_imu, finger_imu, ppg_f, file_num]
     RECORD_ERROR = 0x02  # push-only: [RECORD_ERROR, status]
     NEXT_FILE_NUM = 0x03  # -> [NEXT_FILE_NUM, file_num]
 
@@ -193,12 +218,13 @@ class BtCmdId(Enum):
     EMG = 0x10
     H_IMU = 0x20
     F_IMU = 0x30
-    PPG = 0x40
+    PPG_H = 0x40
     BAT = 0x50
     LED = 0x60
     BT_CTRL = 0x70
     TAP = 0x80
     STORAGE = 0x90
+    PPG_F = 0xA0
 
     @property
     def value_int(self) -> int:
@@ -220,7 +246,8 @@ class SensorTypes(Enum):
     EMG = 0x10
     H_IMU = 0x20
     F_IMU = 0x30
-    PPG = 0x40
+    PPG_H = 0x40
+    PPG_F = 0xA0
 
     @property
     def value_int(self) -> int:
@@ -271,13 +298,14 @@ class FirmwareCallbacks(Enum):
     EMG_STATUS = 1
     H_IMU_STATUS = 2
     F_IMU_STATUS = 3
-    PPG_STATUS = 4
+    PPG_H_STATUS = 4
     STORAGE_RECORD_STATE = 5
     STORAGE_RECORD_ERROR = 6
     STORAGE_NEXT_FILE_NUM = 7
     PING_RESPONSE = 8
     DEVICE_INFO = 9
     SYSTEM_VERSION = 10
+    PPG_F_STATUS = 11
 
     @property
     def description(self) -> str:
@@ -285,7 +313,8 @@ class FirmwareCallbacks(Enum):
             FirmwareCallbacks.EMG_STATUS: "EMG_STATUS",
             FirmwareCallbacks.H_IMU_STATUS: "H_IMU_STATUS",
             FirmwareCallbacks.F_IMU_STATUS: "F_IMU_STATUS",
-            FirmwareCallbacks.PPG_STATUS: "PPG_STATUS",
+            FirmwareCallbacks.PPG_H_STATUS: "PPG_H_STATUS",
+            FirmwareCallbacks.PPG_F_STATUS: "PPG_F_STATUS",
             FirmwareCallbacks.STORAGE_RECORD_STATE: "STORAGE_RECORD_STATE",
             FirmwareCallbacks.STORAGE_RECORD_ERROR: "STORAGE_RECORD_ERROR",
             FirmwareCallbacks.STORAGE_NEXT_FILE_NUM: "STORAGE_NEXT_FILE_NUM",
@@ -305,7 +334,8 @@ class FirmwareCallbacks(Enum):
     EMG_STATUS_BYTES_ULTIMATE = bytes([cmdType.BT_CMD_RESPONSE_HEADER.value_int, BtCmdId.EMG.value_int, BtCmdUltimateEMG.STATE.value_int])
     H_IMU_STATUS_BYTES = bytes([cmdType.BT_CMD_RESPONSE_HEADER.value_int, BtCmdId.H_IMU.value_int, BtCmdHIMU.STATE.value_int])
     F_IMU_STATUS_BYTES = bytes([cmdType.BT_CMD_RESPONSE_HEADER.value_int, BtCmdId.F_IMU.value_int, BtCmdFIMU.STATE.value_int])
-    PPG_STATUS_BYTES   = bytes([cmdType.BT_CMD_RESPONSE_HEADER.value_int, BtCmdId.PPG.value_int, BtCmdPPG.STATE.value_int])
+    PPG_H_STATUS_BYTES = bytes([cmdType.BT_CMD_RESPONSE_HEADER.value_int, BtCmdId.PPG_H.value_int, BtCmdPPGH.STATE.value_int])
+    PPG_F_STATUS_BYTES = bytes([cmdType.BT_CMD_RESPONSE_HEADER.value_int, BtCmdId.PPG_F.value_int, BtCmdPPGF.STATE.value_int])
     PING_RESPONSE_BYTES = bytes([cmdType.BT_CMD_RESPONSE_HEADER.value_int, BtCmdId.SYSTEM.value_int, BtCmdStatus.OK.value_int])
     # BT_SYS_DEVICE_INFO's reply has NO feature byte on the wire — firmware
     # never echoes req->params[0] for this command (bt_command_manager.c
@@ -376,8 +406,10 @@ class FirmwareCallbacks(Enum):
             return FirmwareCallbacks.H_IMU_STATUS
         if len(data) >= 3 and FirmwareCallbacks.are_bytes_equal(data[:3], FirmwareCallbacks.F_IMU_STATUS_BYTES.value):
             return FirmwareCallbacks.F_IMU_STATUS
-        if len(data) >= 3 and FirmwareCallbacks.are_bytes_equal(data[:3], FirmwareCallbacks.PPG_STATUS_BYTES.value):
-            return FirmwareCallbacks.PPG_STATUS
+        if len(data) >= 3 and FirmwareCallbacks.are_bytes_equal(data[:3], FirmwareCallbacks.PPG_H_STATUS_BYTES.value):
+            return FirmwareCallbacks.PPG_H_STATUS
+        if len(data) >= 3 and FirmwareCallbacks.are_bytes_equal(data[:3], FirmwareCallbacks.PPG_F_STATUS_BYTES.value):
+            return FirmwareCallbacks.PPG_F_STATUS
         if len(data) >= 3 and FirmwareCallbacks.are_bytes_equal(
             data[:3], FirmwareCallbacks.STORAGE_RECORD_STATE_BYTES.value
         ):
@@ -411,7 +443,8 @@ class FirmwareCallbacks(Enum):
             "EMG": FirmwareCallbacks.EMG_STATUS,
             "H_IMU": FirmwareCallbacks.H_IMU_STATUS,
             "F_IMU": FirmwareCallbacks.F_IMU_STATUS,
-            "PPG": FirmwareCallbacks.PPG_STATUS,
+            "PPG_H": FirmwareCallbacks.PPG_H_STATUS,
+            "PPG_F": FirmwareCallbacks.PPG_F_STATUS,
         }.get(token)
 
 
@@ -490,16 +523,16 @@ class ProFirmwareCommand(Enum):
     fImuGyrAvg = 32
     fImuStatus = 33
 
-    # PPG
-    enablePpg = 34
-    ppgOdr = 35
-    ppgDec = 36
-    ppgLed = 37
-    ppgTia = 38
-    ppgPrpct = 39
-    ppgClear = 40
-    ppgSrc = 41
-    ppgStatus = 42
+    # Hand PPG (renamed in place from PPG — ordinals unchanged)
+    enablePpgH = 34
+    ppgHOdr = 35
+    ppgHDec = 36
+    ppgHLed = 37
+    ppgHTia = 38
+    ppgHPrpct = 39
+    ppgHClear = 40
+    ppgHSrc = 41
+    ppgHStatus = 42
 
     # Battery
     batStatus = 43
@@ -541,12 +574,26 @@ class ProFirmwareCommand(Enum):
     emgTestMode = 67
     hImuTestMode = 68
     fImuTestMode = 69
-    ppgTestMode = 70
+    ppgHTestMode = 70
 
     # Required before SD recording — also appended at the end; matches
     # ProFirmwareCommands.h, where this is likewise appended last (grouped
     # with the other end-of-enum entries) so no existing ordinal shifts.
     systemUserIdSet = 71
+
+    # Finger PPG — appended at the end, after every pre-existing entry, so
+    # no existing ordinal shifts; matches ProFirmwareCommands.h, where this
+    # group is likewise appended last.
+    enablePpgF = 72
+    ppgFOdr = 73
+    ppgFDec = 74
+    ppgFLed = 75
+    ppgFTia = 76
+    ppgFPrpct = 77
+    ppgFClear = 78
+    ppgFSrc = 79
+    ppgFStatus = 80
+    ppgFTestMode = 81
 
     @property
     def description(self) -> str:
@@ -585,15 +632,15 @@ class ProFirmwareCommand(Enum):
             ProFirmwareCommand.fImuAccAvg: "F_IMU_ACC_AVG",
             ProFirmwareCommand.fImuGyrAvg: "F_IMU_GYR_AVG",
             ProFirmwareCommand.fImuStatus: "F_IMU_STATUS",
-            ProFirmwareCommand.enablePpg: "ENABLE_PPG",
-            ProFirmwareCommand.ppgOdr: "PPG_ODR",
-            ProFirmwareCommand.ppgDec: "PPG_DEC",
-            ProFirmwareCommand.ppgLed: "PPG_LED",
-            ProFirmwareCommand.ppgTia: "PPG_TIA",
-            ProFirmwareCommand.ppgPrpct: "PPG_PRPCT",
-            ProFirmwareCommand.ppgClear: "PPG_CLEAR",
-            ProFirmwareCommand.ppgSrc: "PPG_SRC",
-            ProFirmwareCommand.ppgStatus: "PPG_STATUS",
+            ProFirmwareCommand.enablePpgH: "ENABLE_PPG_H",
+            ProFirmwareCommand.ppgHOdr: "PPG_H_ODR",
+            ProFirmwareCommand.ppgHDec: "PPG_H_DEC",
+            ProFirmwareCommand.ppgHLed: "PPG_H_LED",
+            ProFirmwareCommand.ppgHTia: "PPG_H_TIA",
+            ProFirmwareCommand.ppgHPrpct: "PPG_H_PRPCT",
+            ProFirmwareCommand.ppgHClear: "PPG_H_CLEAR",
+            ProFirmwareCommand.ppgHSrc: "PPG_H_SRC",
+            ProFirmwareCommand.ppgHStatus: "PPG_H_STATUS",
             ProFirmwareCommand.batStatus: "BAT_STATUS",
             ProFirmwareCommand.batSoc: "BAT_SOC",
             ProFirmwareCommand.batVoltage: "BAT_VOLTAGE",
@@ -621,8 +668,18 @@ class ProFirmwareCommand(Enum):
             ProFirmwareCommand.emgTestMode: "EMG_TEST_MODE",
             ProFirmwareCommand.hImuTestMode: "H_IMU_TEST_MODE",
             ProFirmwareCommand.fImuTestMode: "F_IMU_TEST_MODE",
-            ProFirmwareCommand.ppgTestMode: "PPG_TEST_MODE",
+            ProFirmwareCommand.ppgHTestMode: "PPG_H_TEST_MODE",
             ProFirmwareCommand.systemUserIdSet: "SYSTEM_USER_ID_SET",
+            ProFirmwareCommand.enablePpgF: "ENABLE_PPG_F",
+            ProFirmwareCommand.ppgFOdr: "PPG_F_ODR",
+            ProFirmwareCommand.ppgFDec: "PPG_F_DEC",
+            ProFirmwareCommand.ppgFLed: "PPG_F_LED",
+            ProFirmwareCommand.ppgFTia: "PPG_F_TIA",
+            ProFirmwareCommand.ppgFPrpct: "PPG_F_PRPCT",
+            ProFirmwareCommand.ppgFClear: "PPG_F_CLEAR",
+            ProFirmwareCommand.ppgFSrc: "PPG_F_SRC",
+            ProFirmwareCommand.ppgFStatus: "PPG_F_STATUS",
+            ProFirmwareCommand.ppgFTestMode: "PPG_F_TEST_MODE",
         }[self]
 
     @property
@@ -695,16 +752,16 @@ class UltimateFirmwareCommand(Enum):
     fImuGyrAvg = 38
     fImuStatus = 39
 
-    # PPG
-    enablePpg = 40
-    ppgOdr = 41
-    ppgDec = 42
-    ppgLed = 43
-    ppgTia = 44
-    ppgPrpct = 45
-    ppgClear = 46
-    ppgSrc = 47
-    ppgStatus = 48
+    # Hand PPG (renamed in place from PPG — ordinals unchanged)
+    enablePpgH = 40
+    ppgHOdr = 41
+    ppgHDec = 42
+    ppgHLed = 43
+    ppgHTia = 44
+    ppgHPrpct = 45
+    ppgHClear = 46
+    ppgHSrc = 47
+    ppgHStatus = 48
 
     # Battery
     batStatus = 49
@@ -743,6 +800,19 @@ class UltimateFirmwareCommand(Enum):
     # Required before SD recording. RAM-only on the device, no action byte,
     # no getter (mirrors LICENSE_SET).
     systemUserIdSet = 73
+
+    # Finger PPG — appended at the end, after every pre-existing entry, so
+    # no existing ordinal shifts; matches UltimateFirmwareCommands.h, where this
+    # group is likewise appended last.
+    enablePpgF = 74
+    ppgFOdr = 75
+    ppgFDec = 76
+    ppgFLed = 77
+    ppgFTia = 78
+    ppgFPrpct = 79
+    ppgFClear = 80
+    ppgFSrc = 81
+    ppgFStatus = 82
 
     @property
     def description(self) -> str:
@@ -787,15 +857,15 @@ class UltimateFirmwareCommand(Enum):
             UltimateFirmwareCommand.fImuAccAvg: "F_IMU_ACC_AVG",
             UltimateFirmwareCommand.fImuGyrAvg: "F_IMU_GYR_AVG",
             UltimateFirmwareCommand.fImuStatus: "F_IMU_STATUS",
-            UltimateFirmwareCommand.enablePpg: "ENABLE_PPG",
-            UltimateFirmwareCommand.ppgOdr: "PPG_ODR",
-            UltimateFirmwareCommand.ppgDec: "PPG_DEC",
-            UltimateFirmwareCommand.ppgLed: "PPG_LED",
-            UltimateFirmwareCommand.ppgTia: "PPG_TIA",
-            UltimateFirmwareCommand.ppgPrpct: "PPG_PRPCT",
-            UltimateFirmwareCommand.ppgClear: "PPG_CLEAR",
-            UltimateFirmwareCommand.ppgSrc: "PPG_SRC",
-            UltimateFirmwareCommand.ppgStatus: "PPG_STATUS",
+            UltimateFirmwareCommand.enablePpgH: "ENABLE_PPG_H",
+            UltimateFirmwareCommand.ppgHOdr: "PPG_H_ODR",
+            UltimateFirmwareCommand.ppgHDec: "PPG_H_DEC",
+            UltimateFirmwareCommand.ppgHLed: "PPG_H_LED",
+            UltimateFirmwareCommand.ppgHTia: "PPG_H_TIA",
+            UltimateFirmwareCommand.ppgHPrpct: "PPG_H_PRPCT",
+            UltimateFirmwareCommand.ppgHClear: "PPG_H_CLEAR",
+            UltimateFirmwareCommand.ppgHSrc: "PPG_H_SRC",
+            UltimateFirmwareCommand.ppgHStatus: "PPG_H_STATUS",
             UltimateFirmwareCommand.batStatus: "BAT_STATUS",
             UltimateFirmwareCommand.batSoc: "BAT_SOC",
             UltimateFirmwareCommand.batVoltage: "BAT_VOLTAGE",
@@ -821,6 +891,15 @@ class UltimateFirmwareCommand(Enum):
             UltimateFirmwareCommand.storageRecordState: "STORAGE_RECORD_STATE",
             UltimateFirmwareCommand.storageNextFileNum: "STORAGE_NEXT_FILE_NUM",
             UltimateFirmwareCommand.systemUserIdSet: "SYSTEM_USER_ID_SET",
+            UltimateFirmwareCommand.enablePpgF: "ENABLE_PPG_F",
+            UltimateFirmwareCommand.ppgFOdr: "PPG_F_ODR",
+            UltimateFirmwareCommand.ppgFDec: "PPG_F_DEC",
+            UltimateFirmwareCommand.ppgFLed: "PPG_F_LED",
+            UltimateFirmwareCommand.ppgFTia: "PPG_F_TIA",
+            UltimateFirmwareCommand.ppgFPrpct: "PPG_F_PRPCT",
+            UltimateFirmwareCommand.ppgFClear: "PPG_F_CLEAR",
+            UltimateFirmwareCommand.ppgFSrc: "PPG_F_SRC",
+            UltimateFirmwareCommand.ppgFStatus: "PPG_F_STATUS",
         }[self]
 
     @property
@@ -842,10 +921,12 @@ class UltimateFirmwareCommand(Enum):
 
 
 class FirmwareDataType(Enum):
+    """Mirrors the native FirmwareDataType (CommonTypes.h) by value."""
     emg = 0
     imuH = 1
     imuF = 2
-    ppg = 3
+    ppgH = 3
+    ppgF = 4
 
     @property
     def value_int(self) -> int:
@@ -859,6 +940,7 @@ class FirmwareDataType(Enum):
         return None
 
 class RecordingDataType(Enum):
+    """Mirrors the native RecordingDataType (CommonTypes.h) positionally."""
     button = 0
     fsr = 1
     endAppTS = 2
@@ -890,11 +972,15 @@ class RecordingDataType(Enum):
     gyroF3 = 21
     gyroFTS = 22
 
-    ppg1 = 23
-    ppg2 = 24
-    ppg3 = 25
-    ppg4 = 26
-    ppgTS = 27
+    # Hand PPG (FirmwareDataType.ppgH)
+    ppgH1 = 23
+    ppgH2 = 24
+    ppgHTS = 25
+
+    # Finger PPG (FirmwareDataType.ppgF)
+    ppgF1 = 26
+    ppgF2 = 27
+    ppgFTS = 28
 
     @property
     def value_int(self) -> int:
@@ -1036,24 +1122,6 @@ class PPGODR(Enum):
     @staticmethod
     def from_value(value: int) -> Optional["PPGODR"]:
         for item in PPGODR:
-            if item.value == value:
-                return item
-        return None
-
-class PPGChannelCount(Enum):
-    ppgChannelCount1 = 1
-    ppgChannelCount2 = 2
-    ppgChannelCount3 = 3
-    ppgChannelCount4 = 4
-
-    @property
-    def value_int(self) -> int:
-        return self.value
-        
-    @staticmethod
-    def from_value(value: int) -> Optional["PPGChannelCount"]:
-
-        for item in PPGChannelCount:
             if item.value == value:
                 return item
         return None

@@ -67,34 +67,23 @@ def set_power(cmd: FirmwareCommand, enable: bool) -> bytes:
     return bytes(tmpl[:3])
 
 
-# ---- PPG multi-arg helpers (cmd 0x40) -------------------------------------- #
-# Byte-identical on Pro and Ultimate (feature bytes 0x03/0x04/0x07 aren't
-# among the ones that differ), so these stay literal-byte builders rather
-# than going through a per-product enum.
+# ---- PPG_H / PPG_F per-channel helpers (cmd 0x40 / 0xA0) ------------------ #
+# LED/TIA/SRC take a sensor-local channel (0-1) plus two value bytes:
+# GET [cmd_id, feature, GET, ch] / SET [cmd_id, feature, SET, ch, a, b].
+# `cmd` is the matching LED/TIA/SRC command of the sensor being addressed —
+# e.g. self.CMD.ppgHLed or self.CMD.ppgFLed — so the cmd_id (0x40 PPG_H,
+# 0xA0 PPG_F) and feature byte both come from that product's own template.
 
-def ppg_led_get(ch: int) -> bytes:
-    return bytes((0x40, 0x03, ACT_GET, ch & 0xFF))
-
-
-def ppg_led_set(ch: int, drv1: int, drv2: int) -> bytes:
-    return bytes((0x40, 0x03, ACT_SET, ch & 0xFF, drv1 & 0xFF, drv2 & 0xFF))
-
-
-def ppg_tia_get(ch: int) -> bytes:
-    return bytes((0x40, 0x04, ACT_GET, ch & 0xFF))
+def ppg_channel_get(cmd: FirmwareCommand, ch: int) -> bytes:
+    tmpl = bytes(cmd.id)
+    return bytes((tmpl[0], tmpl[1], ACT_GET, ch & 0xFF))
 
 
-def ppg_tia_set(ch: int, rf: int, cf: int) -> bytes:
-    return bytes((0x40, 0x04, ACT_SET, ch & 0xFF, rf & 0xFF, cf & 0xFF))
-
-
-def ppg_src_get(ch: int) -> bytes:
-    return bytes((0x40, 0x07, ACT_GET, ch & 0xFF))
-
-
-def ppg_src_set(ch: int, led: int, pd: int) -> bytes:
-    return bytes((0x40, 0x07, ACT_SET, ch & 0xFF, led & 0xFF, pd & 0xFF))
+def ppg_channel_set(cmd: FirmwareCommand, ch: int, a: int, b: int) -> bytes:
+    tmpl = bytes(cmd.id)
+    return bytes((tmpl[0], tmpl[1], ACT_SET, ch & 0xFF, a & 0xFF, b & 0xFF))
 
 
 def ppg_clear(cmd: FirmwareCommand) -> bytes:
+    """PPG_H/PPG_F CLEAR — bare ``[cmd_id, 0x06]``, no action byte."""
     return get_standalone(cmd)
