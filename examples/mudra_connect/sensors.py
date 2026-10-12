@@ -12,7 +12,8 @@ from mudra_sdk.logging_config import get_logger
 
 from .panels.config import build_sensor_config_ui
 from .state import AppState
-from .theme import ACCENT, BG_PANEL, FG_MUTED, FONT_SMALL, FONT_UI_BOLD
+from .theme import ACCENT, BG_PANEL, CHART_BG, FG_MUTED, FONT_DOT, FONT_SMALL, FONT_UI_BOLD, px
+from .widgets import ScrollColumn, fit_pane
 
 logger = get_logger(__name__)
 
@@ -40,8 +41,10 @@ async def _set_sensor_enabled(
         await device.set_on_imu_h_ready(callback)
     elif sensor == "IMU_F":
         await device.set_on_imu_f_ready(callback)
-    elif sensor == "PPG":
-        await device.set_on_ppg_ready(callback)
+    elif sensor == "PPG_H":
+        await device.set_on_ppg_h_ready(callback)
+    elif sensor == "PPG_F":
+        await device.set_on_ppg_f_ready(callback)
     else:
         raise ValueError(f"Unknown sensor: {sensor}")
 
@@ -73,7 +76,8 @@ def toggle_sensor(state: AppState, sensor: str, enabled: bool) -> None:
             logger.info(f"{sensor} {label}")
         except Exception as exc:  # noqa: BLE001
             if state.post_ui is not None and state.set_status is not None:
-                state.post_ui(lambda: state.set_status(f"{sensor} toggle failed: {exc}"))
+                # Bind exc now: it's deleted when the except block ends.
+                state.post_ui(lambda e=exc: state.set_status(f"{sensor} toggle failed: {e}"))
             logger.error(f"{sensor} toggle failed: {exc}")
 
     state.bridge.submit(_run())
@@ -87,44 +91,42 @@ def _section_header(parent: tk.Widget, text: str) -> None:
         fg=ACCENT,
         font=FONT_UI_BOLD,
         anchor="w",
-    ).pack(fill=tk.X, pady=(10, 4))
+    ).pack(fill=tk.X, pady=(px(10), px(4)))
 
 
 def _build_stream_toggles(parent: tk.Widget, state: AppState) -> None:
     from .charts import SPLITTABLE_SENSORS
 
     _section_header(parent, "Streams")
-    for sensor in ("EMG", "IMU_H", "IMU_F", "PPG"):
-        block = tk.Frame(parent, bg=BG_PANEL)
-        block.pack(fill=tk.X, pady=3)
+    # One grid for every sensor so the columns line up; the column hosting
+    # this panel is sized from the grid's own requested width (see
+    # build_streams_panel), so nothing here is ever clipped.
+    grid = tk.Frame(parent, bg=BG_PANEL)
+    grid.pack(fill=tk.X)
+    grid.columnconfigure(1, weight=1)
 
-        row = tk.Frame(block, bg=BG_PANEL)
-        row.pack(fill=tk.X)
-        dot = tk.Label(
-            row,
-            text="●",
-            font=("Segoe UI", 11),
-            bg=BG_PANEL,
-            fg=FG_MUTED,
-            width=2,
-        )
-        dot.pack(side=tk.LEFT)
-        ttk.Label(row, text=sensor, width=7).pack(side=tk.LEFT)
+    for i, sensor in enumerate(("EMG", "IMU_H", "IMU_F", "PPG_H", "PPG_F")):
+        r = i * 2
+        dot = tk.Label(grid, text="●", font=FONT_DOT, bg=BG_PANEL, fg=FG_MUTED)
+        dot.grid(row=r, column=0, sticky="w", padx=(0, px(4)), pady=(px(4), 0))
+        ttk.Label(grid, text=sensor).grid(row=r, column=1, sticky="w", pady=(px(4), 0))
         ttk.Button(
-            row,
+            grid,
             text="Enable",
-            width=8,
+            width=7,
+            style="Small.TButton",
             command=lambda s=sensor: toggle_sensor(state, s, True),
-        ).pack(side=tk.LEFT, padx=(0, 4))
+        ).grid(row=r, column=2, sticky="ew", padx=(px(4), px(2)), pady=(px(4), 0))
         ttk.Button(
-            row,
+            grid,
             text="Disable",
-            width=8,
+            width=7,
+            style="Small.TButton",
             command=lambda s=sensor: toggle_sensor(state, s, False),
-        ).pack(side=tk.LEFT)
+        ).grid(row=r, column=3, sticky="ew", padx=(0, px(4)), pady=(px(4), 0))
 
-        # Split-into-separate-charts toggle — PPG's two groups already carry
-        # one channel each (splitting would be a no-op), so it's omitted
+        # Split-into-separate-charts toggle — PPG_H's and PPG_F's two groups
+        # already carry one channel each (splitting would be a no-op), so it's omitted
         # there; charts.SPLITTABLE_SENSORS is the source of truth.
         if sensor in SPLITTABLE_SENSORS:
             split_var = tk.BooleanVar(value=False)
@@ -134,110 +136,54 @@ def _build_stream_toggles(parent: tk.Widget, state: AppState) -> None:
                     state.charts.set_split(s, var.get())
 
             ttk.Checkbutton(
-                row, text="Split", variable=split_var, command=_on_split
-            ).pack(side=tk.LEFT, padx=(6, 0))
+                grid, text="Split", variable=split_var, command=_on_split
+            ).grid(row=r, column=4, sticky="w", pady=(px(4), 0))
             state.chart_split_vars[sensor] = split_var
 
         text = tk.Label(
-            block,
+            grid,
             text="—",
             font=FONT_SMALL,
             bg=BG_PANEL,
             fg=FG_MUTED,
             anchor="w",
+            justify=tk.LEFT,
         )
-        text.pack(fill=tk.X, padx=(22, 0))
+        text.grid(row=r + 1, column=1, columnspan=4, sticky="ew")
         state.sensor_status_ui[sensor] = {"dot": dot, "text": text}
 
 
 def build_streams_panel(parent: tk.Widget, state: AppState) -> None:
-    """Streams + Recording + Config (scrollable left) and charts (right)."""
-    outer = tk.Frame(parent, bg=BG_PANEL)
-    outer.pack(fill=tk.BOTH, expand=True)
+    """Streams + Sensor Config (scrollable left) and charts (right), split by a
+    draggable sash. The left column starts exactly as wide as its content
+    needs at this machine's fonts/DPI — never a fixed pixel width."""
+    paned = ttk.PanedWindow(parent, orient=tk.HORIZONTAL)
+    paned.pack(fill=tk.BOTH, expand=True)
 
-    left_wrap = tk.Frame(outer, bg=BG_PANEL, width=360)
-    left_wrap.pack(side=tk.LEFT, fill=tk.Y, padx=(4, 4), pady=4)
-    left_wrap.pack_propagate(False)
-
-    canvas = tk.Canvas(left_wrap, highlightthickness=0, bg=BG_PANEL)
-    scroll = ttk.Scrollbar(left_wrap, orient=tk.VERTICAL, command=canvas.yview)
-    canvas.configure(yscrollcommand=scroll.set)
-    scroll.pack(side=tk.RIGHT, fill=tk.Y)
-    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    controls = tk.Frame(canvas, bg=BG_PANEL, padx=6, pady=4)
-    win_id = canvas.create_window((0, 0), window=controls, anchor="nw")
-
-    def _sync(_event=None) -> None:
-        canvas.configure(scrollregion=canvas.bbox("all"))
-        if canvas.winfo_width() > 1:
-            canvas.itemconfig(win_id, width=canvas.winfo_width())
-
-    controls.bind("<Configure>", _sync)
-    canvas.bind(
-        "<Configure>",
-        lambda e: canvas.itemconfig(win_id, width=e.width) if e.width > 1 else None,
-    )
-
-    def _wheel(event) -> None:
-        canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-    canvas.bind("<MouseWheel>", _wheel)
-    controls.bind("<MouseWheel>", _wheel)
+    left = ScrollColumn(paned, padx=px(8), pady=px(4))
+    paned.add(left.outer, weight=0)
+    controls = left.inner
 
     _build_stream_toggles(controls, state)
 
     # Recording (SD card + PC-side JSON) lives in its own top-level
-    # "Recording" tab now (see recording_tab.py) — it was competing with
-    # Streams/Sensor Config for this narrow scrollable column and pushing
-    # Sensor Config far down.
+    # "Recording" tab (see recording_tab.py).
     _section_header(controls, "Sensor Config")
     config_box = tk.Frame(controls, bg=BG_PANEL)
-    config_box.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
+    config_box.pack(fill=tk.X, pady=(0, px(8)))
     build_sensor_config_ui(config_box, state)
-
-    charts_wrap = tk.Frame(outer, bg="#101010")
-    charts_wrap.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
     # Scrollable — the chart figure's height grows with panel count (more
     # so once any sensor is split into per-channel charts; see
-    # charts.SensorCharts.set_split/_rebuild_panels), and previously had no
-    # way to reach panels that didn't fit the window (PPG, being last, was
-    # the first to go off-screen). Same canvas+scrollbar+<Configure> pattern
-    # already used for the left `controls` column above.
-    chart_canvas = tk.Canvas(charts_wrap, highlightthickness=0, bg="#101010")
-    chart_scroll = ttk.Scrollbar(charts_wrap, orient=tk.VERTICAL, command=chart_canvas.yview)
-    chart_canvas.configure(yscrollcommand=chart_scroll.set)
-    chart_scroll.pack(side=tk.RIGHT, fill=tk.Y)
-    chart_canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    # charts.SensorCharts.set_split/_rebuild_panels). The inner frame is
+    # stretched to the column's width; matplotlib's own FigureCanvasTk
+    # <Configure> binding then rescales the figure to match (see
+    # charts.py's _current_fig_width_inches).
+    charts_col = ScrollColumn(paned, bg=CHART_BG)
+    paned.add(charts_col.outer, weight=1)
 
     from .charts import SensorCharts
 
-    charts_frame = tk.Frame(chart_canvas, bg="#101010")
-    charts_win_id = chart_canvas.create_window((0, 0), window=charts_frame, anchor="nw")
+    state.charts = SensorCharts(charts_col.inner, state=state)
 
-    # Stretch charts_frame's WIDTH to chart_canvas's width (only the vertical
-    # scrollregion was synced before — the figure just sat at its fixed
-    # _FIGURE_WIDTH_INCHES regardless of how wide the window actually was).
-    # Once the Tk widget itself is actually resized, matplotlib's own
-    # FigureCanvasTk <Configure> binding takes it from there and rescales the
-    # figure to match (see charts.py's _current_fig_width_inches). Same
-    # dual-binding pattern as the left `controls` column above.
-    def _sync_charts(_event=None) -> None:
-        chart_canvas.configure(scrollregion=chart_canvas.bbox("all"))
-        if chart_canvas.winfo_width() > 1:
-            chart_canvas.itemconfig(charts_win_id, width=chart_canvas.winfo_width())
-
-    charts_frame.bind("<Configure>", _sync_charts)
-    chart_canvas.bind(
-        "<Configure>",
-        lambda e: chart_canvas.itemconfig(charts_win_id, width=e.width) if e.width > 1 else None,
-    )
-
-    def _wheel_charts(event) -> None:
-        chart_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-
-    chart_canvas.bind("<MouseWheel>", _wheel_charts)
-    charts_frame.bind("<MouseWheel>", _wheel_charts)
-
-    state.charts = SensorCharts(charts_frame, state=state)
+    fit_pane(paned, left.natural_width)

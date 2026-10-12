@@ -8,7 +8,7 @@
 //  Independent of ProFirmwareCommands.h — verified against
 //  mudra_ultimate/src/bt_layer/bt_command_manager.h, which defines its own
 //  byte values from scratch rather than patching Pro's. Some feature bytes
-//  coincide with Pro's (H_IMU/F_IMU/PPG/BAT/LED/BT_CTRL/TAP/STORAGE), some
+//  coincide with Pro's (H_IMU/F_IMU/PPG_H/PPG_F/BAT/LED/BT_CTRL/TAP/STORAGE), some
 //  don't (SYSTEM_USER_ID_SET, EMG_STATUS), and Ultimate has commands Pro
 //  lacks entirely (SYSTEM_TSYNC/LINKSTATS, EMG_TEST/CHMASK/RLD/ISOLATE) while
 //  lacking Pro's packet-loss *_TEST_MODE commands.
@@ -98,17 +98,22 @@ namespace Mudra::Computation::Ultimate
     constexpr uint8_t BT_F_IMU_GYR_AVG = 0x09;
     constexpr uint8_t BT_F_IMU_STATUS  = 0x0a;
 
-    /* ---- 0x40 PPG ---- */
-    constexpr uint8_t BT_CMD_PPG     = 0x40;
-    constexpr uint8_t BT_PPG_POWER   = 0x00;
-    constexpr uint8_t BT_PPG_ODR     = 0x01;
-    constexpr uint8_t BT_PPG_DEC     = 0x02;
-    constexpr uint8_t BT_PPG_LED     = 0x03;
-    constexpr uint8_t BT_PPG_TIA     = 0x04;
-    constexpr uint8_t BT_PPG_PRPCT   = 0x05;
-    constexpr uint8_t BT_PPG_CLEAR   = 0x06;
-    constexpr uint8_t BT_PPG_SRC     = 0x07;
-    constexpr uint8_t BT_PPG_STATUS  = 0x08;
+    /* ---- 0x40 PPG_H (hand, AFE ch 0-1) / 0xA0 PPG_F (finger, AFE ch 2-3) ----
+     * One AFE4950, two sensors with identical feature numbers (like H_IMU /
+     * F_IMU). ODR, DEC and PRPCT are chip-wide: a SET through either id
+     * changes both. LED/TIA/SRC take a local channel 0-1 that firmware maps
+     * to AFE ch 0-1 (PPG_H) or 2-3 (PPG_F). */
+    constexpr uint8_t BT_CMD_PPG_H     = 0x40;
+    constexpr uint8_t BT_CMD_PPG_F     = 0xA0;
+    constexpr uint8_t BT_PPG_POWER     = 0x00;
+    constexpr uint8_t BT_PPG_ODR       = 0x01;
+    constexpr uint8_t BT_PPG_DEC       = 0x02;
+    constexpr uint8_t BT_PPG_LED       = 0x03;
+    constexpr uint8_t BT_PPG_TIA       = 0x04;
+    constexpr uint8_t BT_PPG_PRPCT     = 0x05;
+    constexpr uint8_t BT_PPG_CLEAR     = 0x06;
+    constexpr uint8_t BT_PPG_SRC       = 0x07;
+    constexpr uint8_t BT_PPG_STATUS    = 0x08;
 
     /* ---- 0x50 BAT ---- */
     constexpr uint8_t BT_CMD_BAT       = 0x50;
@@ -150,12 +155,13 @@ namespace Mudra::Computation::Ultimate
     constexpr uint8_t BT_STORAGE_RECORD_ERROR  = 0x02;
     constexpr uint8_t BT_STORAGE_NEXT_FILE_NUM = 0x03;
 
-    /* Fixed part of a RECORD_SET request — [cmd, feature, 4 sensor flags,
-     * is_test, file_num, duration_min(u16 LE), utc_ts(u32 LE)] — a variable
-     * description may follow, up to BT_CMD_MAX_LEN (96) total. Note: on
-     * Ultimate, is_test only has an effect for EMG (see bt_command_manager.h) —
-     * same wire layout as Pro, different firmware-side semantics. */
-    constexpr size_t BT_STORAGE_RECORD_SET_FIXED_LEN = 14;
+    /* Fixed part of a RECORD_SET request — [cmd, feature, 5 sensor flags
+     * (emg, ppg_h, h_imu, f_imu, ppg_f), is_test, file_num, duration_min(u16 LE),
+     * utc_ts(u32 LE)] — a variable description may follow, up to
+     * BT_CMD_MAX_LEN (96) total. Note: on Ultimate, is_test only has an
+     * effect for EMG (see bt_command_manager.h) — same wire layout as Pro,
+     * different firmware-side semantics. */
+    constexpr size_t BT_STORAGE_RECORD_SET_FIXED_LEN = 15;
 
     class UltimateFirmwareCommands
     {
@@ -210,16 +216,16 @@ namespace Mudra::Computation::Ultimate
             F_IMU_GYR_AVG,
             F_IMU_STATUS,        /* [BT_CMD_F_IMU, BT_F_IMU_STATUS] */
 
-            /* PPG */
-            ENABLE_PPG,          /* [BT_CMD_PPG, BT_PPG_POWER, 0x00] */
-            PPG_ODR,             /* [BT_CMD_PPG, BT_PPG_ODR, 0x00, 0x00, 0x00] */
-            PPG_DEC,             /* [BT_CMD_PPG, BT_PPG_DEC, 0x00, 0x00] */
-            PPG_LED,             /* [BT_CMD_PPG, BT_PPG_LED, 0x00, 0x00, 0x00, 0x00] action+ch+drv1+drv2 */
-            PPG_TIA,             /* [BT_CMD_PPG, BT_PPG_TIA, 0x00, 0x00, 0x00, 0x00] action+ch+rf+cf */
-            PPG_PRPCT,           /* [BT_CMD_PPG, BT_PPG_PRPCT, 0x00, 0x00, 0x00] */
-            PPG_CLEAR,           /* [BT_CMD_PPG, BT_PPG_CLEAR] */
-            PPG_SRC,             /* [BT_CMD_PPG, BT_PPG_SRC, 0x00, 0x00, 0x00, 0x00] action+ch+led+pd */
-            PPG_STATUS,          /* [BT_CMD_PPG, BT_PPG_STATUS] */
+            /* Hand PPG (renamed in place from PPG — ordinals unchanged) */
+            ENABLE_PPG_H,        /* [BT_CMD_PPG_H, BT_PPG_POWER, 0x00] */
+            PPG_H_ODR,           /* [BT_CMD_PPG_H, BT_PPG_ODR, 0x00, 0x00, 0x00] shared (chip-wide) */
+            PPG_H_DEC,           /* [BT_CMD_PPG_H, BT_PPG_DEC, 0x00, 0x00] shared (chip-wide) */
+            PPG_H_LED,           /* [BT_CMD_PPG_H, BT_PPG_LED, 0x00, 0x00, 0x00, 0x00] action+ch(0-1)+drv1+drv2 */
+            PPG_H_TIA,           /* [BT_CMD_PPG_H, BT_PPG_TIA, 0x00, 0x00, 0x00, 0x00] action+ch(0-1)+rf+cf */
+            PPG_H_PRPCT,         /* [BT_CMD_PPG_H, BT_PPG_PRPCT, 0x00, 0x00, 0x00] shared (chip-wide) */
+            PPG_H_CLEAR,         /* [BT_CMD_PPG_H, BT_PPG_CLEAR] */
+            PPG_H_SRC,           /* [BT_CMD_PPG_H, BT_PPG_SRC, 0x00, 0x00, 0x00, 0x00] action+ch(0-1)+led+pd */
+            PPG_H_STATUS,        /* [BT_CMD_PPG_H, BT_PPG_STATUS] */
 
             /* Battery */
             BAT_STATUS,
@@ -251,7 +257,7 @@ namespace Mudra::Computation::Ultimate
             ENABLE_TAP,          /* [BT_CMD_TAP, BT_TAP_POWER, 0x00] */
 
             /* Storage */
-            STORAGE_RECORD_SET,     /* [BT_CMD_STORAGE, BT_STORAGE_RECORD_SET, emg,ppg,h_imu,f_imu,is_test,
+            STORAGE_RECORD_SET,     /* [BT_CMD_STORAGE, BT_STORAGE_RECORD_SET, emg,ppg_h,h_imu,f_imu,ppg_f,is_test,
                                        file_num, duration_min(u16 LE), utc_ts(u32 LE), desc...] */
             STORAGE_RECORD_STATE,   /* [BT_CMD_STORAGE, BT_STORAGE_RECORD_STATE] */
             STORAGE_NEXT_FILE_NUM,  /* [BT_CMD_STORAGE, BT_STORAGE_NEXT_FILE_NUM] */
@@ -259,6 +265,20 @@ namespace Mudra::Computation::Ultimate
             /* Recording-encryption user_id. RAM-only on the device, no
              * action byte, no getter (mirrors LICENSE_SET). */
             SYSTEM_USER_ID_SET,  /* [BT_CMD_SYSTEM, BT_SYS_USER_ID_SET, <16 raw bytes>] */
+
+            /* Finger PPG — appended at the end (after every pre-existing
+             * entry) so no existing ordinal shifts; the Python SDK's
+             * UltimateFirmwareCommand enum matches these positionally. Same
+             * templates as the PPG_H group above with BT_CMD_PPG_F. */
+            ENABLE_PPG_F,        /* [BT_CMD_PPG_F, BT_PPG_POWER, 0x00] */
+            PPG_F_ODR,           /* [BT_CMD_PPG_F, BT_PPG_ODR, 0x00, 0x00, 0x00] shared (chip-wide) */
+            PPG_F_DEC,           /* [BT_CMD_PPG_F, BT_PPG_DEC, 0x00, 0x00] shared (chip-wide) */
+            PPG_F_LED,           /* [BT_CMD_PPG_F, BT_PPG_LED, 0x00, 0x00, 0x00, 0x00] action+ch(0-1)+drv1+drv2 */
+            PPG_F_TIA,           /* [BT_CMD_PPG_F, BT_PPG_TIA, 0x00, 0x00, 0x00, 0x00] action+ch(0-1)+rf+cf */
+            PPG_F_PRPCT,         /* [BT_CMD_PPG_F, BT_PPG_PRPCT, 0x00, 0x00, 0x00] shared (chip-wide) */
+            PPG_F_CLEAR,         /* [BT_CMD_PPG_F, BT_PPG_CLEAR] */
+            PPG_F_SRC,           /* [BT_CMD_PPG_F, BT_PPG_SRC, 0x00, 0x00, 0x00, 0x00] action+ch(0-1)+led+pd */
+            PPG_F_STATUS,        /* [BT_CMD_PPG_F, BT_PPG_STATUS] */
         };
 
         DLLEXPORT UltimateFirmwareCommands();
@@ -314,16 +334,27 @@ namespace Mudra::Computation::Ultimate
                 case FirmwareCommand::F_IMU_GYR_AVG: return { BT_CMD_F_IMU, BT_F_IMU_GYR_AVG, 0x00, 0x00 };
                 case FirmwareCommand::F_IMU_STATUS:  return { BT_CMD_F_IMU, BT_F_IMU_STATUS };
 
-                /* PPG */
-                case FirmwareCommand::ENABLE_PPG: return { BT_CMD_PPG, BT_PPG_POWER, 0x00 };
-                case FirmwareCommand::PPG_ODR:    return { BT_CMD_PPG, BT_PPG_ODR, 0x00, 0x00, 0x00 };
-                case FirmwareCommand::PPG_DEC:    return { BT_CMD_PPG, BT_PPG_DEC, 0x00, 0x00 };
-                case FirmwareCommand::PPG_LED:    return { BT_CMD_PPG, BT_PPG_LED, 0x00, 0x00, 0x00, 0x00 };
-                case FirmwareCommand::PPG_TIA:    return { BT_CMD_PPG, BT_PPG_TIA, 0x00, 0x00, 0x00, 0x00 };
-                case FirmwareCommand::PPG_PRPCT:  return { BT_CMD_PPG, BT_PPG_PRPCT, 0x00, 0x00, 0x00 };
-                case FirmwareCommand::PPG_CLEAR:  return { BT_CMD_PPG, BT_PPG_CLEAR };
-                case FirmwareCommand::PPG_SRC:    return { BT_CMD_PPG, BT_PPG_SRC, 0x00, 0x00, 0x00, 0x00 };
-                case FirmwareCommand::PPG_STATUS: return { BT_CMD_PPG, BT_PPG_STATUS };
+                /* Hand PPG */
+                case FirmwareCommand::ENABLE_PPG_H:  return { BT_CMD_PPG_H, BT_PPG_POWER, 0x00 };
+                case FirmwareCommand::PPG_H_ODR:     return { BT_CMD_PPG_H, BT_PPG_ODR, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_H_DEC:     return { BT_CMD_PPG_H, BT_PPG_DEC, 0x00, 0x00 };
+                case FirmwareCommand::PPG_H_LED:     return { BT_CMD_PPG_H, BT_PPG_LED, 0x00, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_H_TIA:     return { BT_CMD_PPG_H, BT_PPG_TIA, 0x00, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_H_PRPCT:   return { BT_CMD_PPG_H, BT_PPG_PRPCT, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_H_CLEAR:   return { BT_CMD_PPG_H, BT_PPG_CLEAR };
+                case FirmwareCommand::PPG_H_SRC:     return { BT_CMD_PPG_H, BT_PPG_SRC, 0x00, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_H_STATUS:  return { BT_CMD_PPG_H, BT_PPG_STATUS };
+
+                /* Finger PPG */
+                case FirmwareCommand::ENABLE_PPG_F:  return { BT_CMD_PPG_F, BT_PPG_POWER, 0x00 };
+                case FirmwareCommand::PPG_F_ODR:     return { BT_CMD_PPG_F, BT_PPG_ODR, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_F_DEC:     return { BT_CMD_PPG_F, BT_PPG_DEC, 0x00, 0x00 };
+                case FirmwareCommand::PPG_F_LED:     return { BT_CMD_PPG_F, BT_PPG_LED, 0x00, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_F_TIA:     return { BT_CMD_PPG_F, BT_PPG_TIA, 0x00, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_F_PRPCT:   return { BT_CMD_PPG_F, BT_PPG_PRPCT, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_F_CLEAR:   return { BT_CMD_PPG_F, BT_PPG_CLEAR };
+                case FirmwareCommand::PPG_F_SRC:     return { BT_CMD_PPG_F, BT_PPG_SRC, 0x00, 0x00, 0x00, 0x00 };
+                case FirmwareCommand::PPG_F_STATUS:  return { BT_CMD_PPG_F, BT_PPG_STATUS };
 
                 /* Battery */
                 case FirmwareCommand::BAT_STATUS:    return { BT_CMD_BAT, BT_BAT_STATUS };
@@ -356,9 +387,9 @@ namespace Mudra::Computation::Ultimate
 
                 /* Storage */
                 case FirmwareCommand::STORAGE_RECORD_SET:
-                    /* emg,ppg,h_imu,f_imu,is_test,file_num, duration_min(u16 LE), utc_ts(u32 LE) */
+                    /* emg,ppg_h,h_imu,f_imu,ppg_f,is_test,file_num, duration_min(u16 LE), utc_ts(u32 LE) */
                     return { BT_CMD_STORAGE, BT_STORAGE_RECORD_SET,
-                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
                 case FirmwareCommand::STORAGE_RECORD_STATE:
                     return { BT_CMD_STORAGE, BT_STORAGE_RECORD_STATE };

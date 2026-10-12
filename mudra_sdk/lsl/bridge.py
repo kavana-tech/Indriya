@@ -4,7 +4,9 @@ How it works:
 
 - **One LSL outlet per sensor.** Its sample rate and channel count are read
   from the device's status when the bridge starts (EMG has 3 channels on Mudra
-  Pro and 8 on Mudra Ultimate; PPG has 1–4).
+  Pro and 8 on Mudra Ultimate; PPG_H and PPG_F have 2 each). PPG_F needs the
+  ring: without it the device answers its status query with an error, just
+  like the finger IMU's, so it is skipped as a sensor that didn't answer.
 - **The bridge turns its sensors on and off.** In this SDK, registering a
   sensor's ``set_on_*_ready`` callback *is* what turns the sensor on, and
   clearing it turns the sensor off. :meth:`MudraLslBridge.start` registers
@@ -58,7 +60,8 @@ _DEVICE_API: dict[str, tuple[str, str, str]] = {
     metadata.EMG: ("set_on_emg_ready", "get_emg_status_info", "get_emg_status"),
     metadata.IMU_HAND: ("set_on_imu_h_ready", "get_h_imu_status_info", "get_h_imu_status"),
     metadata.IMU_RING: ("set_on_imu_f_ready", "get_f_imu_status_info", "get_f_imu_status"),
-    metadata.PPG: ("set_on_ppg_ready", "get_ppg_status_info", "get_ppg_status"),
+    metadata.PPG_H: ("set_on_ppg_h_ready", "get_ppg_h_status_info", "get_ppg_h_status"),
+    metadata.PPG_F: ("set_on_ppg_f_ready", "get_ppg_f_status_info", "get_ppg_f_status"),
 }
 
 
@@ -75,11 +78,11 @@ def _require_pylsl():
 
 
 def _odr_and_channels(device, sensor: str, status) -> tuple[int, int]:
-    """Sample rate (Hz) and channel count, read from a sensor's status."""
+    """Sample rate (Hz) from a sensor's status, and its channel count."""
     if sensor == metadata.EMG:
         return status.odr_sps.value_int, device.EMG_CHANNEL_COUNT
-    if sensor == metadata.PPG:
-        return status.odr_hz.value_int, status.channel_count.value_int
+    if sensor in (metadata.PPG_H, metadata.PPG_F):
+        return status.odr_hz.value_int, len(metadata.PPG_CHANNELS)
     return status.odr_hz.value_int, len(metadata.IMU_CHANNELS)
 
 
@@ -106,11 +109,12 @@ class MudraLslBridge:
         each device when streaming several.
     sensors:
         Which sensors to publish (and therefore turn on): any of ``"emg"``,
-        ``"imu_hand"``, ``"imu_ring"``, ``"ppg"``. Default: all four.
+        ``"imu_hand"``, ``"imu_ring"``, ``"ppg_h"``, ``"ppg_f"``. Default: all
+        five.
     status_timeout:
         How long :meth:`start` waits for each sensor's status reply. A sensor
-        that doesn't answer (e.g. ``imu_ring`` on a band without a finger IMU)
-        is skipped with a warning.
+        that doesn't answer (e.g. ``imu_ring`` on a band without a finger IMU,
+        or ``ppg_f`` with no ring connected) is skipped with a warning.
     """
 
     def __init__(self, device, device_id: Optional[str] = None, *,
@@ -162,8 +166,8 @@ class MudraLslBridge:
             if status is None:
                 self.skipped[sensor] = f"no status reply within {self.status_timeout:g}s"
                 logger.warning(f"{sensor}: {self.skipped[sensor]}; not publishing it")
-            else:
-                configs[sensor] = _odr_and_channels(self.device, sensor, status)
+                continue
+            configs[sensor] = _odr_and_channels(self.device, sensor, status)
         if not configs:
             raise RuntimeError(
                 "none of the requested sensors reported status - is the device "

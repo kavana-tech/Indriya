@@ -21,9 +21,22 @@ The process-wide singleton — ``Mudra()`` always returns the same instance.
 Owns both transports and dispatches every device event to the registered
 :class:`~mudra_sdk.models.callbacks.MudraDelegate`.
 
+.. The exclude list hides the transport-service hooks BleService/CdcService
+   call on Mudra — not for application code.
+
 .. autoclass:: mudra_sdk.models.mudra.Mudra
    :members:
    :show-inheritance:
+   :exclude-members: on_ble_characteristic_discovered, on_charging_state_changed,
+                     on_data_received, on_battery_level_changed,
+                     on_sensor_status_received, on_storage_record_state_received,
+                     on_storage_record_error_received, on_storage_next_file_num_received,
+                     on_command_error_received, on_ping_response_received,
+                     on_device_info_received, on_firmware_version_received,
+                     on_command_reply_received, on_device_discovered,
+                     on_mudra_device_disconnected, on_mudra_device_disconnecting,
+                     on_mudra_device_connected, on_mudra_device_connecting,
+                     on_mudra_device_connection_failed, on_bluetooth_state_changed
 
 MudraDevice
 -----------
@@ -33,9 +46,20 @@ already branches internally on ``device.transport`` and picks the right wire
 format — see :doc:`CONNECTION` for what differs per transport under the
 hood.
 
+.. The exclude list hides hooks the SDK itself calls during connect/disconnect
+   and data dispatch — not for application code.
+
 .. autoclass:: mudra_sdk.models.mudra_device.MudraDevice
    :members:
    :show-inheritance:
+   :exclude-members: handle_disconnection, update_connection_properties,
+                     on_characteristic_discovered, on_cdc_ready, start_streaming,
+                     stop_streaming, on_charging_state_changed, on_data_received,
+                     on_battery_level_changed, on_sensor_status_received,
+                     on_storage_record_state_received, on_storage_record_error_received,
+                     on_storage_next_file_num_received, on_command_error_received,
+                     on_ping_response_received, on_device_info_received,
+                     on_firmware_version_received
 
 Per-model subclasses
 ~~~~~~~~~~~~~~~~~~~~~
@@ -55,8 +79,10 @@ them.
 Status & data types
 --------------------
 
-Dataclasses returned via status/info callbacks (:doc:`SENSORS`, :doc:`AUTH`,
-:doc:`CALLBACKS`).
+The status and info dataclasses delivered to status/info callbacks and
+returned by the cached ``get_*_info()`` getters (:doc:`SENSORS`, :doc:`AUTH`,
+:doc:`CALLBACKS`), plus two supporting types: ``FirmwareDetails`` (constants)
+and ``CdcDevice`` (a USB-CDC device's identity).
 
 .. autoclass:: mudra_sdk.models.mudra_device.EmgStatus
    :members:
@@ -78,6 +104,13 @@ Dataclasses returned via status/info callbacks (:doc:`SENSORS`, :doc:`AUTH`,
 
 .. autoclass:: mudra_sdk.models.firmware_details.FirmwareDetails
    :members:
+
+   .. note::
+
+      These constants are for the **Mudra Band**, not Mudra Pro or Mudra
+      Ultimate. The firmware versions this SDK supports for Mudra Pro and
+      Mudra Ultimate are listed in :doc:`supported_devices` (and in
+      ``supported_firmware.json`` at the root of the SDK).
 
 .. autoclass:: mudra_sdk.models.cdc_device.CdcDevice
    :members:
@@ -151,10 +184,6 @@ EMG / IMU / PPG configuration ranges
    :members:
    :undoc-members:
 
-.. autoclass:: mudra_sdk.models.enums.PPGChannelCount
-   :members:
-   :undoc-members:
-
 Model, licensing & command status
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -199,8 +228,31 @@ Account sign-in & licensing
 :mod:`mudra_sdk.auth` — see :doc:`AUTH` for the full guide (why this matters,
 the two independent halves, a practical checklist).
 
-.. automodule:: mudra_sdk.auth
-   :members:
+.. module:: mudra_sdk.auth
+
+Sign in with :func:`sign_in_email` **before** connecting: while signed in, the
+SDK itself calls :func:`provision_device` and :func:`provision_user_id` on
+every connect, and the device's ``LicenseManager`` renews the license before
+it expires. Call them yourself only if you sign in after a device is already
+connected; both do nothing while signed out.
+
+The signed-in tier and ``uref`` are kept in memory, per process — after a
+restart, call :func:`sign_in_email` again before provisioning does anything.
+The cloud client's access/refresh tokens, however, **are written to disk**
+(``~/.mudra_sdk/auth_storage.json``) and :func:`logout` does not remove them,
+so ``MudraServerClient`` calls keep working after ``logout()`` and in a new process.
+To sign out fully, also call ``AuthStorage().clear()``
+(``from mudra_sdk.cloud import AuthStorage``).
+
+.. autofunction:: mudra_sdk.auth.sign_in_email
+
+.. autofunction:: mudra_sdk.auth.logout
+
+.. autofunction:: mudra_sdk.auth.get_user_ref
+
+.. autofunction:: mudra_sdk.auth.provision_device
+
+.. autofunction:: mudra_sdk.auth.provision_user_id
 
 Lab Streaming Layer
 --------------------
@@ -219,8 +271,41 @@ it, only starting a bridge does.
 .. autodata:: mudra_sdk.lsl.clock.GRTC_CPS
 
 .. automodule:: mudra_sdk.lsl.metadata
-   :members: EMG, IMU_HAND, IMU_RING, PPG, SENSOR_KEYS, SENSORS, SensorSpec,
-             IMU_CHANNELS, normalize_sensors, channels
+   :members: SENSOR_KEYS, SensorSpec, IMU_CHANNELS, PPG_CHANNELS, normalize_sensors, channels
+
+.. These carry no ``#:`` doc comment in the source, so autodoc's ``:members:``
+   skips them (and ``autodata`` would show the str/dict builtin docstring);
+   describe them by hand.
+
+.. data:: mudra_sdk.lsl.metadata.EMG
+   :value: 'emg'
+
+   Sensor key for EMG.
+
+.. data:: mudra_sdk.lsl.metadata.IMU_HAND
+   :value: 'imu_hand'
+
+   Sensor key for the hand IMU (``H_IMU``).
+
+.. data:: mudra_sdk.lsl.metadata.IMU_RING
+   :value: 'imu_ring'
+
+   Sensor key for the finger IMU (``F_IMU``, Mudra Ultimate only).
+
+.. data:: mudra_sdk.lsl.metadata.PPG_H
+   :value: 'ppg_h'
+
+   Sensor key for the hand PPG (``PPG_H``).
+
+.. data:: mudra_sdk.lsl.metadata.PPG_F
+   :value: 'ppg_f'
+
+   Sensor key for the finger (ring) PPG (``PPG_F``).
+
+.. data:: mudra_sdk.lsl.metadata.SENSORS
+   :type: dict[str, SensorSpec]
+
+   The :class:`SensorSpec` for each sensor key.
 
 Firmware update (DFU)
 ----------------------
@@ -245,9 +330,11 @@ extending the SDK itself.
 .. autoclass:: mudra_sdk.models.license_manager.LicenseManager
    :members:
 
-   Owned one-per-device, started on connect and stopped on disconnect (see
-   :doc:`AUTH`) — periodically re-provisions the license token before it
-   expires. Nothing to call; nothing to configure.
+   Owned one-per-device; the SDK starts it on connect and stops it on
+   disconnect for you (see :doc:`AUTH`). It periodically re-provisions the
+   license token before it expires — which fetches a fresh token from the
+   server, so renewal only happens while signed in
+   (:func:`mudra_sdk.auth.sign_in_email`). You don't call it yourself.
 
 .. autoclass:: mudra_sdk.models.data_recorder.DataRecorder
    :members:

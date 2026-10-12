@@ -1,12 +1,13 @@
 Indriya
 =======
 
-The **Mudra SDK** (``mudra_sdk``) is a Python library for the **Mudra Pro** and
-**Mudra Ultimate** wrist-worn sensor devices by Wearable Devices. It presents
-one unified, ``asyncio``-based API over two physically different transports —
-**BLE** (Bluetooth Low Energy) and **USB-CDC** (serial) — for four sensor
-streams (EMG, hand IMU, finger IMU, PPG), SD-card recording, firmware update,
-and account sign-in/device licensing.
+**Indriya** (Python package ``mudra_sdk``) is the Python SDK for the
+**Mudra Pro** and **Mudra Ultimate** wrist-worn sensor devices by Wearable
+Devices. It presents one unified, ``asyncio``-based API over two physically
+different transports — **BLE** (Bluetooth Low Energy) and **USB-CDC**
+(serial) — for the sensor streams (EMG, hand IMU, hand and finger PPG, plus a
+finger IMU on Mudra Ultimate only), SD-card recording, firmware update, and account
+sign-in/device licensing.
 
 The SDK is built for two audiences:
 
@@ -22,12 +23,12 @@ How the pieces fit
   still connects and streams, at whatever license tier (``FREE``/``PLUS``/
   ``PRO``) the device already holds. Sign-in (:doc:`AUTH`) is what *raises*
   that tier; it is orthogonal to connecting at all.
-- **`Mudra` is a process-wide singleton** that owns both transports and fans
-  every device event out to one registered delegate; **`MudraDevice`** is
-  transport-agnostic from the caller's side (:doc:`SDK_USAGE`).
-- **BLE and CDC differ in readiness, not in API shape** — CDC needs an
-  explicit ``START`` after connecting where BLE doesn't; every typed method
-  already branches internally so callers rarely need to check
+- ``Mudra`` **is a process-wide singleton** that owns both transports and fans
+  every device event out to one registered delegate; ``MudraDevice`` **is
+  transport-agnostic** from the caller's side (:doc:`SDK_USAGE`).
+- **BLE and CDC differ in setup, not in API shape** — CDC needs a ``START``
+  before data flows, which the SDK sends for you inside ``connect()``; every
+  typed method already branches internally so callers rarely need to check
   ``device.transport`` themselves (:doc:`CONNECTION`).
 
 Pick your path
@@ -50,7 +51,7 @@ Pick your path
      </a>
      <a class="ex-index-item" href="examples.html">
        <span class="ex-index-head"><span class="ex-index-name">Examples</span></span>
-       <span class="ex-index-desc">The runnable reference app: scan, connect, live sensors, config, SD recording, firmware update, auth.</span>
+       <span class="ex-index-desc">Two runnable apps: the Mudra Connect GUI (scan, connect, live sensors, config, recording, firmware update, auth) and a headless LSL streamer.</span>
      </a>
      <a class="ex-index-item" href="api_reference.html">
        <span class="ex-index-head"><span class="ex-index-name">API reference</span></span>

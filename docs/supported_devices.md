@@ -15,9 +15,19 @@ on either model. `MudraPro`/`MudraUltimate` (`mudra_sdk/models/mudra_pro.py`,
 ## Model detection
 
 You never construct `MudraPro`/`MudraUltimate` directly — the SDK detects
-the model automatically (from the BLE advertised name, or the CDC device
-identity) both when a device is found via `scan_ble()`/`scan_cdc()` and via
-`get_connected_devices()`, and hands you back the right subclass. Check
+the model automatically, both when a device is found via
+`scan_ble()`/`scan_cdc()` and via `get_connected_devices()`, and hands you
+back the right subclass:
+
+- **BLE** — from the advertised name: it contains `"Mudra Pro"` or
+  `"Mudra Ultimate"` (`MudraModel.from_ble_name`).
+- **USB-CDC** — both models share one USB VID/PID, so the SDK probes the
+  ports instead: a `CDC?` handshake tells the `CONFIG` port from the `DATA`
+  port, and a `TSYNC?` probe tells Mudra Pro from Mudra Ultimate.
+
+The same physical device seen over BLE and over USB shows up as **two
+separate `MudraDevice` objects** (one keyed by BLE address, one by USB
+serial). Check
 `device.MODEL` (a `MudraModel.PRO`/`MudraModel.ULTIMATE` value) if your code
 needs to branch on it — most callers don't, since the shared API covers
 everything but the extras below.
@@ -26,12 +36,12 @@ everything but the extras below.
 
 <!-- firmware-versions:table -->
 
-This SDK version (**0.4.8**) supports:
+This SDK version (**0.5.0**) supports:
 
 | Model | Firmware |
 |---|---|
-| Mudra Pro | 2.0.2.5 |
-| Mudra Ultimate | 1.0.3.7 |
+| Mudra Pro | 2.0.2.6 |
+| Mudra Ultimate | 1.0.3.8 |
 
 <!-- /firmware-versions -->
 
@@ -39,7 +49,8 @@ Keep your devices on these versions — other firmware versions aren't
 supported by this SDK release. The same versions are available
 programmatically in `supported_firmware.json` at the root of the SDK.
 
-Versions are written the way the SDK reports them: `major.minor.patch.build`.
+Versions are written the way the SDK reports them: `major.minor.patch.tweak`
+(the fields of `FirmwareVersion`).
 To read a device's version, call `await device.get_firmware_version()`; the
 reply arrives through the `set_on_firmware_version_received` callback, and
 afterwards `device.get_firmware_version_info().version_string` returns it
@@ -48,8 +59,9 @@ support — see [CONNECTION.md §6](CONNECTION.md#6-firmware-update-dfu-usb-only
 
 **No finger IMU on Mudra Pro** — Mudra Pro firmware has no finger (ring)
 IMU: those pins are used by the SD-card slot. Enabling the finger IMU
-(`F_IMU`) or querying its status reports `BtCmdStatus.ERR_STATE` through the
-command-error callback instead of streaming.
+(`F_IMU`) or querying its status reports an error through the
+command-error callback instead of streaming — `BtCmdStatus.ERR_STATE` over
+BLE, `BtCmdStatus.ERR_UNKNOWN` over USB-CDC.
 
 ## What differs
 
@@ -58,21 +70,27 @@ command-error callback instead of streaming.
 | EMG channels | 3 (`EMG_CHANNEL_COUNT = 3`) | 8 (`EMG_CHANNEL_COUNT = 8`) |
 | EMG AFE | ADS1293 | ADS1298 |
 | EMG ODR enum | `ProEMGODR` — 200/400/800/1600/2133/3200/4267/6400 Hz | `UltimateEMGODR` — 500/1000/2000/4000 Hz |
-| Packet-loss test mode | `set_emg_test_mode` / `set_h_imu_test_mode` / `set_f_imu_test_mode` / `set_ppg_test_mode` — Pro-only firmware-side counter overlay per sensor (see [SENSORS.md §4](SENSORS.md#4-packet-loss-test-mode)) | Not present — Ultimate has no equivalent |
+| Packet-loss test mode | `set_emg_test_mode` / `set_h_imu_test_mode` / `set_f_imu_test_mode` / `set_ppg_h_test_mode` / `set_ppg_f_test_mode` — Pro-only firmware-side counter overlay per sensor (see [SENSORS.md §4](SENSORS.md#4-packet-loss-test-mode)) | Not present — Ultimate has no equivalent |
 | EMG bench self-test | Not present | `set_emg_test(mode)` (input-mux self-test: normal / test signal / inputs shorted / temp sensor / supply monitor), `set_emg_channel_mask(mask)`, `set_emg_rld(enable)`, `emg_isolate()` — see `mudra_sdk/models/mudra_ultimate.py` |
-| Host clock-sync / link stats | Not present | `get_tsync()` (echoes the firmware's 64-bit GRTC cycle counter), `get_linkstats()` (BLE notification-drop stats + connection params, BLE-only) |
+| Host clock-sync / link stats | Not present | `get_tsync()` (echoes the firmware's 64-bit GRTC cycle counter), `get_linkstats()` (BLE notification-drop stats + connection params, BLE-only) — both replies currently appear only in the SDK's debug log; no callback receives them |
 
 `device.EMG_ODR_ENUM` always points at the right enum for whichever model
-`device` actually is, so generic code can do
-`device.set_emg_odr(device.EMG_ODR_ENUM.<value>)` without an `isinstance`
-check.
+`device` actually is, so generic code can pick a rate without an
+`isinstance` check:
+
+```python
+odr = device.EMG_ODR_ENUM.from_value(800)   # None if this model has no 800 Hz rate (Ultimate)
+if odr is not None:
+    await device.set_emg_odr(odr)
+```
 
 ## Shared sensors
 
-Both models expose the same four sensor streams, IMU/PPG config ranges, and
+Both models expose the same five sensor streams (PPG as two: hand `PPG_H` and
+finger/ring `PPG_F`, sharing one PPG chip), IMU/PPG config ranges, and
 license-gated feature set — see the
 [key enums quick reference](SDK_USAGE.md#5-quick-reference--key-enums-mudra_sdkmodelsenums)
-for the full table (IMU ODR/accel/gyro ranges, PPG ODR/channel count, EMG
+for the full table (IMU ODR/accel/gyro ranges, PPG ODR, EMG
 resolution).
 
 `Format`/`Bytes per sample` below describe the raw **wire** encoding (before
@@ -85,28 +103,28 @@ runtime-configurable, so treat these as defaults, not fixed values.
 | EMG | `emg` | `EMG` | channels × (i16 or i24), per `EmgRes` | 6/9 B (Mudra Pro, 3 ch) · 16/24 B (Mudra Ultimate, 8 ch) |
 | Hand IMU | `imuH` | `H_IMU` | 6 × i16 (`ax,ay,az,gx,gy,gz`) | 12 B (fixed) |
 | Finger IMU | `imuF` | `F_IMU` | 6 × i16 (`ax,ay,az,gx,gy,gz`) | 12 B (fixed) |
-| PPG | `ppg` | `PPG` | channels × i24, per `channel_count` | 3–12 B (1–4 channels) |
+| Hand PPG | `ppgH` | `PPG_H` | 2 × i24 (`ch0,ch1`) | 6 B (fixed) |
+| Finger PPG | `ppgF` | `PPG_F` | 2 × i24 (`ch0,ch1`) | 6 B (fixed) |
 
 ## Transports
 
 Both models connect over either transport, unified behind the same API (see
 [CONNECTION.md](CONNECTION.md)):
 
-- **BLE** — advertised name containing `"Mudra Pro"` (both models share this
-  advertising prefix; the model is disambiguated from other fields in the
-  advertisement/GATT data, not the name alone).
-- **USB-CDC** — USB VID/PID `0x2FE3`/`0x0001`, two serial ports (`CONFIG` +
-  `DATA`), disambiguated with a `CDC?` handshake.
+- **BLE** — advertised name containing `"Mudra Pro"` or `"Mudra Ultimate"`.
+- **USB-CDC** — USB VID/PID `0x2FE3`/`0x0001` (shared by both models), two
+  serial ports (`CONFIG` + `DATA`) told apart with a `CDC?` handshake; a
+  `TSYNC?` probe identifies the model (see [Model detection](#model-detection)).
+  Firmware update (DFU) is USB-CDC only.
 
 ## Status LED
 
 Both models drive a single RGB status LED through a **priority-based state
-machine** (`src/logic_layer/led_manager/` in each firmware repo). Several
-states can be active at once; the **highest-priority active state owns the
-LED**. This SDK doesn't wrap it in a typed method — see
-["Controlling it"](#controlling-it-raw-commands-only) below — so the table
-here is sourced directly from the firmware (`mudra_pro`/`mudra_ultimate`
-repos, `led_manager.h`/`.c`, branch `main`), not from this SDK's own code.
+machine** in the device firmware. Several states can be active at once; the
+**highest-priority active state owns the LED**. This SDK doesn't wrap it in a
+typed method — see ["Controlling it"](#controlling-it-raw-commands-only)
+below — so the tables here describe the firmware's behavior, not this SDK's
+own code.
 
 Brightness is capped at 10% of the PWM duty cycle; RGB below is `(R, G, B)`,
 each `0–100` as a percentage *of that cap* — `(0, 100, 0)` is full-intensity
@@ -158,11 +176,12 @@ adds a third, **`CHARGE_FAULT` vs `BATTERY_LOW`** (red; constant vs. pulse).
 ### Controlling it (raw commands only)
 
 This SDK exposes the LED only as raw, untyped commands — there's no
-`MudraDevice.set_led(...)`/`get_led_state()` method. Send these via
-`send_command()`/`send_cdc_command()`
-([CONNECTION.md §4](CONNECTION.md#4-raw--advanced-commands)) using the
-matching `ProFirmwareCommand`/`UltimateFirmwareCommand` member (`BT_CMD_LED`
-/ `0x60` on the wire):
+`MudraDevice.set_led(...)`/`get_led_state()` method. Send these with
+`await device.send_command(...)` over BLE, built from the matching
+`ProFirmwareCommand`/`UltimateFirmwareCommand` member (`BT_CMD_LED` / `0x60`
+on the wire), or as an ASCII line over USB-CDC with
+`await Mudra().send_cdc_command(device, "LED_STATE 3")` — see
+[CONNECTION.md §4](CONNECTION.md#4-raw--advanced-commands):
 
 | Command | CDC token | Payload | Notes |
 |---|---|---|---|
@@ -237,11 +256,9 @@ shown either.)
 The swatch dots are indicative; the precise per-channel values are in the
 tables above.
 
-If you need the specific `state_id`/`anim` value meanings (e.g. an
-"advertising" or "charging" state), they live in this device's firmware
-source, outside this repo — nothing here documents them. Treat the table
-above as the full extent of what's verified: the command surface exists,
-its semantics don't ship with this SDK.
+The `state_id` values are the **ID** column of the state tables above. The
+numeric `anim` codes accepted by `ledRgb` are not documented here — they're
+defined by the device firmware, not by this SDK.
 
 ## License tiers
 
@@ -264,7 +281,7 @@ The native `MudraSDK` library ships prebuilt for:
 
 | Platform | Architectures |
 |---|---|
-| Windows | x64, x86 |
+| Windows | x64 (64-bit Python required) |
 | macOS | arm64, x86_64 |
 | Linux | x86_64, aarch64 |
 

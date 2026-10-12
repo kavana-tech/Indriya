@@ -18,12 +18,13 @@ from mudra_sdk.logging_config import get_logger
 from .config import build_sensor_config_ui
 from ..sensors import toggle_sensor
 from ..state import AppState
-from ..theme import ACCENT, BG_PANEL, FG_MUTED, FONT_SMALL, FONT_UI_BOLD
+from ..theme import ACCENT, BG_PANEL, CHART_BG, FG_MUTED, FONT_SMALL, FONT_UI_BOLD, px
+from ..widgets import ScrollColumn, fit_pane
 
 logger = get_logger(__name__)
 
 DEFAULT_PING_INTERVAL_S = 0.1
-_PING_SENSORS = ("EMG", "IMU_H", "IMU_F", "PPG")
+_PING_SENSORS = ("EMG", "IMU_H", "IMU_F", "PPG_H", "PPG_F")
 
 
 def _make_ping_callback(state: AppState):
@@ -114,7 +115,7 @@ def stop_ping_check(state: AppState) -> None:
 
 def build_ping_ui(parent: tk.Widget, state: AppState) -> None:
     header = tk.Frame(parent, bg=BG_PANEL)
-    header.pack(fill=tk.X, padx=8, pady=(8, 4))
+    header.pack(fill=tk.X, padx=px(8), pady=(px(8), px(4)))
 
     tk.Label(
         header,
@@ -146,8 +147,10 @@ def build_ping_ui(parent: tk.Widget, state: AppState) -> None:
         side=tk.LEFT
     )
 
+    # Sensor On/Off pairs on a grid (name over its two buttons) rather than
+    # one long packed row, which ran off the right edge on larger fonts.
     sensors = tk.Frame(parent, bg=BG_PANEL)
-    sensors.pack(fill=tk.X, padx=8, pady=(0, 4))
+    sensors.pack(fill=tk.X, padx=px(8), pady=(0, px(4)))
     tk.Label(
         sensors,
         text="Sensors",
@@ -155,23 +158,26 @@ def build_ping_ui(parent: tk.Widget, state: AppState) -> None:
         fg=FG_MUTED,
         font=FONT_SMALL,
         anchor="w",
-    ).pack(side=tk.LEFT, padx=(0, 8))
-    for sensor in _PING_SENSORS:
-        block = tk.Frame(sensors, bg=BG_PANEL)
-        block.pack(side=tk.LEFT, padx=(0, 10))
-        ttk.Label(block, text=sensor, width=6).pack(side=tk.LEFT)
+    ).grid(row=0, column=0, rowspan=2, sticky="w", padx=(0, px(8)))
+    for i, sensor in enumerate(_PING_SENSORS):
+        col = 1 + i * 2
+        ttk.Label(sensors, text=sensor).grid(
+            row=0, column=col, columnspan=2, sticky="w", padx=(0, px(12))
+        )
         ttk.Button(
-            block,
+            sensors,
             text="On",
             width=4,
+            style="Small.TButton",
             command=lambda s=sensor: toggle_sensor(state, s, True),
-        ).pack(side=tk.LEFT, padx=(0, 2))
+        ).grid(row=1, column=col, sticky="w", padx=(0, px(2)))
         ttk.Button(
-            block,
+            sensors,
             text="Off",
             width=4,
+            style="Small.TButton",
             command=lambda s=sensor: toggle_sensor(state, s, False),
-        ).pack(side=tk.LEFT)
+        ).grid(row=1, column=col + 1, sticky="w", padx=(0, px(12)))
 
     state.ping_status_label = tk.Label(
         parent,
@@ -181,28 +187,28 @@ def build_ping_ui(parent: tk.Widget, state: AppState) -> None:
         font=FONT_SMALL,
         anchor="w",
     )
-    state.ping_status_label.pack(fill=tk.X, padx=8)
+    state.ping_status_label.pack(fill=tk.X, padx=px(8))
 
-    body = tk.Frame(parent, bg=BG_PANEL)
-    body.pack(fill=tk.BOTH, expand=True, padx=4, pady=4)
+    body = ttk.PanedWindow(parent, orient=tk.HORIZONTAL)
+    body.pack(fill=tk.BOTH, expand=True, padx=px(4), pady=px(4))
 
-    config_wrap = tk.Frame(body, bg=BG_PANEL, width=360)
-    config_wrap.pack(side=tk.LEFT, fill=tk.Y, padx=(4, 4))
-    config_wrap.pack_propagate(False)
+    config_col = ScrollColumn(body, padx=px(4))
+    body.add(config_col.outer, weight=0)
     tk.Label(
-        config_wrap,
+        config_col.inner,
         text="Sensor Config",
         bg=BG_PANEL,
         fg=ACCENT,
         font=FONT_UI_BOLD,
         anchor="w",
-    ).pack(fill=tk.X, pady=(0, 4))
-    config_box = tk.Frame(config_wrap, bg=BG_PANEL)
-    config_box.pack(fill=tk.BOTH, expand=True)
+    ).pack(fill=tk.X, pady=(0, px(4)))
+    config_box = tk.Frame(config_col.inner, bg=BG_PANEL)
+    config_box.pack(fill=tk.X)
     build_sensor_config_ui(config_box, state)
 
-    chart_wrap = tk.Frame(body, bg="#101010")
-    chart_wrap.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    chart_wrap = tk.Frame(body, bg=CHART_BG)
+    body.add(chart_wrap, weight=1)
+    fit_pane(body, config_col.natural_width)
 
     from ..ping_chart import PingChart
 

@@ -9,28 +9,33 @@ holds. Signing in (`mudra_sdk.auth`) is what lets you *raise* that tier; see
 
 ## Why do BLE and CDC behave slightly differently?
 
-They're genuinely different links with different readiness semantics: BLE is
-ready once its COMMAND characteristic is discovered, while CDC's DATA port
+They're genuinely different links with different setup steps: BLE needs its
+GATT services discovered and notifications subscribed, while CDC's DATA port
 stays silent until the SDK queries sensor status and explicitly sends
-`START`. The SDK hides most of this — every typed method already branches
+`START`. The SDK does both inside `connect()` and hides most of the rest — every typed method already branches
 internally — but a few things are transport-specific by nature: SD-card
 recording and the PING firmware token are BLE-only; raw commands are binary
 frames on BLE vs. ASCII lines on CDC. See [CONNECTION.md](CONNECTION.md).
 
-## Why is `device.connect()` returning not enough to know the device is ready?
+## What does `device.connect()` returning tell me?
 
-Because "the socket/GATT connection is open" and "the SDK has finished its
-own readiness handshake" are two different moments — especially on CDC,
-where sensor status queries and `START` happen *after* the serial ports are
-open. Drive readiness-dependent logic off
-`MudraDelegate.on_mudra_device_connected` instead of the `connect()`
-coroutine's return. See
+That the SDK's connect sequence has finished and you can enable sensors —
+*if* the connection succeeded. `connect()` returns only after its setup
+(BLE: services discovered, notifications subscribed, initial status/license
+queries sent; CDC: both ports open and handshaken, initial status queries
+sent, then `START`). It never raises on failure: the reason goes to
+`MudraDelegate.on_mudra_device_connection_failed`, so check
+`await Mudra().is_connected(device)` afterwards.
+
+`MudraDelegate.on_mudra_device_connected` fires *earlier* — as soon as the
+link opens, before that setup — so use it for UI state, not for enabling
+sensors. Status replies arrive asynchronously after `connect()` returns. See
 [SDK_USAGE.md §4](SDK_USAGE.md#4-minimal-end-to-end-example).
 
 ## Why does setting a callback also enable the sensor?
 
 It's a deliberate design choice, not a side effect to work around: for the
-four sensor streams, "I want this data" and "the sensor should be powered
+five sensor streams, "I want this data" and "the sensor should be powered
 on" are the same fact, so there's exactly one call
 (`set_on_<sensor>_ready(fn)` / `set_on_<sensor>_ready(None)`) instead of a
 separate enable/disable pair plus a separate callback registration. See
@@ -45,9 +50,13 @@ just surfaces whatever the firmware decides. See
 
 ## Can I use this SDK without the native library?
 
-Yes — `Mudra()` degrades gracefully (a log warning, not an exception) if the
-native `MudraSDK` library is missing for your platform. Everything except
-binary sensor-data parsing and packet-loss statistics still works. See
+Only for cloud calls. `Mudra()` itself constructs with a log warning if the
+native `MudraSDK` library is missing for your platform, but every
+`MudraDevice` raises `RuntimeError("Native library is not loaded")` when it's
+created — so scans find nothing and no device can be connected. The library
+also supplies command encoding, sensor-data parsing, packet-loss statistics
+and `get_json_recording()`. Without it, only `mudra_sdk.auth` and the cloud
+client work. See
 [native_library.md](native_library.md).
 
 ## Can I record Mudra data with LabRecorder / alongside an EEG system?

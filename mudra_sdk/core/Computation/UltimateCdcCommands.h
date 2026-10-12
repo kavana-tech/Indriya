@@ -103,16 +103,30 @@ namespace Mudra::Computation::Ultimate
                 case FirmwareCommand::F_IMU_GYR_AVG: return "F_IMU_GYR_AVG";
                 case FirmwareCommand::F_IMU_STATUS:  return "F_IMU?";           /* not "F_IMU_STATUS?" */
 
-                /* PPG */
-                case FirmwareCommand::ENABLE_PPG: return enable ? "PPG_ON" : "PPG_OFF";
-                case FirmwareCommand::PPG_ODR:    return "PPG_ODR";
-                case FirmwareCommand::PPG_DEC:    return "PPG_DEC";
-                case FirmwareCommand::PPG_LED:    return "PPG_LED";      /* multi-arg: "PPG_LED <ch> <drv1> <drv2>" / "PPG_LED? <ch>" */
-                case FirmwareCommand::PPG_TIA:    return "PPG_TIA";      /* multi-arg: "PPG_TIA <ch> <rf> <cf>" / "PPG_TIA? <ch>" */
-                case FirmwareCommand::PPG_PRPCT:  return "PPG_PRPCT";
-                case FirmwareCommand::PPG_CLEAR:  return "PPG_CLEAR";    /* bare action, no "?" variant */
-                case FirmwareCommand::PPG_SRC:    return "PPG_SRC";      /* multi-arg: "PPG_SRC <ch> <led> <pd>" / "PPG_SRC? <ch>" */
-                case FirmwareCommand::PPG_STATUS: return "PPG?";              /* not "PPG_STATUS?" */
+                /* Hand PPG (AFE ch 0-1) / Finger PPG (AFE ch 2-3) — <ch> is the
+                 * sensor-local channel 0-1. ODR/DEC/PRPCT are chip-wide, so
+                 * PPG_H_ODR and PPG_F_ODR set/read the same value. Chip
+                 * diagnostics (PPG_RD, PPG_HEALTH?) stay unprefixed and have
+                 * no FirmwareCommand entry. */
+                case FirmwareCommand::ENABLE_PPG_H: return enable ? "PPG_H_ON" : "PPG_H_OFF";
+                case FirmwareCommand::PPG_H_ODR:    return "PPG_H_ODR";
+                case FirmwareCommand::PPG_H_DEC:    return "PPG_H_DEC";
+                case FirmwareCommand::PPG_H_LED:    return "PPG_H_LED";      /* multi-arg: "PPG_H_LED <ch> <drv1> <drv2>" / "PPG_H_LED? <ch>" */
+                case FirmwareCommand::PPG_H_TIA:    return "PPG_H_TIA";      /* multi-arg: "PPG_H_TIA <ch> <rf> <cf>" / "PPG_H_TIA? <ch>" */
+                case FirmwareCommand::PPG_H_PRPCT:  return "PPG_H_PRPCT";
+                case FirmwareCommand::PPG_H_CLEAR:  return "PPG_H_CLEAR";    /* bare action, no "?" variant */
+                case FirmwareCommand::PPG_H_SRC:    return "PPG_H_SRC";      /* multi-arg: "PPG_H_SRC <ch> <led> <pd>" / "PPG_H_SRC? <ch>" */
+                case FirmwareCommand::PPG_H_STATUS: return "PPG_H?";              /* not "PPG_H_STATUS?" */
+
+                case FirmwareCommand::ENABLE_PPG_F: return enable ? "PPG_F_ON" : "PPG_F_OFF";
+                case FirmwareCommand::PPG_F_ODR:    return "PPG_F_ODR";
+                case FirmwareCommand::PPG_F_DEC:    return "PPG_F_DEC";
+                case FirmwareCommand::PPG_F_LED:    return "PPG_F_LED";      /* multi-arg: "PPG_F_LED <ch> <drv1> <drv2>" / "PPG_F_LED? <ch>" */
+                case FirmwareCommand::PPG_F_TIA:    return "PPG_F_TIA";      /* multi-arg: "PPG_F_TIA <ch> <rf> <cf>" / "PPG_F_TIA? <ch>" */
+                case FirmwareCommand::PPG_F_PRPCT:  return "PPG_F_PRPCT";
+                case FirmwareCommand::PPG_F_CLEAR:  return "PPG_F_CLEAR";    /* bare action, no "?" variant */
+                case FirmwareCommand::PPG_F_SRC:    return "PPG_F_SRC";      /* multi-arg: "PPG_F_SRC <ch> <led> <pd>" / "PPG_F_SRC? <ch>" */
+                case FirmwareCommand::PPG_F_STATUS: return "PPG_F?";              /* not "PPG_F_STATUS?" */
 
                 /* Battery — several shortened vs. the BLE-oriented name */
                 case FirmwareCommand::BAT_STATUS:    return "BAT";        /* not "BAT_STATUS" */

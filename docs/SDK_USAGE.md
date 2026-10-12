@@ -1,14 +1,17 @@
 # Mudra SDK — Usage Guide
 
-Python SDK for the **Mudra Pro** wearable device. It supports two transports —
-**BLE** (Bluetooth Low Energy) and **CDC** (USB serial) — behind one unified,
-`asyncio`-based API.
+Indriya is the Python SDK (package `mudra_sdk`) for the **Mudra Pro** and
+**Mudra Ultimate** wearables. It supports two transports — **BLE** (Bluetooth
+Low Energy) and **CDC** (the USB connection: the device's USB CDC-ACM virtual
+serial ports) — behind one unified, `asyncio`-based API.
 
 It is written to be usable both by humans and by other coding agents/bots
-that need to integrate against this SDK — every code snippet in this guide
-set is a real, runnable pattern taken from the SDK itself and from the
-reference app at [`examples/connect_app.py`](../examples/connect_app.py) /
-[`examples/mudra_connect/`](../examples/mudra_connect/).
+that need to integrate against this SDK. The snippets follow patterns taken
+from the SDK itself and from the reference app,
+[`examples/connect_app.py`](../examples/connect_app.py) (the launcher for the
+`examples/mudra_connect` package). §4 below is a complete script; snippets
+elsewhere are excerpts that assume an already-connected `device` and omit
+imports unless they're shown.
 
 This guide is split into focused pages:
 
@@ -27,12 +30,17 @@ This guide is split into focused pages:
 
 ```
 mudra_sdk/
+  auth.py                 Account sign-in + license/user_id provisioning (see AUTH.md)
   models/
-    mudra.py             Mudra — top-level singleton: scan/connect/disconnect, delegate dispatch
-    mudra_device.py      MudraDevice — per-device API: sensors, streaming, storage
+    mudra.py              Mudra — top-level singleton: scan/connect/disconnect, delegate dispatch
+    mudra_device.py       MudraDevice — per-device API: sensors, streaming, storage
+    mudra_pro.py          MudraPro — Mudra Pro subclass (3-ch EMG, packet-loss test mode)
+    mudra_ultimate.py     MudraUltimate — Mudra Ultimate subclass (8-ch EMG)
     cdc_device.py         CdcDevice — CDC device identity (address/ports)
     callbacks.py          MudraDelegate / BleServiceDelegate / CdcServiceDelegate ABCs
-    enums.py              FirmwareCommand, SensorTypes, ODR/range enums, status/error codes
+    enums.py              Pro/UltimateFirmwareCommand, SensorTypes, ODR/range enums, status/error codes
+    license_manager.py    LicenseManager — renews a device's license before it expires (see AUTH.md)
+    data_recorder.py      PC-side JSON recording (start_recording/get_json_recording)
     computation_wrapper.py Thin wrapper around the native MudraSDK library (parsing, packet loss)
     firmware_protocol.py  Binary CONFIG-frame builders used by the BLE transport
   service/
@@ -43,11 +51,17 @@ mudra_sdk/
   libs/                   Native MudraSDK shared library (.dll/.so/.dylib), loaded via ctypes
 ```
 
-The public surface is re-exported from the package root:
+The main entry points:
 
 ```python
-from mudra_sdk import Mudra, MudraDevice, FirmwareCallbacks, FirmwareDetails
+from mudra_sdk import Mudra, MudraDevice, MudraPro, MudraUltimate, MudraModel
+from mudra_sdk import auth                          # sign-in + provisioning (AUTH.md)
+from mudra_sdk.service import DfuError, DfuStage    # firmware update (CONNECTION.md §6)
 ```
+
+`FirmwareCallbacks` and `FirmwareDetails` are also exported from the package
+root, but they're internal protocol/constant tables, not something an app
+needs.
 
 ## 2. Setup
 
@@ -58,25 +72,45 @@ repo root to `sys.path`, exactly as the example app does:
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent  # wherever mudra_sdk/ lives
+# Must be the folder that CONTAINS mudra_sdk/ (the repo root), not mudra_sdk/ itself.
+_REPO_ROOT = Path(__file__).resolve().parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from mudra_sdk import Mudra, MudraDevice
 ```
 
-Dependencies: `bleak` (BLE), `pyserial` (CDC), `smpclient` (firmware update
-over CDC — see [CONNECTION.md §6](CONNECTION.md#6-firmware-update-dfu-usb-only)).
-The native `MudraSDK`
-shared library under `mudra_sdk/libs/<platform>/<arch>/` is loaded
-automatically and does the binary sensor-data parsing; if it's missing for
-your platform, `Mudra()` still constructs but logs a warning and native-side
-features (data parsing, packet-loss stats) won't work.
+Requires Python 3.10+. Install the dependencies with
+`pip install -r mudra_sdk/requirements.txt` — `bleak` (BLE; installed from a
+git fork, so `git` must be on your `PATH`), `pyserial` (CDC), `requests`/
+`urllib3` (cloud), and `smpclient` (firmware update over CDC — see
+[CONNECTION.md §6](CONNECTION.md#6-firmware-update-dfu-usb-only)).
 
-Everything in the SDK is `async` — call it from inside an asyncio event
-loop. The example app runs its own asyncio loop on a background thread (see
+The native `MudraSDK` shared library under `mudra_sdk/libs/<platform>/<arch>/`
+is loaded automatically and is **required for any device work**: it parses
+sensor data and also supplies the BLE command bytes and CDC command tokens.
+If it's missing for your platform, `Mudra()` still constructs (with a logged
+warning), but no `MudraDevice` can be created — each one raises
+`RuntimeError("Native library is not loaded")` — so scans find nothing. Only
+the cloud calls (`mudra_sdk.auth`, `MudraServerClient`) work without it.
+
+**Async vs. sync.** Everything that talks to a device or transport is a
+coroutine — scanning, `connect()`/`disconnect()`, every `set_on_*` setter,
+and every `get_*`/`set_*` sensor command — so call it from inside an asyncio
+event loop. The plain synchronous calls include the cached getters
+(`get_*_status_info()`, `get_license_device_info()`,
+`get_firmware_version_info()`, the packet-loss getters), `get_json_recording()`,
+`auth.sign_in_email()`/`auth.logout()`/`auth.get_user_ref()`, and every
+`MudraServerClient` call. The cloud ones do blocking HTTP — from async code, run
+them via `await asyncio.to_thread(...)` (or `run_in_executor`). The example
+app runs its own asyncio loop on a background thread (see
 [`examples/mudra_connect/async_bridge.py`](../examples/mudra_connect/async_bridge.py))
 because it's a Tkinter GUI; a plain script can just use `asyncio.run(...)`.
+
+**Callbacks are plain functions.** Delegate methods and per-device `set_on_*`
+callbacks are called directly (not awaited) on the asyncio loop thread — write
+them with `def`, not `async def` (an `async def` callback never runs). Keep
+them fast, and schedule any async follow-up with `asyncio.create_task(...)`.
 
 ## 3. Core architecture
 
@@ -84,23 +118,26 @@ because it's a Tkinter GUI; a plain script can just use `asyncio.run(...)`.
   (`BleService`, `CdcService`) and dispatches every device event to *your*
   delegate. You never construct more than one; `Mudra()` always returns the
   same instance.
-- **`MudraDevice`** — one object per physical device, valid for either
-  transport. Check `device.transport` (`"ble"` or `"cdc"`) if you need to
-  branch — most callers don't need to, since every method already branches
-  internally and picks the right wire format.
+- **`MudraDevice`** — one object per discovered device address, on either
+  transport (in practice a `MudraPro` or `MudraUltimate` subclass, picked from
+  the detected model). The same physical device seen over both BLE and USB is
+  two separate objects. Check `device.transport` (`"ble"` or `"cdc"`) if you
+  need to branch — most callers don't need to, since every method already
+  branches internally and picks the right wire format.
 - **`MudraDelegate`** — an abstract base class you implement to receive
   connection lifecycle events and device-discovery events. Register it once
   via `Mudra().set_delegate(...)`. See [CALLBACKS.md](CALLBACKS.md).
 - **Per-device callbacks** — sensor data, status replies, errors, etc. are
-  delivered per-device via `await device.set_on_..._callback(fn)` setters,
+  delivered per-device via `await device.set_on_*(fn)` setters,
   not through the global delegate. See [CALLBACKS.md](CALLBACKS.md).
 
 ```
 Mudra()  ── scan_ble()/scan_cdc() ──► MudraDelegate.on_device_discovered(device)
         │                                     │
-        │                          device.connect() (transport-aware)
+        │                     await device.connect() (transport-aware)
+        │                       (fires on_mudra_device_connected along the way)
         │                                     ▼
-        │                    MudraDelegate.on_mudra_device_connected(device)
+        │                       connect() returns → device ready
         │                                     │
         │                device.set_on_emg_ready(cb) / set_on_emg_status_received(cb) / ...
         ▼                                     ▼
@@ -125,13 +162,14 @@ class MyDelegate(MudraDelegate):
         self.device = device
         self.found.set()
 
-    def on_mudra_device_connected(self, device: MudraDevice): print("connected")
+    # All delegate methods are plain `def` — the SDK calls them without awaiting.
+    def on_mudra_device_connected(self, device: MudraDevice): print("link open")
     def on_mudra_device_connecting(self, device: MudraDevice): print("connecting...")
     def on_mudra_device_disconnecting(self, device: MudraDevice): print("disconnecting...")
     def on_mudra_device_disconnected(self, device: MudraDevice): print("disconnected")
     def on_mudra_device_connection_failed(self, device: MudraDevice, error: str):
         print(f"connect failed: {error}")
-    def on_bluetooth_state_changed(self, state: bool): print(f"BT on={state}")
+    def on_bluetooth_state_changed(self, state: bool): pass  # required, but never fired
 
 async def main():
     mudra = Mudra()
@@ -145,27 +183,38 @@ async def main():
     await mudra.stop_scan_cdc()
 
     device = delegate.device
-    await device.connect()          # waits for the connect() coroutine, not the "connected" event
+    await device.connect()          # returns once the SDK's connect sequence is done; never raises
+    if not await mudra.is_connected(device):
+        return                      # failure was reported via on_mudra_device_connection_failed
 
     def on_emg(timestamp, samples, frequency, frequency_std):
         print(f"EMG @ {frequency}Hz: {len(samples)} samples")
 
-    await device.set_on_emg_ready(on_emg)   # enables the EMG sensor + starts streaming
-    await asyncio.sleep(5)
-    await device.set_on_emg_ready(None)     # disables it again
-
-    await device.disconnect()
+    try:
+        await device.set_on_emg_ready(on_emg)   # enables the EMG sensor + starts streaming
+        await asyncio.sleep(5)
+    finally:
+        await device.set_on_emg_ready(None)     # turns it off again — disconnecting doesn't
+        await device.disconnect()
 
 asyncio.run(main())
 ```
 
-Note the ordering subtlety: `device.connect()` *returns* once the transport
-handshake is done, but `MudraDelegate.on_mudra_device_connected` may still
-be about to fire (BLE: after GATT discovery; CDC: after the SDK's own
-readiness queries + `START`). If your logic depends on the device being
-fully ready (not just the socket open), drive it off the delegate callback
-rather than the `await device.connect()` return, same as the reference app
-does in [`delegate.py`](../examples/mudra_connect/delegate.py).
+**When is the device ready?** When `await device.connect()` returns. By then
+the SDK has finished its connect sequence — BLE: services discovered,
+notifications subscribed, initial status/license/`user_id` queries sent; CDC:
+both ports opened and handshaken, initial status queries and provisioning
+sent, then `START`. That's the point to enable sensors. Over BLE the status
+*replies* arrive asynchronously afterwards (over CDC they're read back before
+`connect()` returns) — register status callbacks before `connect()` if you
+want them (see [SENSORS.md §2](SENSORS.md#2-query--observe-sensor-status)).
+
+`MudraDelegate.on_mudra_device_connected` fires **earlier**, as soon as the
+link is open and before that setup (BLE: before notifications are subscribed;
+CDC: before the status queries and `START`) — use it for UI state, not as the
+signal to start sending commands. `connect()` never raises on failure: a
+failure arrives via `on_mudra_device_connection_failed`, so check
+`await mudra.is_connected(device)` after it returns.
 
 For everything beyond this minimal example, see:
 [CONNECTION.md](CONNECTION.md) · [SENSORS.md](SENSORS.md) · [CALLBACKS.md](CALLBACKS.md)
@@ -174,19 +223,19 @@ For everything beyond this minimal example, see:
 
 | Enum | Values | Used for |
 |---|---|---|
-| `SensorTypes` | `EMG`, `H_IMU`, `F_IMU`, `PPG` | Identifying a sensor in status/error callbacks |
-| `FirmwareDataType` | `emg`, `imuH`, `imuF`, `ppg` | Identifying a sensor when enabling/disabling streams |
+| `SensorTypes` | `EMG`, `H_IMU`, `F_IMU`, `PPG_H`, `PPG_F` | Mostly internal (status-reply routing); you rarely need it |
+| `FirmwareDataType` | `emg`, `imuH`, `imuF`, `ppgH`, `ppgF` | Mostly internal (which stream to power on/off); you enable streams via `set_on_*_ready` instead |
 | `ProEMGODR` | 200/400/800/1600/2133/3200/4267/6400 (Hz) | `set/get_emg_odr` on MudraPro |
 | `UltimateEMGODR` | 500/1000/2000/4000 (Hz) | `set/get_emg_odr` on MudraUltimate |
 | `EmgRes` | 16, 24 (bits) | `set/get_emg_res` |
 | `IMUODR` | 25/50/100/200/400/800/1600 (Hz) | `set/get_{h,f}_imu_odr` |
-| `IMUAccRange` | 2/4/8/16 (g) | `set/get_{h,f}_imu_acc` |
-| `IMUGyrRange` | 125/250/500/1000/2000 (dps) | `set/get_{h,f}_imu_gyr` |
-| `PPGODR` | 25/50/100/200/400 (Hz) | `set/get_ppg_odr` |
-| `PPGChannelCount` | 1–4 | Reported in `PpgStatus.channel_count` |
-| `BtCmdId` | `SYSTEM`, `EMG`, `H_IMU`, `F_IMU`, `PPG`, `BAT`, `LED`, `BT_CTRL`, `TAP`, `STORAGE` | Identifying which subsystem a command-error is about |
+| `IMUAccRange` | 2/4/8/16 (g) | Reported in `ImuStatus.accel_range_g`. `set_{h,f}_imu_acc` takes the plain int (e.g. `4`), not the enum member |
+| `IMUGyrRange` | 125/250/500/1000/2000 (dps) | Reported in `ImuStatus.gyro_range_dps`. `set_{h,f}_imu_gyr` takes the plain int (e.g. `500`), not the enum member |
+| `PPGODR` | 25/50/100/200/400 (Hz) | `set/get_ppg_h_odr` / `set/get_ppg_f_odr` (one chip-wide value) |
+| `BtCmdId` | `SYSTEM`, `EMG`, `H_IMU`, `F_IMU`, `PPG_H`, `BAT`, `LED`, `BT_CTRL`, `TAP`, `STORAGE`, `PPG_F` | Identifying which subsystem a command-error is about |
 | `BtCmdStatus` | `OK`, `ERR_UNKNOWN`, `ERR_INVALID`, `ERR_BUSY`, `ERR_STATE`, `ERR_HARDWARE`, `ERR_INTERNAL`, `ERR_BT_NOT_READY`, `ERR_LICENSE`, `ERR_BLE_RATE`, `ERR_FILE_EXISTS`, `ERR_SD_WRITE` | Error codes on any failed command |
 
-Every enum has `.value_int` and a static `.from_value(int)`; several also
-have `.description` (human-readable name) — use those rather than the raw
-`.value` for anything user-facing or logged.
+Every enum in this table has `.value_int` and a static `.from_value(int)`
+(returns `None` for an unknown value) — not every enum in the module does; `BtCmdId`/`BtCmdStatus` also have
+`.description` (human-readable name) — use that rather than the raw `.value`
+for anything user-facing or logged.

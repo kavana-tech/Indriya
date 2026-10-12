@@ -32,7 +32,6 @@ Parser::Parser(shared_ptr<Logger> logger) :
     m_logger(logger),
     m_emgResolutionBits(16),
     m_emgChannelCount(3),
-    m_ppgChannelCount(2),
     m_imuHAccRangeG(IMU_ACC_RANGE_G_DEFAULT),
     m_imuHGyrRangeDps(IMU_GYR_RANGE_DPS_DEFAULT),
     m_imuFAccRangeG(IMU_ACC_RANGE_G_DEFAULT),
@@ -41,12 +40,14 @@ Parser::Parser(shared_ptr<Logger> logger) :
     m_signalAnalyzers[FirmwareDataType::EMG] = make_shared<SignalAnalyzer>(FirmwareDataType::EMG, logger);
     m_signalAnalyzers[FirmwareDataType::IMU_H] = make_shared<SignalAnalyzer>(FirmwareDataType::IMU_H, logger);
     m_signalAnalyzers[FirmwareDataType::IMU_F] = make_shared<SignalAnalyzer>(FirmwareDataType::IMU_F, logger);
-    m_signalAnalyzers[FirmwareDataType::PPG] = make_shared<SignalAnalyzer>(FirmwareDataType::PPG, logger);
+    m_signalAnalyzers[FirmwareDataType::PPG_H] = make_shared<SignalAnalyzer>(FirmwareDataType::PPG_H, logger);
+    m_signalAnalyzers[FirmwareDataType::PPG_F] = make_shared<SignalAnalyzer>(FirmwareDataType::PPG_F, logger);
 
     m_packetLossStats[FirmwareDataType::EMG] = PacketLossStats();
     m_packetLossStats[FirmwareDataType::IMU_H] = PacketLossStats();
     m_packetLossStats[FirmwareDataType::IMU_F] = PacketLossStats();
-    m_packetLossStats[FirmwareDataType::PPG] = PacketLossStats();
+    m_packetLossStats[FirmwareDataType::PPG_H] = PacketLossStats();
+    m_packetLossStats[FirmwareDataType::PPG_F] = PacketLossStats();
 }
 
 Parser::~Parser()
@@ -108,14 +109,6 @@ unsigned int Parser::EmgSampleSize() const
     return m_emgChannelCount * sampleWidth;
 }
 
-unsigned int Parser::PpgSampleSize() const
-{
-    const unsigned int ch = (m_ppgChannelCount >= 1 && m_ppgChannelCount <= 4)
-        ? m_ppgChannelCount
-        : PPG_CHANNELS_2;
-    return ch * SAMPLE_SIZE_24_BIT;
-}
-
 void Parser::SetEmgResolutionBits(uint8_t bits)
 {
     if (bits != 16 && bits != 24) {
@@ -139,19 +132,6 @@ void Parser::SetEmgChannelCount(uint8_t channels)
         return;
     }
     m_emgChannelCount = channels;
-    Clear();
-}
-
-void Parser::SetPpgChannelCount(uint8_t channels)
-{
-    if (channels < 1 || channels > 4) {
-        ErrorMessage(m_logger) << "SetPpgChannelCount invalid channels=" << static_cast<int>(channels) << endl;
-        return;
-    }
-    if (channels == m_ppgChannelCount) {
-        return;
-    }
-    m_ppgChannelCount = channels;
     Clear();
 }
 
@@ -261,32 +241,31 @@ void Parser::HandleImuSection(PackageType type, FirmwareDataType dataType, const
     packages.push_back(package);
 }
 
-void Parser::HandlePpgSection(const std::vector<Byte>& payload, uint64_t timestamp, vector<PackageData*>& packages)
+void Parser::HandlePpgSection(PackageType type, FirmwareDataType dataType, const std::vector<Byte>& payload, uint64_t timestamp, vector<PackageData*>& packages)
 {
-    const unsigned int sampleSize = PpgSampleSize();
-    if (payload.empty() || payload.size() % sampleSize != 0) {
-        ErrorMessage(m_logger) << "Invalid PPG payload length " << payload.size()
-            << " for " << static_cast<int>(m_ppgChannelCount) << "ch sample size " << sampleSize << endl;
+    if (payload.empty() || payload.size() % PPG_SAMPLE_SIZE != 0) {
+        ErrorMessage(m_logger) << "Invalid " << ((type == PackageType::PpgH) ? "PPG_H" : "PPG_F")
+            << " payload length " << payload.size() << " for sample size " << PPG_SAMPLE_SIZE << endl;
         return;
     }
 
-    auto* package = new PpgPackageData();
+    auto* package = new PpgPackageData(type);
     package->timeStamp = timestamp;
-    package->channelCount = static_cast<int>(sampleSize / SAMPLE_SIZE_24_BIT);
+    package->channelCount = static_cast<int>(PPG_CHANNELS);
 
-    const size_t sampleCount = payload.size() / sampleSize;
+    const size_t sampleCount = payload.size() / PPG_SAMPLE_SIZE;
     for (size_t s = 0; s < sampleCount; ++s) {
-        const Byte* sample = payload.data() + s * sampleSize;
-        for (int ch = 0; ch < package->channelCount; ++ch) {
+        const Byte* sample = payload.data() + s * PPG_SAMPLE_SIZE;
+        for (unsigned ch = 0; ch < PPG_CHANNELS; ++ch) {
             int32_t rawInt = ReadI24LE(sample + ch * SAMPLE_SIZE_24_BIT);
             if (ch == 0) {
-                m_packetLossStats[FirmwareDataType::PPG].Feed(rawInt);
+                m_packetLossStats[dataType].Feed(rawInt);
             }
             package->data[ch].push_back(static_cast<float>(rawInt) * PPG_UV_PER_COUNT);
         }
     }
 
-    m_signalAnalyzers[FirmwareDataType::PPG]->compute(*package);
+    m_signalAnalyzers[dataType]->compute(*package);
     packages.push_back(package);
 }
 
@@ -322,8 +301,11 @@ void Parser::HandleData(const vector<Byte>& receivedData, vector<PackageData*>& 
         case DATA_HEADER_IMU_F:
             HandleImuSection(PackageType::ImuF, FirmwareDataType::IMU_F, payload, timestamp, packages);
             break;
-        case DATA_HEADER_PPG:
-            HandlePpgSection(payload, timestamp, packages);
+        case DATA_HEADER_PPG_H:
+            HandlePpgSection(PackageType::PpgH, FirmwareDataType::PPG_H, payload, timestamp, packages);
+            break;
+        case DATA_HEADER_PPG_F:
+            HandlePpgSection(PackageType::PpgF, FirmwareDataType::PPG_F, payload, timestamp, packages);
             break;
         default:
             ErrorMessage(m_logger) << "HandleData unknown section id 0x" << hex << static_cast<int>(id) << dec << endl;

@@ -74,12 +74,13 @@ html_static_path = ["_static"]
 html_css_files = ["tokens.css", "collapsible.css", "examples.css", "led.css"]
 html_js_files = ["collapsible.js"]
 html_title = f"{project} {version}"
-# The brand wordmark is white (built for a dark surface), so it shows in dark
-# mode; brand-logo-dark.svg is the dark-ink variant for Furo's light sidebar.
-html_favicon = "_static/brand-favicon.svg"
+# Kavana wordmark: brand-logo-dark.png is the official dark-ink artwork for
+# Furo's light sidebar; brand-logo-light.png is the same artwork with the ink
+# recoloured white for dark mode. The favicon is the orange K mark alone.
+html_favicon = "_static/brand-favicon.png"
 html_theme_options = {
-    "light_logo": "brand-logo-dark.svg",
-    "dark_logo": "brand-logo.svg",
+    "light_logo": "brand-logo-dark.png",
+    "dark_logo": "brand-logo-light.png",
     "sidebar_hide_name": True,
     "light_css_variables": {
         "color-brand-primary": "#0d7d6e",

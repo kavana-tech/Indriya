@@ -77,6 +77,13 @@ class AppState:
     # being a fixed module-level list.
     emg_odr_combos: List[ttk.Combobox] = field(default_factory=list)
 
+    # PPG ODR comboboxes — one per PPG tab (PPG_H, PPG_F) per config-panel
+    # instance. ODR is chip-wide (one AFE serves both sensors), so every PPG
+    # status push re-syncs all of them to the device's actual rate; otherwise
+    # a change made on one tab (or a DEC/PRPCT change, which moves ODR) leaves
+    # the other tabs showing a stale value.
+    ppg_odr_combos: List[ttk.Combobox] = field(default_factory=list)
+
     # Per-sensor "Split into separate charts" checkboxes (sensors.py) — sensor
     # name (EMG/IMU_H/IMU_F) -> its BooleanVar. Kept here mainly so the
     # BooleanVar isn't garbage-collected out from under its Checkbutton;
@@ -161,7 +168,9 @@ class AppState:
                     self.post_ui(lambda: self.set_status(f"Sent {label}"))
             except Exception as exc:  # noqa: BLE001
                 if self.post_ui is not None and self.set_status is not None:
-                    self.post_ui(lambda: self.set_status(f"{label} failed: {exc}"))
+                    # Bind exc now: Python deletes it when the except block
+                    # ends, before post_ui runs the lambda on the Tk thread.
+                    self.post_ui(lambda e=exc: self.set_status(f"{label} failed: {e}"))
                 logger.error(f"{label} failed: {exc}")
 
         self.bridge.submit(_run())

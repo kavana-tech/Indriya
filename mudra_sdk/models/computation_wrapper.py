@@ -45,7 +45,8 @@ class ComputationWrapper:
         self._emg_callback_ref = None
         self._imu_h_callback_ref = None
         self._imu_f_callback_ref = None
-        self._ppg_callback_ref = None
+        self._ppg_h_callback_ref = None
+        self._ppg_f_callback_ref = None
 
         self._handle = ComputationWrapper._native_lib.create_computation()
         if not self._handle:
@@ -80,17 +81,17 @@ class ComputationWrapper:
         lib.set_on_imu_f_ready.argtypes = [ComputationHandle, OnRawDataCallbackC]
         lib.set_on_imu_f_ready.restype = None
 
-        lib.set_on_ppg_ready.argtypes = [ComputationHandle, OnRawDataCallbackC]
-        lib.set_on_ppg_ready.restype = None
+        lib.set_on_ppg_h_ready.argtypes = [ComputationHandle, OnRawDataCallbackC]
+        lib.set_on_ppg_h_ready.restype = None
+
+        lib.set_on_ppg_f_ready.argtypes = [ComputationHandle, OnRawDataCallbackC]
+        lib.set_on_ppg_f_ready.restype = None
 
         lib.set_parser_emg_resolution.argtypes = [ComputationHandle, c_uint8]
         lib.set_parser_emg_resolution.restype = None
 
         lib.set_parser_emg_channel_count.argtypes = [ComputationHandle, c_uint8]
         lib.set_parser_emg_channel_count.restype = None
-
-        lib.set_parser_ppg_channel_count.argtypes = [ComputationHandle, c_uint8]
-        lib.set_parser_ppg_channel_count.restype = None
 
         lib.set_parser_imu_h_ranges.argtypes = [ComputationHandle, c_uint8, c_uint16]
         lib.set_parser_imu_h_ranges.restype = None
@@ -172,9 +173,6 @@ class ComputationWrapper:
     def set_parser_emg_channel_count(self, channels: int) -> None:
         self._native_lib.set_parser_emg_channel_count(self._handle, c_uint8(channels))
 
-    def set_parser_ppg_channel_count(self, channels: int) -> None:
-        self._native_lib.set_parser_ppg_channel_count(self._handle, c_uint8(channels))
-
     def set_parser_imu_h_ranges(self, accel_range_g: int, gyro_range_dps: int) -> None:
         self._native_lib.set_parser_imu_h_ranges(
             self._handle, c_uint8(accel_range_g), c_uint16(gyro_range_dps)
@@ -200,9 +198,14 @@ class ComputationWrapper:
             self._native_lib.set_on_imu_f_ready, callback
         )
 
-    def set_on_ppg_ready(self, callback: OnPpgReadyCallback | None) -> None:
-        self._ppg_callback_ref = self._set_raw_callback(
-            self._native_lib.set_on_ppg_ready, callback
+    def set_on_ppg_h_ready(self, callback: OnPpgReadyCallback | None) -> None:
+        self._ppg_h_callback_ref = self._set_raw_callback(
+            self._native_lib.set_on_ppg_h_ready, callback
+        )
+
+    def set_on_ppg_f_ready(self, callback: OnPpgReadyCallback | None) -> None:
+        self._ppg_f_callback_ref = self._set_raw_callback(
+            self._native_lib.set_on_ppg_f_ready, callback
         )
 
     def _create_raw_callback_wrapper(self, callback: OnRawDataCallback):
@@ -271,7 +274,7 @@ class ComputationWrapper:
     def get_pro_cdc_command_token(command: int, enable: bool = True) -> str:
         """ASCII CDC token for `command` (a ProFirmwareCommand ordinal, e.g.
         "EMG_ODR"), or "" if it has no CDC equivalent. `enable` only matters
-        for the 5 ENABLE_* (power) commands — picks "EMG_ON" vs "EMG_OFF"
+        for the 6 ENABLE_* (power) commands — picks "EMG_ON" vs "EMG_OFF"
         etc.; ignored otherwise. See Computation/ProCdcCommands.h."""
         ComputationWrapper._ensure_native_lib_loaded()
         ComputationWrapper._initialize_native_lib()
@@ -281,7 +284,7 @@ class ComputationWrapper:
     @staticmethod
     def get_ultimate_cdc_command_token(command: int, enable: bool = True) -> str:
         """ASCII CDC token for `command` (an UltimateFirmwareCommand ordinal),
-        or "" if it has no CDC equivalent. `enable` only matters for the 5
+        or "" if it has no CDC equivalent. `enable` only matters for the 6
         ENABLE_* (power) commands. See Computation/UltimateCdcCommands.h."""
         ComputationWrapper._ensure_native_lib_loaded()
         ComputationWrapper._initialize_native_lib()

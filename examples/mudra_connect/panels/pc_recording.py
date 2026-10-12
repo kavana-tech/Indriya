@@ -14,10 +14,11 @@ from tkinter import ttk
 from mudra_sdk.models.enums import RecordingDataType
 
 from ..state import AppState
-from ..theme import BG_PANEL, FG_MUTED, FONT_SMALL, muted_label
+from ..theme import BG_PANEL, FG_MUTED, FONT_SMALL, muted_label, px
 
 # Which RecordingDataType members each sensor checkbox turns on. Hand and
-# Finger IMU are recorded independently (data.acc/gyro vs data.acc_f/gyro_f).
+# Finger IMU are recorded independently (data.acc/gyro vs data.acc_f/gyro_f),
+# and so are hand and finger PPG (data.ppg_h vs data.ppg_f).
 _SENSOR_RECORDING_TYPES = {
     "EMG": [RecordingDataType.emg1, RecordingDataType.emg2, RecordingDataType.emg3, RecordingDataType.emgTS],
     "IMU_H": [
@@ -28,10 +29,8 @@ _SENSOR_RECORDING_TYPES = {
         RecordingDataType.accF1, RecordingDataType.accF2, RecordingDataType.accF3, RecordingDataType.accFTS,
         RecordingDataType.gyroF1, RecordingDataType.gyroF2, RecordingDataType.gyroF3, RecordingDataType.gyroFTS,
     ],
-    "PPG": [
-        RecordingDataType.ppg1, RecordingDataType.ppg2, RecordingDataType.ppg3, RecordingDataType.ppg4,
-        RecordingDataType.ppgTS,
-    ],
+    "PPG_H": [RecordingDataType.ppgH1, RecordingDataType.ppgH2, RecordingDataType.ppgHTS],
+    "PPG_F": [RecordingDataType.ppgF1, RecordingDataType.ppgF2, RecordingDataType.ppgFTS],
 }
 
 
@@ -100,13 +99,13 @@ def _save_json(state: AppState) -> None:
 
 
 def build_pc_recording_ui(parent: tk.Widget, state: AppState) -> None:
-    """PC-side JSON recording — Start/Stop capture EMG/IMU/PPG samples into
+    """PC-side JSON recording — Start/Stop capture EMG/IMU/PPG_H/PPG_F samples into
     an in-memory DataRecorder session; Save JSON writes GetJsonRecording()'s
     output to a local file."""
     muted_label(
         parent,
-        text="Records live sample data into JSON (data.emg/acc/gyro/acc_f/gyro_f/ppg).",
-        wraplength=420,
+        text="Records live sample data into JSON (data.emg/acc/gyro/acc_f/gyro_f/ppg_h/ppg_f).",
+        wraplength=px(420),
         justify=tk.LEFT,
     ).pack(anchor="w")
 
@@ -116,7 +115,8 @@ def build_pc_recording_ui(parent: tk.Widget, state: AppState) -> None:
         ("EMG", "EMG"),
         ("IMU_H", "H_IMU"),
         ("IMU_F", "F_IMU"),
-        ("PPG", "PPG"),
+        ("PPG_H", "PPG_H"),
+        ("PPG_F", "PPG_F"),
     ):
         var = tk.BooleanVar(value=False)
         state.pc_record_vars[key] = var
@@ -141,7 +141,7 @@ def build_pc_recording_ui(parent: tk.Widget, state: AppState) -> None:
         bg=BG_PANEL,
         fg=FG_MUTED,
         anchor="w",
-        wraplength=420,
+        wraplength=px(420),
         justify=tk.LEFT,
     )
     state.pc_record_status_label.pack(fill=tk.X, pady=(6, 0))

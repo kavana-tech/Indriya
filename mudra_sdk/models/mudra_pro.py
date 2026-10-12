@@ -12,7 +12,7 @@ import mudra_sdk.models.firmware_protocol as fp
 
 class MudraPro(MudraDevice):
     """Mudra Pro (3-channel EMG). Adds the packet-loss test-mode commands —
-    present on Pro's IMU_H/IMU_F/PPG/EMG firmware, absent on Ultimate (which
+    present on Pro's IMU_H/IMU_F/PPG_H/PPG_F/EMG firmware, absent on Ultimate (which
     has its own, unrelated EMG bench self-test surface instead — see
     MudraUltimate.set_emg_test)."""
 
@@ -78,19 +78,36 @@ class MudraPro(MudraDevice):
             return
         await self.send_command(fp.set_power(self.CMD.fImuTestMode, enable))
 
-    async def set_ppg_test_mode(self, enable: bool) -> None:
-        """Packet-loss test: BLE combines this into one firmware command
-        (`handle_sensor_test_mode`) that both replaces ch0 with an
-        incrementing counter AND starts/stops PPG. CDC's `PPG_TESTMODE`
-        only toggles the software overlay — this method sends only that one
-        command either way; over CDC, PPG must already be (or separately be
-        made) enabled for the counter substitution to actually appear in
-        the DATA stream. Independent of set_on_ppg_ready. Read results via
-        sample_ppg_packet_loss()."""
+    async def _set_ppg_test_mode(self, sensor: str, enable: bool) -> None:
+        """Shared body of set_ppg_h_test_mode / set_ppg_f_test_mode."""
+        data_type, window = (
+            (FirmwareDataType.ppgH, self._ppg_h_packet_loss)
+            if sensor == "H"
+            else (FirmwareDataType.ppgF, self._ppg_f_packet_loss)
+        )
         if enable:
-            self._computation_wrapper.reset_packet_loss_stats(FirmwareDataType.ppg.value)
-            self._ppg_packet_loss.reset()
+            self._computation_wrapper.reset_packet_loss_stats(data_type.value)
+            window.reset()
+        cmd = self._ppg_cmd(sensor, "TestMode")
         if self.transport == "cdc":
-            await self._cdc_command(self.CMD.ppgTestMode, 1 if enable else 0)
+            await self._cdc_command(cmd, 1 if enable else 0)
             return
-        await self.send_command(fp.set_power(self.CMD.ppgTestMode, enable))
+        await self.send_command(fp.set_power(cmd, enable))
+
+    async def set_ppg_h_test_mode(self, enable: bool) -> None:
+        """Packet-loss test: BLE combines this into one firmware command
+        (`handle_sensor_test_mode`) that both replaces PPG_H's ch0 (AFE
+        channel 0) with an incrementing counter AND starts/stops PPG_H.
+        CDC's `PPG_H_TESTMODE` only toggles the software overlay — this
+        method sends only that one command either way; over CDC, PPG_H must
+        already be (or separately be made) enabled for the counter
+        substitution to actually appear in the DATA stream. Independent of
+        set_on_ppg_h_ready. Read results via sample_ppg_h_packet_loss()."""
+        await self._set_ppg_test_mode("H", enable)
+
+    async def set_ppg_f_test_mode(self, enable: bool) -> None:
+        """Packet-loss test for PPG_F: same as :meth:`set_ppg_h_test_mode`,
+        but the counter (separate from PPG_H's) replaces PPG_F's ch0 (AFE
+        channel 2), and the ring must be connected. Independent of
+        set_on_ppg_f_ready. Read results via sample_ppg_f_packet_loss()."""
+        await self._set_ppg_test_mode("F", enable)

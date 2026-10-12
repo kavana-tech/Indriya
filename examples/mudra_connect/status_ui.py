@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import Optional
 
+import tkinter as tk
+from tkinter import ttk
+
 from mudra_sdk import MudraDevice
 from mudra_sdk.models.enums import BtCmdId, BtCmdStatus, LicenseTier
 from mudra_sdk.models.mudra_device import (
@@ -18,7 +21,7 @@ from mudra_sdk.logging_config import get_logger
 
 from .anim import set_indicator, set_text
 from .state import AppState
-from .theme import ACCENT, ERR, FG_MUTED, OK, WARN
+from .theme import ACCENT, BG, ERR, FG_MUTED, FONT_DOT, OK, WARN, px
 
 logger = get_logger(__name__)
 
@@ -26,8 +29,29 @@ _CONFIG_KEY = {
     "EMG": "EMG",
     "IMU_H": "H_IMU",
     "IMU_F": "F_IMU",
-    "PPG": "PPG",
+    "PPG_H": "PPG_H",
+    "PPG_F": "PPG_F",
 }
+
+
+def build_device_indicators(parent: tk.Widget, state: AppState) -> ttk.Frame:
+    """FW / Battery / License indicators for the connected device, filled by
+    the firmware-version, battery/charging and license-info callbacks below."""
+    bar = ttk.Frame(parent, style="Toolbar.TFrame")
+    for dot_attr, label_attr, text in (
+        ("firmware_version_dot", "firmware_version_label", "FW —"),
+        ("battery_dot", "battery_label", "Battery —"),
+        ("license_tier_dot", "license_tier_label", "License —"),
+    ):
+        wrap = ttk.Frame(bar, style="Toolbar.TFrame")
+        wrap.pack(side=tk.LEFT, padx=(px(10), 0))
+        dot = tk.Label(wrap, text="●", font=FONT_DOT, bg=BG, fg=FG_MUTED)
+        dot.pack(side=tk.LEFT, padx=(0, px(3)))
+        label = ttk.Label(wrap, text=text, style="Status.TLabel")
+        label.pack(side=tk.LEFT)
+        setattr(state, dot_attr, dot)
+        setattr(state, label_attr, label)
+    return bar
 
 
 def format_emg_status(status: EmgStatus) -> str:
@@ -44,23 +68,24 @@ def format_imu_status(status: ImuStatus) -> str:
 
 
 def format_ppg_status(status: PpgStatus) -> str:
+    # No ring -> PPG_F has no status at all (ERR_STATE, like F_IMU), so its
+    # indicator just stays at "—" instead of reading OFF.
     state = "ON" if status.enabled else "OFF"
-    return (
-        f"{state} · {status.odr_hz.value_int} Hz · "
-        f"{status.channel_count.value_int} ch"
-    )
+    return f"{state} · {status.odr_hz.value_int} Hz"
 
 
 def format_record_status(status: RecordStatus) -> str:
     sensors = []
     if status.emg:
         sensors.append("EMG")
-    if status.ppg:
-        sensors.append("PPG")
+    if status.ppg_h:
+        sensors.append("PPG_H")
     if status.imu_hand:
         sensors.append("H_IMU")
     if status.imu_ring:
         sensors.append("F_IMU")
+    if status.ppg_f:
+        sensors.append("PPG_F")
     active = "ON" if status.active else "OFF"
     which = ",".join(sensors) if sensors else "none"
     return f"{active}  sensors=[{which}]  file={status.file_num}"
@@ -74,21 +99,16 @@ def update_sensor_indicator(
     summary: str,
     config_key: Optional[str] = None,
 ) -> None:
+    color = FG_MUTED if enabled is None else (OK if enabled else ERR)
+
     ui = state.sensor_status_ui.get(sensor_key)
     if ui is not None:
-        if enabled is None:
-            color = FG_MUTED
-        elif enabled:
-            color = OK
-        else:
-            color = ERR
         set_indicator(ui["dot"], color)
         set_text(ui["text"], summary, foreground=FG_MUTED)
 
     cfg_key = config_key or sensor_key
-    fg = OK if enabled else (ERR if enabled is False else FG_MUTED)
     for label in state.config_status_labels.get(cfg_key, []):
-        set_text(label, summary, foreground=fg)
+        set_text(label, summary, foreground=color)
 
 
 def format_license_device_info(info: LicenseDeviceInfo) -> str:
@@ -168,7 +188,7 @@ def update_battery_indicator(
 
 
 def reset_sensor_indicators(state: AppState) -> None:
-    for key in ("EMG", "IMU_H", "IMU_F", "PPG"):
+    for key in ("EMG", "IMU_H", "IMU_F", "PPG_H", "PPG_F"):
         update_sensor_indicator(
             state,
             key,
@@ -251,24 +271,41 @@ def _make_f_imu_handler(state: AppState):
     return _on_f_imu_status_ui
 
 
-def _make_ppg_handler(state: AppState):
+def _make_ppg_sensor_handler(state: AppState, sensor: str):
+    """Status handler for PPG_H or PPG_F (`sensor`), mirroring the IMU pair."""
+
     def _on_ppg_status_ui(status: PpgStatus) -> None:
         text = format_ppg_status(status)
         assert state.post_ui is not None
 
         def _apply() -> None:
+            odr_hz = status.odr_hz.value_int
             if state.charts is not None:
-                state.charts.set_odr("PPG1", status.odr_hz.value_int)
-                state.charts.set_odr("PPG2", status.odr_hz.value_int)
+                from .charts import SENSOR_PANELS
+
+                for group in SENSOR_PANELS[sensor]:
+                    state.charts.set_odr(group, odr_hz)
+            # ODR is chip-wide: either sensor's push carries the rate both run
+            # at, so every PPG tab's combo follows it.
+            for combo_widget in state.ppg_odr_combos:
+                combo_widget.set(str(odr_hz))
             update_sensor_indicator(
-                state, "PPG", enabled=status.enabled, summary=text, config_key="PPG"
+                state, sensor, enabled=status.enabled, summary=text, config_key=sensor
             )
             if state.set_status is not None:
-                state.set_status(f"PPG status: {text}")
+                state.set_status(f"{sensor} status: {text}")
 
         state.post_ui(_apply)
 
     return _on_ppg_status_ui
+
+
+def _make_ppg_h_handler(state: AppState):
+    return _make_ppg_sensor_handler(state, "PPG_H")
+
+
+def _make_ppg_f_handler(state: AppState):
+    return _make_ppg_sensor_handler(state, "PPG_F")
 
 
 def _make_record_status_handler(state: AppState):
@@ -281,9 +318,10 @@ def _make_record_status_handler(state: AppState):
                 set_text(state.record_status_label, text, foreground=fg)
             if "emg" in state.record_vars:
                 state.record_vars["emg"].set(status.emg)
-                state.record_vars["ppg"].set(status.ppg)
+                state.record_vars["ppg_h"].set(status.ppg_h)
                 state.record_vars["imu_h"].set(status.imu_hand)
                 state.record_vars["imu_f"].set(status.imu_ring)
+                state.record_vars["ppg_f"].set(status.ppg_f)
             if state.record_file_var is not None:
                 state.record_file_var.set(str(status.file_num))
             if state.set_status is not None:
@@ -312,6 +350,11 @@ def _make_record_error_handler(state: AppState):
 
 
 def _make_command_error_handler(state: AppState):
+    # Deliberately NOT used to infer "ring not connected": over BLE an
+    # ERR_STATE (0x04) also arrives for a per-channel GET with no override
+    # staged, and a 1-byte GET reply whose value is 4 (DEC 4, ACC 4 g) is
+    # indistinguishable from it on the wire. With no ring, PPG_F (like F_IMU)
+    # simply has no status, so its indicator stays at "—".
     def _on_command_error_ui(cmd_id: BtCmdId, status: BtCmdStatus) -> None:
         text = (
             f"{cmd_id.description} error: {status.description} "
@@ -451,7 +494,8 @@ async def register_status_callbacks(device: MudraDevice, state: AppState) -> Non
     await device.set_on_emg_status_received(_make_emg_handler(state))
     await device.set_on_h_imu_status_received(_make_h_imu_handler(state))
     await device.set_on_f_imu_status_received(_make_f_imu_handler(state))
-    await device.set_on_ppg_status_received(_make_ppg_handler(state))
+    await device.set_on_ppg_h_status_received(_make_ppg_h_handler(state))
+    await device.set_on_ppg_f_status_received(_make_ppg_f_handler(state))
     await device.set_on_storage_record_state_received(_make_record_status_handler(state))
     await device.set_on_storage_record_error_received(_make_record_error_handler(state))
     await device.set_on_storage_next_file_num_received(_make_next_file_num_handler(state))
@@ -511,6 +555,7 @@ async def register_status_callbacks(device: MudraDevice, state: AppState) -> Non
         await device.get_emg_status()
         await device.get_h_imu_status()
         await device.get_f_imu_status()
-        await device.get_ppg_status()
+        await device.get_ppg_h_status()
+        await device.get_ppg_f_status()
     except Exception as exc:  # noqa: BLE001 — status is best-effort
         logger.error(f"Initial sensor status request failed: {exc}")

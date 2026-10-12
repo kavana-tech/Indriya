@@ -74,16 +74,15 @@ class MudraUltimate(MudraDevice):
 
     async def set_emg_rld(self, enable: bool) -> None:
         """RLD/bias amplifier (BT_EMG_RLD / CDC "EMG_RLD"). On this board RLD
-        DC-centers the body at midsupply — it is NOT a common-mode servo (see
-        mudra_ultimate's CLAUDE.md for why). SET-only on both transports (no
-        "?" getter registered in firmware)."""
+        DC-centers the body at midsupply — it is NOT a common-mode servo.
+        SET-only on both transports (no "?" getter registered in firmware)."""
         if self.transport == "cdc":
             await self._cdc_command(self.CMD.emgRld, 1 if enable else 0)
             return
         await self.send_command(fp.set_bool(self.CMD.emgRld, enable))
 
     async def emg_isolate(self) -> None:
-        """Stop PPG/IMUs/TinyTap/LEDs/advertising, leave EMG running
+        """Stop PPG (both PPG_H and PPG_F)/IMUs/TinyTap/LEDs/advertising, leave EMG running
         (BT_EMG_ISOLATE / CDC "EMG_ISOLATE") — bare action, no action byte,
         no GET."""
         if self.transport == "cdc":
