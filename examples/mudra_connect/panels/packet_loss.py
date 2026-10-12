@@ -28,16 +28,17 @@ from mudra_sdk.models.enums import ProEMGODR, IMUODR, PPGODR
 from mudra_sdk.models.mudra_pro import MudraPro
 
 from ..state import AppState
-from ..theme import ACCENT, BG_PANEL, ERR, FG_MUTED, FONT_SMALL, FONT_UI_BOLD, OK, WARN
+from ..theme import ACCENT, BG_PANEL, ERR, FG_MUTED, FONT_SMALL, FONT_UI_BOLD, OK, WARN, px
 from ..widgets import combo
 
-SENSORS = ("EMG", "IMU_H", "IMU_F", "PPG")
+SENSORS = ("EMG", "IMU_H", "IMU_F", "PPG_H", "PPG_F")
 
 _SENSOR_LABELS = {
     "EMG": "EMG",
     "IMU_H": "IMU hand",
     "IMU_F": "IMU ring",
-    "PPG": "PPG",
+    "PPG_H": "PPG hand",
+    "PPG_F": "PPG ring",
 }
 
 # EMG uses ProEMGODR specifically (not a generic EMGODR) because this whole
@@ -47,21 +48,24 @@ _ODR_ENUM = {
     "EMG": ProEMGODR,
     "IMU_H": IMUODR,
     "IMU_F": IMUODR,
-    "PPG": PPGODR,
+    "PPG_H": PPGODR,
+    "PPG_F": PPGODR,
 }
 
 _ODR_VALUES = {
     "EMG": [e.value_int for e in ProEMGODR],
     "IMU_H": [e.value_int for e in IMUODR],
     "IMU_F": [e.value_int for e in IMUODR],
-    "PPG": [e.value_int for e in PPGODR],
+    "PPG_H": [e.value_int for e in PPGODR],
+    "PPG_F": [e.value_int for e in PPGODR],
 }
 
 _ODR_DEFAULT = {
     "EMG": ProEMGODR.emgOdr800.value_int,
     "IMU_H": IMUODR.imuHOdr100.value_int,
     "IMU_F": IMUODR.imuHOdr100.value_int,
-    "PPG": PPGODR.ppgOdr100.value_int,
+    "PPG_H": PPGODR.ppgOdr100.value_int,
+    "PPG_F": PPGODR.ppgOdr100.value_int,
 }
 
 # Escalating alert tiers for the current (last ~1s) loss %, checked highest
@@ -87,12 +91,13 @@ def _alert_for(pct: float):
 def _test_mode_setter(device, sensor: str):
     """Only exists on MudraPro (packet-loss test mode is a Pro-only firmware
     feature) — callers must check isinstance(device, MudraPro) first, since
-    building this dict touches all four attributes regardless of `sensor`."""
+    building this dict touches all five attributes regardless of `sensor`."""
     return {
         "EMG": device.set_emg_test_mode,
         "IMU_H": device.set_h_imu_test_mode,
         "IMU_F": device.set_f_imu_test_mode,
-        "PPG": device.set_ppg_test_mode,
+        "PPG_H": device.set_ppg_h_test_mode,
+        "PPG_F": device.set_ppg_f_test_mode,
     }[sensor]
 
 
@@ -101,7 +106,8 @@ def _odr_setter(device, sensor: str):
         "EMG": device.set_emg_odr,
         "IMU_H": device.set_h_imu_odr,
         "IMU_F": device.set_f_imu_odr,
-        "PPG": device.set_ppg_odr,
+        "PPG_H": device.set_ppg_h_odr,
+        "PPG_F": device.set_ppg_f_odr,
     }[sensor]
 
 
@@ -110,7 +116,8 @@ def _sample_getter(device, sensor: str):
         "EMG": device.sample_emg_packet_loss,
         "IMU_H": device.sample_h_imu_packet_loss,
         "IMU_F": device.sample_f_imu_packet_loss,
-        "PPG": device.sample_ppg_packet_loss,
+        "PPG_H": device.sample_ppg_h_packet_loss,
+        "PPG_F": device.sample_ppg_f_packet_loss,
     }[sensor]
 
 
@@ -119,7 +126,8 @@ def _stats_getter(device, sensor: str):
         "EMG": device.get_emg_packet_loss_stats,
         "IMU_H": device.get_h_imu_packet_loss_stats,
         "IMU_F": device.get_f_imu_packet_loss_stats,
-        "PPG": device.get_ppg_packet_loss_stats,
+        "PPG_H": device.get_ppg_h_packet_loss_stats,
+        "PPG_F": device.get_ppg_f_packet_loss_stats,
     }[sensor]
 
 
@@ -128,7 +136,8 @@ def _rate_hz_getter(device, sensor: str):
         "EMG": device.get_emg_packet_loss_rate_hz,
         "IMU_H": device.get_h_imu_packet_loss_rate_hz,
         "IMU_F": device.get_f_imu_packet_loss_rate_hz,
-        "PPG": device.get_ppg_packet_loss_rate_hz,
+        "PPG_H": device.get_ppg_h_packet_loss_rate_hz,
+        "PPG_F": device.get_ppg_f_packet_loss_rate_hz,
     }[sensor]
 
 
@@ -137,7 +146,8 @@ def _window_resetter(device, sensor: str):
         "EMG": device.reset_emg_packet_loss_window,
         "IMU_H": device.reset_h_imu_packet_loss_window,
         "IMU_F": device.reset_f_imu_packet_loss_window,
-        "PPG": device.reset_ppg_packet_loss_window,
+        "PPG_H": device.reset_ppg_h_packet_loss_window,
+        "PPG_F": device.reset_ppg_f_packet_loss_window,
     }[sensor]
 
 
@@ -293,7 +303,7 @@ def build_packet_loss_ui(parent: tk.Widget, state: AppState) -> None:
         font=FONT_SMALL,
         anchor="w",
         justify=tk.LEFT,
-        wraplength=520,
+        wraplength=px(560),
     ).pack(fill=tk.X, padx=8, pady=(0, 8))
 
     for sensor in SENSORS:

@@ -16,14 +16,16 @@ SENSOR_COLORS = {
     "EMG": "#f0e442",
     "IMU_H": "#e74c3c",
     "IMU_F": "#3498db",
-    "PPG": "#00bcd4",
+    "PPG_H": "#00bcd4",
+    "PPG_F": "#e91e63",
 }
 
 SENSOR_LABELS = {
     "EMG": "EMG",
     "IMU_H": "IMU hand",
     "IMU_F": "IMU ring",
-    "PPG": "PPG",
+    "PPG_H": "PPG hand",
+    "PPG_F": "PPG ring",
 }
 
 
@@ -47,7 +49,9 @@ class PacketLossChart:
             s: deque([0.0] * HISTORY, maxlen=HISTORY) for s in sensors
         }
         self._dirty = False
-        self._blit_ready = False
+        # Blit background, (re)captured by _on_draw after every full draw;
+        # None means "stale — do a full draw before blitting again".
+        self._bg = None
 
         self.figure = Figure(figsize=(8.5, 3.2), dpi=90, facecolor="#101010")
         self.figure.subplots_adjust(left=0.08, right=0.98, top=0.90, bottom=0.12)
@@ -101,16 +105,35 @@ class PacketLossChart:
         widget = self.canvas.get_tk_widget()
         widget.configure(bg="#101010", highlightthickness=0)
         widget.pack(fill=tk.BOTH, expand=True)
+        # Recapture the blit background after *every* full draw — including
+        # the ones matplotlib does itself on a resize or a DPI change — so it
+        # always matches the canvas's current size. A background captured once
+        # at construction goes stale as soon as the widget is resized: each
+        # blit then restores only that old, smaller patch, the rest of the
+        # axes is never wiped, and every line ever drawn piles up on screen.
+        self.canvas.mpl_connect("draw_event", self._on_draw)
         self.canvas.draw()
-        self._bg = self.canvas.copy_from_bbox(self._ax.bbox)
-        self._blit_ready = True
-        widget.bind("<Configure>", self._on_resize)
+        # add="+": FigureCanvasTkAgg already bound its own <Configure> handler
+        # on this widget (it keeps the figure's size in sync with the widget);
+        # a plain bind would replace it — see the same note in charts.py.
+        widget.bind("<Configure>", self._on_configure, add="+")
 
-    def _on_resize(self, _event=None) -> None:
-        self._blit_ready = False
-        self.canvas.draw()
+    def _on_draw(self, _event=None) -> None:
         self._bg = self.canvas.copy_from_bbox(self._ax.bbox)
-        self._blit_ready = True
+        # The animated lines are skipped by a full draw; put them back into
+        # the frame that draw is about to show.
+        self._draw_lines()
+
+    def _on_configure(self, _event=None) -> None:
+        # matplotlib's own handler schedules the full redraw that recaptures
+        # the background; until it runs, don't blit with the stale one.
+        self._bg = None
+        self._dirty = True
+
+    def _draw_lines(self) -> None:
+        for sensor in self._sensors:
+            self._ax.draw_artist(self._avg_lines[sensor])
+            self._ax.draw_artist(self._lines[sensor])
 
     def sample_tick(
         self,
@@ -148,16 +171,12 @@ class PacketLossChart:
         for sensor in self._sensors:
             self._lines[sensor].set_ydata(list(self._history[sensor]))
 
-        if not self._blit_ready:
-            self.canvas.draw()
-            self._bg = self.canvas.copy_from_bbox(self._ax.bbox)
-            self._blit_ready = True
+        if self._bg is None:
+            self.canvas.draw()  # _on_draw recaptures the background
             return
 
         self.canvas.restore_region(self._bg)
-        for sensor in self._sensors:
-            self._ax.draw_artist(self._avg_lines[sensor])
-            self._ax.draw_artist(self._lines[sensor])
+        self._draw_lines()
         self.canvas.blit(self._ax.bbox)
         self.canvas.flush_events()
 

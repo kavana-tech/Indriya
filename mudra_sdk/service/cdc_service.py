@@ -30,7 +30,8 @@ from mudra_sdk.models.enums import (
     BtCmdFIMU,
     BtCmdHIMU,
     BtCmdId,
-    BtCmdPPG,
+    BtCmdPPGF,
+    BtCmdPPGH,
     BtCmdStatus,
     BtCmdUltimateEMG,
     FirmwareCallbacks,
@@ -46,11 +47,15 @@ logger = get_logger(__name__)
 # ASCII leading token -> BtCmdId, for mapping a setter's "<TOKEN> ERROR ..."
 # ack back to the same command-id space BLE's status-only replies use.
 # "LICENSE" also covers "LICENSE_CLEAR" (startswith("LICENSE_") below).
+# "PPG_H"/"PPG_F" match only their own tokens (e.g. "PPG_H_ODR", "PPG_F?") —
+# not the chip-level "PPG_HEALTH?"/"PPG_RD" diagnostics, which belong to
+# neither sensor and so map to no command id.
 _CDC_ERROR_TOKEN_PREFIXES = {
     "EMG": BtCmdId.EMG,
     "H_IMU": BtCmdId.H_IMU,
     "F_IMU": BtCmdId.F_IMU,
-    "PPG": BtCmdId.PPG,
+    "PPG_H": BtCmdId.PPG_H,
+    "PPG_F": BtCmdId.PPG_F,
     "BAT": BtCmdId.BAT,
     "LED": BtCmdId.LED,
     "BT": BtCmdId.BT_CTRL,
@@ -368,7 +373,7 @@ class CdcService:
         # would, so this must be ruled out before attempting to decode
         # numeric fields. CDC has no numeric status code, so the mapping is
         # necessarily best-effort: "running"/"license" are the shared-setter
-        # reasons (see CLAUDE.md's config-while-running guard / tier gate);
+        # reasons (the firmware's config-while-running guard / tier gate);
         # "format"/"bind"/"expired"/"internal" are h_license_set's own
         # reasons (license.c's license_apply_token) — anything else (e.g. a
         # bare numeric errno, as some getters emit) becomes ERR_UNKNOWN.
@@ -442,8 +447,10 @@ class CdcService:
                 self._emit_sensor_status(address, SensorTypes.H_IMU, line, BtCmdId.H_IMU, BtCmdHIMU.STATE.value_int, "<BHBH")
             case FirmwareCallbacks.F_IMU_STATUS:
                 self._emit_sensor_status(address, SensorTypes.F_IMU, line, BtCmdId.F_IMU, BtCmdFIMU.STATE.value_int, "<BHBH")
-            case FirmwareCallbacks.PPG_STATUS:
-                self._emit_sensor_status(address, SensorTypes.PPG, line, BtCmdId.PPG, BtCmdPPG.STATE.value_int, "<BHB")
+            case FirmwareCallbacks.PPG_H_STATUS:
+                self._emit_sensor_status(address, SensorTypes.PPG_H, line, BtCmdId.PPG_H, BtCmdPPGH.STATE.value_int, "<BH")
+            case FirmwareCallbacks.PPG_F_STATUS:
+                self._emit_sensor_status(address, SensorTypes.PPG_F, line, BtCmdId.PPG_F, BtCmdPPGF.STATE.value_int, "<BH")
             case _:
                 # Not a combined-status push — a setter's "<TOKEN> OK" ack or
                 # a plain GET reply.

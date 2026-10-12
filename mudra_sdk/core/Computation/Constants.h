@@ -13,7 +13,8 @@ namespace Mudra
 		constexpr unsigned char DATA_HEADER_EMG   = 0x10;
 		constexpr unsigned char DATA_HEADER_IMU_H = 0x20;
 		constexpr unsigned char DATA_HEADER_IMU_F = 0x30;
-		constexpr unsigned char DATA_HEADER_PPG   = 0x40;
+		constexpr unsigned char DATA_HEADER_PPG_H = 0x40; /* hand PPG, AFE channels 0-1 */
+		constexpr unsigned char DATA_HEADER_PPG_F = 0xA0; /* finger (ring) PPG, AFE channels 2-3 */
 
 		constexpr unsigned int DATA_SECTION_HEADER_SIZE = 3; /* id(1) + len(2) */
 		constexpr unsigned int TIMESTAMP_SIZE = 8;
@@ -27,11 +28,10 @@ namespace Mudra
 		constexpr unsigned int IMU_AXES = 6;
 		constexpr unsigned int IMU_SAMPLE_SIZE = 12; /* 6 × int16 */
 
-		/* PPG payload: interleaved channels, each int24 LE. */
-		constexpr unsigned int PPG_CHANNELS_2 = 2;
-		constexpr unsigned int PPG_CHANNELS_4 = 4;
-		constexpr unsigned int PPG_SAMPLE_SIZE_2CH = 6;  /* 2 × int24 */
-		constexpr unsigned int PPG_SAMPLE_SIZE_4CH = 12; /* 4 × int24 */
+		/* PPG_H / PPG_F payload: always 2 interleaved channels (local ch0, ch1),
+		 * each int24 LE. PPG_H carries AFE channels 0-1, PPG_F channels 2-3. */
+		constexpr unsigned int PPG_CHANNELS = 2;
+		constexpr unsigned int PPG_SAMPLE_SIZE = 6; /* 2 × int24 */
 
 		constexpr unsigned int SAMPLE_SIZE_16_BIT = 2;
 		constexpr unsigned int SAMPLE_SIZE_24_BIT = 3;

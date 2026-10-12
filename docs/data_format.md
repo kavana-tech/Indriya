@@ -1,7 +1,7 @@
 # Data format
 
 What's actually inside the `samples: list[float]` argument delivered to
-`set_on_emg_ready`/`set_on_imu_h_ready`/`set_on_imu_f_ready`/`set_on_ppg_ready`
+`set_on_emg_ready`/`set_on_imu_h_ready`/`set_on_imu_f_ready`/`set_on_ppg_h_ready`/`set_on_ppg_f_ready`
 callbacks ([SENSORS.md §1](SENSORS.md#1-enable--disable-a-sensors-data-stream)) —
 sourced directly from the native parser
 ([`mudra_sdk/core/Computation/CommonTypes.h`](../mudra_sdk/core/Computation/CommonTypes.h),
@@ -9,9 +9,12 @@ sourced directly from the native parser
 
 ## `samples` is channel-major, not interleaved
 
-Each callback fires once per decoded package (one BLE notification / one CDC
-DATA read), carrying **every channel's samples from that package back to
-back** — channel 0's whole run, then channel 1's whole run, and so on. It is
+Each callback fires once per decoded package — one sensor's section of the
+DATA stream (`[id][len][payload][timestamp]`, the same framing on BLE and
+USB-CDC). The native parser buffers incoming bytes, so a single BLE
+notification or CDC read may hold several sections or only part of one; you
+get one callback per complete section. Each call carries **every channel's
+samples from that package back to back** — channel 0's whole run, then channel 1's whole run, and so on. It is
 **not** interleaved per-sample (`ch0, ch1, ch2, ch0, ch1, ch2, ...`).
 
 ```
@@ -35,29 +38,31 @@ def split_channels(samples: list[float], channel_count: int) -> list[list[float]
 |---|---|---|
 | EMG | 3 (Mudra Pro) / 8 (Mudra Ultimate) — `device.EMG_CHANNEL_COUNT` | `ch0, ch1, ..., chN-1` |
 | Hand IMU / Finger IMU | Always 6 | `ax, ay, az, gx, gy, gz` (accel then gyro) |
-| PPG | 1–4 — `PpgStatus.channel_count` | `ch0, ch1, ..., chN-1` |
+| Hand PPG / Finger PPG | Always 2 | `ch0, ch1` — each sensor's own channels (PPG_F's are the ring's two channels) |
 
 ## Units — already scaled, not raw ADC counts
 
 The native parser scales every sample before it reaches the callback — you
 never see raw ADC/register counts:
 
-- **EMG** — scaled to **~[-1, 1]** using the active resolution's reported
-  full-scale value (`emg_res_max` — see `get_emg_res_max()` in
+- **EMG** — scaled to **~[-1, 1]**: raw count ÷ the active resolution's
+  full-scale value (32767 at 16-bit, 4194304 = `0x400000` at 24-bit — the
+  same value `get_emg_res_max()` reports, see
   [SENSORS.md §3](SENSORS.md#3-configure-a-sensor-odr-resolution-ranges-etc)).
 - **IMU (hand + finger)** — accelerometer channels in **g**, gyroscope
-  channels in **dps**, scaled using the *currently configured* accel/gyro
+  channels in **dps**: raw ÷ 32768 × the *currently configured* accel/gyro
   range (`IMUAccRange`/`IMUGyrRange` — see `ImuStatus`). Since range is
   runtime-configurable, read it back rather than assuming the boot default.
-- **PPG** — scaled to **microvolts (µV)** via a fixed AFE4950 count→µV
-  factor.
+- **PPG (hand + finger)** — scaled to **microvolts (µV)** via a fixed
+  AFE4950 count→µV factor (1.2 V / 2²¹ per count).
 
 ## Timestamp, frequency, and frequency_std
 
 The other three callback arguments, per package (not per individual sample):
 
 - **`timestamp`** — the device clock reading for the package's **first**
-  sample (`ts_cyc`, GRTC-backed, 64-bit, no rollover). Measured on Mudra Pro
+  sample (`ts_cyc`, GRTC-backed, 64-bit, no rollover), in **1 MHz ticks**
+  (one tick per microsecond — `mudra_sdk.lsl.GRTC_CPS`). Measured on Mudra Pro
   fw 2.0.2.0 and Mudra Ultimate fw 1.0.3.0: where package sizes vary,
   consecutive stamps differ by the *previous* package's sample count × the
   sample period. A device clock value, not a

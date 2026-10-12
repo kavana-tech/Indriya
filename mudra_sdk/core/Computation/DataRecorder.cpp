@@ -100,7 +100,8 @@ void DataRecorder::SaveRecording()
     Json::object data_tab_gyr;
     Json::object data_tab_acc_f;
     Json::object data_tab_gyr_f;
-    Json::object data_tab_ppg;
+    Json::object data_tab_ppg_h;
+    Json::object data_tab_ppg_f;
     Json::object emg_fusion_data_tab;
 
     for (int i = 0; i < NumOfRecordingTypes; i++) {
@@ -137,10 +138,14 @@ void DataRecorder::SaveRecording()
             data_tab_gyr_f[ComputationManager::ToString(RecordingDataType(i))] = Json(m_buffer[i]);
         }
 
-        if (i == RecordingDataType::Ppg1 || i == RecordingDataType::Ppg2 ||
-            i == RecordingDataType::Ppg3 || i == RecordingDataType::Ppg4 ||
-            i == RecordingDataType::PpgTS) {
-            data_tab_ppg[ComputationManager::ToString(RecordingDataType(i))] = Json(m_buffer[i]);
+        if (i == RecordingDataType::PpgH1 || i == RecordingDataType::PpgH2 ||
+            i == RecordingDataType::PpgHTS) {
+            data_tab_ppg_h[ComputationManager::ToString(RecordingDataType(i))] = Json(m_buffer[i]);
+        }
+
+        if (i == RecordingDataType::PpgF1 || i == RecordingDataType::PpgF2 ||
+            i == RecordingDataType::PpgFTS) {
+            data_tab_ppg_f[ComputationManager::ToString(RecordingDataType(i))] = Json(m_buffer[i]);
         }
     }
 
@@ -159,8 +164,11 @@ void DataRecorder::SaveRecording()
     if (data_tab_gyr_f.size() != 0) {
         data_tab["gyro_f"] = data_tab_gyr_f;
     }
-    if (data_tab_ppg.size() != 0) {
-        data_tab["ppg"] = data_tab_ppg;
+    if (data_tab_ppg_h.size() != 0) {
+        data_tab["ppg_h"] = data_tab_ppg_h;
+    }
+    if (data_tab_ppg_f.size() != 0) {
+        data_tab["ppg_f"] = data_tab_ppg_f;
     }
 
     if (m_emg_fusion_data.begin() != m_emg_fusion_data.end()) {
@@ -253,17 +261,21 @@ void DataRecorder::RecordImuF(ImuPackageData& data)
         RecordingDataType::GyroF1, RecordingDataType::GyroF2, RecordingDataType::GyroF3, RecordingDataType::GyrFTS);
 }
 
-void DataRecorder::RecordPPG(PpgPackageData& data)
+void DataRecorder::RecordPpgType(PpgPackageData& data, RecordingDataType ch1, RecordingDataType ch2, RecordingDataType ts)
 {
-    static const RecordingDataType channelTypes[4] = {
-        RecordingDataType::Ppg1, RecordingDataType::Ppg2,
-        RecordingDataType::Ppg3, RecordingDataType::Ppg4
-    };
+    RecordSamples(data.data[0], ch1);
+    RecordSamples(data.data[1], ch2);
+    RecordRawTimeStamp(data.timeStamp, ts);
+}
 
-    for (int ch = 0; ch < data.channelCount && ch < 4; ch++) {
-        RecordSamples(data.data[ch], channelTypes[ch]);
-    }
-    RecordRawTimeStamp(data.timeStamp, RecordingDataType::PpgTS);
+void DataRecorder::RecordPpgH(PpgPackageData& data)
+{
+    RecordPpgType(data, RecordingDataType::PpgH1, RecordingDataType::PpgH2, RecordingDataType::PpgHTS);
+}
+
+void DataRecorder::RecordPpgF(PpgPackageData& data)
+{
+    RecordPpgType(data, RecordingDataType::PpgF1, RecordingDataType::PpgF2, RecordingDataType::PpgFTS);
 }
 
 void DataRecorder::RecordAppTimeStampType(RecordingDataType type)
@@ -328,12 +340,15 @@ bool Mudra::Computation::DataRecorder::IsDataNeeded(FirmwareDataType dataType)
                IsRecordingType(RecordingDataType::GyroF3) ||
                IsRecordingType(RecordingDataType::GyrFTS);
 
-    case FirmwareDataType::PPG:
-        return IsRecordingType(RecordingDataType::Ppg1) ||
-               IsRecordingType(RecordingDataType::Ppg2) ||
-               IsRecordingType(RecordingDataType::Ppg3) ||
-               IsRecordingType(RecordingDataType::Ppg4) ||
-               IsRecordingType(RecordingDataType::PpgTS);
+    case FirmwareDataType::PPG_H:
+        return IsRecordingType(RecordingDataType::PpgH1) ||
+               IsRecordingType(RecordingDataType::PpgH2) ||
+               IsRecordingType(RecordingDataType::PpgHTS);
+
+    case FirmwareDataType::PPG_F:
+        return IsRecordingType(RecordingDataType::PpgF1) ||
+               IsRecordingType(RecordingDataType::PpgF2) ||
+               IsRecordingType(RecordingDataType::PpgFTS);
 
     default:
         return false;

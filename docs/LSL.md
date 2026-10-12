@@ -41,8 +41,10 @@ install `liblsl` separately (your distro's package, or a release from
 
 ## 2. Quickstart
 
-Connect as usual and wait for the device to be **ready**
-(`on_mudra_device_connected`, not the `connect()` return — see
+Connect as usual and check that it connected: start the bridge after
+`await device.connect()` has returned and `await Mudra().is_connected(device)`
+is true — not from `on_mudra_device_connected`, which fires before the SDK has
+finished setting the device up (see
 [SDK_USAGE.md §4](SDK_USAGE.md#4-minimal-end-to-end-example)). Then hand the
 device to a `MudraLslBridge`:
 
@@ -50,15 +52,18 @@ device to a `MudraLslBridge`:
 import asyncio
 from mudra_sdk.lsl import MudraLslBridge
 
-# `device` is a connected MudraDevice (MudraPro or MudraUltimate, BLE or CDC)
-async with MudraLslBridge(device, device_id="band0") as bridge:
-    print(bridge.streams)
-    # {'emg': 'MudraPro-band0-EMG', 'imu_hand': 'MudraPro-band0-IMU_HAND',
-    #  'imu_ring': 'MudraPro-band0-IMU_RING', 'ppg': 'MudraPro-band0-PPG'}
-    await asyncio.sleep(60)          # the sensors are on and live on LSL
-# leaving the block turns the sensors off and closes the streams
+async def stream(device):
+    # `device` is a connected MudraDevice (MudraPro or MudraUltimate, BLE or CDC)
+    async with MudraLslBridge(device, device_id="band0") as bridge:
+        print(bridge.streams)
+        # On a Mudra Pro (no finger IMU) with no ring connected, imu_ring and
+        # ppg_f are in bridge.skipped:
+        # {'emg': 'MudraPro-band0-EMG', 'imu_hand': 'MudraPro-band0-IMU_HAND',
+        #  'ppg_h': 'MudraPro-band0-PPG_H'}
+        await asyncio.sleep(60)          # the sensors are on and live on LSL
+    # leaving the block turns the sensors off and closes the streams
 
-await device.disconnect()
+    await device.disconnect()
 ```
 
 Open LabRecorder on any machine on the same network, and the streams appear in
@@ -68,20 +73,21 @@ Without `async with`, call `start()` and `stop()` yourself — put `stop()` in a
 `finally` block, so the sensors are turned off even on errors (§4):
 
 ```python
-bridge = MudraLslBridge(device, sensors=["emg", "imu_hand"])
-await bridge.start()
-try:
-    ...
-finally:
-    await bridge.stop()
-    await device.disconnect()
+async def stream(device):
+    bridge = MudraLslBridge(device, sensors=["emg", "imu_hand"])
+    await bridge.start()
+    try:
+        ...
+    finally:
+        await bridge.stop()
+        await device.disconnect()
 ```
 
 | Argument | Default | Meaning |
 |---|---|---|
 | `device` | — | A connected `MudraDevice`. |
 | `device_id` | device serial, else its name | Label in every stream name. Must differ per device when you stream several. |
-| `sensors` | all four | Any of `"emg"`, `"imu_hand"`, `"imu_ring"`, `"ppg"` — which sensors to publish **and turn on**. |
+| `sensors` | all five | Any of `"emg"`, `"imu_hand"`, `"imu_ring"`, `"ppg_h"`, `"ppg_f"` — which sensors to publish **and turn on**. |
 | `status_timeout` | `3.0` | Seconds `start()` waits for each sensor's status reply. |
 
 ### From the command line
@@ -113,6 +119,7 @@ Run `python examples/lsl_app.py --help` for every option. Worth knowing:
   connecting and **before** any sensor is turned on, as
   [SENSORS.md §3](SENSORS.md#3-configure-a-sensor-odr-resolution-ranges-etc)
   requires. `--emg-odr` is checked against the connected model's rates.
+  `--ppg-odr` sets the PPG chip's one ODR, shared by `ppg_h` and `ppg_f`.
 - The CLI exits with status 1 if the device disconnects while streaming.
 
 ## 3. What it publishes
@@ -126,14 +133,18 @@ when the bridge starts, never hard-coded:
 | `emg` | `MudraPro-<device_id>-EMG` | `EMG` | `ch0`…`chN` — **3 on Pro, 8 on Ultimate** | normalized (about −1…1) |
 | `imu_hand` | `MudraPro-<device_id>-IMU_HAND` | `IMU` | `acc_x acc_y acc_z gyr_x gyr_y gyr_z` | g ×3, dps ×3 |
 | `imu_ring` | `MudraPro-<device_id>-IMU_RING` | `IMU` | same as `imu_hand` | g / dps |
-| `ppg` | `MudraPro-<device_id>-PPG` | `PPG` | `ch0`…`chN` — 1 to 4, as configured | microvolts |
+| `ppg_h` | `MudraPro-<device_id>-PPG_H` | `PPG` | `ch0 ch1` (hand) | microvolts |
+| `ppg_f` | `MudraPro-<device_id>-PPG_F` | `PPG` | `ch0 ch1` (finger/ring) | microvolts |
 
 On a Mudra Ultimate, names start with `MudraUltimate-` instead.
 
 - `imu_hand` and `imu_ring` are what the rest of this SDK calls the hand IMU
-  (`H_IMU`) and the finger IMU (`F_IMU`). The stream names match the Mudra Pro
-  C++ SDK's LSL streams, so a lab set up for one finds the other's streams
-  unchanged.
+  (`H_IMU`) and the finger IMU (`F_IMU`). The EMG and IMU stream names match
+  the Mudra Pro C++ SDK's LSL streams, so a lab set up for one finds the
+  other's streams unchanged.
+- `ppg_h` and `ppg_f` are the hand (`PPG_H`) and finger/ring (`PPG_F`) PPG
+  sensors, two channels each. They share one chip, so both streams always
+  have the same sample rate.
 - **Sample rate** (`nominal_srate`) is the sensor's current ODR. Values are
   `float32`, in the physical units the SDK already delivers
   ([data_format.md](data_format.md)) — the bridge doesn't rescale anything.
@@ -146,9 +157,11 @@ On a Mudra Ultimate, names start with `MudraUltimate-` instead.
 - **`bridge.streams`** maps each published sensor to its stream name.
 
 A sensor the device doesn't answer for within `status_timeout` is **skipped**
-with a warning and listed in `bridge.skipped` — for example `imu_ring` on a band
-without a finger IMU. `start()` raises `RuntimeError` only if *no* requested
-sensor answers.
+with a warning and listed in `bridge.skipped` — for example `imu_ring` on a
+Mudra Pro, which has no finger IMU (finger IMU is Mudra Ultimate only), and
+`ppg_f` with no ring connected (the device answers its status query with an
+error, just like the finger IMU's).
+`start()` raises `RuntimeError` only if *no* requested sensor answers.
 
 ## 4. The bridge turns sensors on and off
 
@@ -218,11 +231,11 @@ and a stream's sample rate and channel count are fixed when it's created. So
 stop the bridge, change the configuration, and start it again:
 
 ```python
-from mudra_sdk.models.enums import ProEMGODR
-
-await bridge.stop()                               # turns the sensors off
-await device.set_emg_odr(ProEMGODR.emgOdr3200)
-await bridge.start()                              # new streams at the new rate
+async def change_emg_rate(bridge, device):
+    await bridge.stop()                           # turns the sensors off
+    # 800 Hz is a Mudra Pro rate; Mudra Ultimate's are 500/1000/2000/4000 Hz
+    await device.set_emg_odr(device.EMG_ODR_ENUM.from_value(800))
+    await bridge.start()                          # new streams at the new rate
 ```
 
 `start()` asks the device for each sensor's current status, so the new streams
@@ -235,9 +248,10 @@ fitting the stream: the bridge logs a warning and drops them until you call
 
 **After a disconnect.** A disconnect clears every per-device callback
 ([CALLBACKS.md §3](CALLBACKS.md#3-callbacks-dont-survive-a-disconnect)),
-including the bridge's, so the streams go silent. Once the device is ready
-again (`on_mudra_device_connected`), call `await bridge.start()` — it rebuilds
-the streams and turns the sensors back on.
+including the bridge's, so the streams go silent. Once the device is
+connected again — `await device.connect()` has returned and
+`await Mudra().is_connected(device)` is true — call `await bridge.start()`;
+it rebuilds the streams and turns the sensors back on.
 
 Calling `start()` on a running bridge is always safe: it stops it first, then
 starts again.
@@ -250,18 +264,21 @@ connected devices at once
 ([CONNECTION.md §8](CONNECTION.md#8-multiple-devices-at-once)):
 
 ```python
-async with MudraLslBridge(left, "left"), MudraLslBridge(right, "right"):
-    await asyncio.sleep(3600)       # MudraPro-left-EMG, MudraPro-right-EMG, ...
+async def stream_both(left, right):
+    async with MudraLslBridge(left, "left"), MudraLslBridge(right, "right"):
+        await asyncio.sleep(3600)   # MudraPro-left-EMG, MudraPro-right-EMG, ...
 ```
 
 ## 8. Troubleshooting
 
 - **`ImportError` from `start()`** — `pylsl` isn't installed, or on Linux,
   `liblsl` is missing. See §1.
-- **`RuntimeError` from `start()`** — no sensor answered. The device is
-  probably not ready yet: start the bridge after `on_mudra_device_connected`.
+- **`RuntimeError` from `start()`** — no sensor answered within
+  `status_timeout`. Check that the connection succeeded and start the bridge
+  only after `await device.connect()` has returned (not from
+  `on_mudra_device_connected`); on a slow link, raise `status_timeout`.
 - **A sensor is missing from `bridge.streams`** — the device didn't report
-  that sensor's status; `bridge.skipped` says so. A band without a finger IMU
+  that sensor's status; `bridge.skipped` says so. A Mudra Pro (no finger IMU)
   never reports `imu_ring`.
 - **A stream exists but carries no data** — look for the bridge's warning that
   the device didn't turn the sensor on. The device refused the "turn on"

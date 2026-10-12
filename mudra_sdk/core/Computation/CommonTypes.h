@@ -18,7 +18,8 @@ namespace Mudra::Computation
         EMG = 0,
         IMU_H = 1,
         IMU_F = 2,
-        PPG = 3
+        PPG_H = 3,
+        PPG_F = 4
     };
 
     enum class PackageType
@@ -27,7 +28,8 @@ namespace Mudra::Computation
         Emg = 0x10,
         ImuH = 0x20,
         ImuF = 0x30,
-        Ppg = 0x40,
+        PpgH = 0x40,
+        PpgF = 0xA0,
         Event = 30
     };
 
@@ -86,16 +88,17 @@ namespace Mudra::Computation
     };
 
     /*
-     * PPG (id 0x40) — scaled to µV using AFE4950 count→µV factor.
-     * Wire sample: N × int24 LE (N from STATUS channel_count); channelCount set from config.
-     * data[ch][i] = sample i on channel ch (ch = 0..channelCount-1).
+     * Hand PPG (id 0x40, AFE channels 0-1) / Finger PPG (id 0xA0, AFE channels 2-3)
+     * — scaled to µV using AFE4950 count→µV factor.
+     * Wire sample: 2 × int24 LE (local ch0, ch1) — fixed width for both ids.
+     * data[ch][i] = sample i on local channel ch (ch = 0..channelCount-1).
      */
     struct PpgPackageData : public PackageData
     {
-        BufferType data[4];
+        BufferType data[2];
         int channelCount;
 
-        PpgPackageData() : PackageData(PackageType::Ppg), channelCount(2) {}
+        explicit PpgPackageData(PackageType packageType) : PackageData(packageType), channelCount(2) {}
     };
 
     enum RecordingDataType
@@ -114,7 +117,11 @@ namespace Mudra::Computation
         AccF1, AccF2, AccF3, AccFTS,
         GyroF1, GyroF2, GyroF3, GyrFTS,
 
-        Ppg1, Ppg2, Ppg3, Ppg4, PpgTS,
+        // Hand PPG (PackageType::PpgH)
+        PpgH1, PpgH2, PpgHTS,
+
+        // Finger PPG (PackageType::PpgF)
+        PpgF1, PpgF2, PpgFTS,
 
         NumOfRecordingTypes
     };

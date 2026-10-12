@@ -1,4 +1,4 @@
-"""Sensor configuration panel (EMG / IMU / PPG)."""
+"""Sensor configuration panel (EMG / IMU / PPG_H / PPG_F)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,8 @@ from mudra_sdk.models.enums import ProEMGODR, EmgRes, IMUODR, PPGODR
 from mudra_sdk.models.mudra_device import MudraDevice
 
 from ..state import AppState
-from ..widgets import combo, config_row, entry, pin_status, scrollable_tab
+from ..theme import BG_PANEL, FG_MUTED, FONT_SMALL, px
+from ..widgets import auto_wrap, combo, config_row, config_tab, entry, pin_status
 
 # Initial/fallback EMG ODR options — Pro's set, matching MudraDevice's own
 # Pro-defaulted EMG_ODR_ENUM. Re-populated per-device in
@@ -26,6 +27,7 @@ IMU_GYR_VALUES = [125, 250, 500, 1000, 2000]
 IMU_BW_VALUES = [2, 4]
 IMU_AVG_VALUES = [1, 2, 4, 8, 16, 32, 64]
 PPG_DEC_VALUES = [1, 2, 4, 8, 16]
+PPG_LOCAL_CHANNELS = [0, 1]  # each PPG sensor's own channels (PPG_H: AFE 0-1, PPG_F: 2-3)
 
 
 def _set_chart_odr(state: AppState, panels: List[str], hz: int) -> None:
@@ -46,12 +48,12 @@ def _apply_on_enter(entries: List[ttk.Entry], callback) -> None:
 
 
 def build_sensor_config_ui(parent: tk.Widget, state: AppState) -> None:
-    """EMG / H_IMU / F_IMU / PPG — Get Status pinned on every tab."""
-    notebook = ttk.Notebook(parent)
+    """EMG / H_IMU / F_IMU / PPG_H / PPG_F — Get Status pinned on every tab."""
+    notebook = ttk.Notebook(parent, style="Inner.TNotebook")
     notebook.pack(fill=tk.BOTH, expand=True)
 
     # ---- EMG ----
-    emg_bar, emg = scrollable_tab(notebook, "EMG")
+    emg_bar, emg = config_tab(notebook, "EMG")
     state.config_status_labels.setdefault("EMG", []).append(
         pin_status(
             emg_bar, "EMG", lambda: state.run_device("EMG_STATUS?", lambda d: d.get_emg_status())
@@ -99,7 +101,7 @@ def build_sensor_config_ui(parent: tk.Widget, state: AppState) -> None:
 
     # ---- IMU tabs ----
     def _imu_tab(title: str, prefix: str) -> None:
-        bar, form = scrollable_tab(notebook, title)
+        bar, form = config_tab(notebook, title)
         status_fn = (
             MudraDevice.get_h_imu_status
             if prefix == "h_imu"
@@ -240,108 +242,133 @@ def build_sensor_config_ui(parent: tk.Widget, state: AppState) -> None:
     _imu_tab("H_IMU", "h_imu")
     _imu_tab("F_IMU", "f_imu")
 
-    # ---- PPG ----
-    ppg_bar, ppg = scrollable_tab(notebook, "PPG")
-    state.config_status_labels.setdefault("PPG", []).append(
-        pin_status(
-            ppg_bar, "PPG", lambda: state.run_device("PPG_STATUS?", lambda d: d.get_ppg_status())
+    # ---- PPG tabs (PPG_H = hand, AFE ch 0-1; PPG_F = finger/ring, AFE ch 2-3) ----
+    # One AFE chip serves both: ODR, DEC and PRPCT are chip-wide (setting
+    # them on either tab changes both sensors); LED/TIA/SRC take the
+    # sensor's local channel 0-1. SRC's LED/PD numbers are absolute (TX1-8,
+    # IN1-4), so each tab defaults to its own optics: band ch0 = TX1/IN1,
+    # ring ch0 = TX5/IN4.
+    ppg_src_defaults = {"ppg_h": ("1", "1"), "ppg_f": ("5", "4")}
+    ppg_notes = {
+        "ppg_h": "Band optics (AFE ch 0-1).",
+        "ppg_f": "Ring optics (AFE ch 2-3) -- needs the ring connected.",
+    }
+
+    def _ppg_tab(title: str, prefix: str) -> None:
+        bar, form = config_tab(notebook, title)
+        get_status = getattr(MudraDevice, f"get_{prefix}_status")
+        state.config_status_labels.setdefault(title, []).append(
+            pin_status(bar, title, lambda: state.run_device(f"{title}_STATUS?", get_status))
         )
-    )
-    # ODR is covered by the pinned status above (PpgStatus, re-seeded on
-    # every change) -- no Set/Get here, just apply on selection.
-    mid = config_row(ppg, "ODR Hz")
-    ppg_odr_box = combo(mid, PPG_ODR_VALUES, PPGODR.ppgOdr100.value_int)
-    ppg_odr_box.pack(side=tk.LEFT)
+        note = tk.Label(
+            form,
+            text=(
+                f"{ppg_notes[prefix]} ODR, DEC and PRPCT are shared with the other "
+                "PPG tab (one chip). Config is rejected while PPG_H or PPG_F streams."
+            ),
+            bg=BG_PANEL,
+            fg=FG_MUTED,
+            font=FONT_SMALL,
+            justify=tk.LEFT,
+            anchor="w",
+            # Starting wraplength only; auto_wrap() follows the real width.
+            wraplength=px(240),
+        )
+        note.pack(fill=tk.X, pady=(0, 4))
+        auto_wrap(note)
 
-    def _set_ppg_odr(_evt=None) -> None:
-        odr = PPGODR.from_value(int(ppg_odr_box.get()))
-        if odr is None:
-            return
-        _set_chart_odr(state, ["PPG1", "PPG2"], odr.value_int)
-        state.run_device("PPG_ODR", lambda d: d.set_ppg_odr(odr))
+        set_odr = getattr(MudraDevice, f"set_{prefix}_odr")
+        set_dec = getattr(MudraDevice, f"set_{prefix}_dec")
+        get_dec = getattr(MudraDevice, f"get_{prefix}_dec")
+        set_led = getattr(MudraDevice, f"set_{prefix}_led")
+        get_led = getattr(MudraDevice, f"get_{prefix}_led")
+        set_tia = getattr(MudraDevice, f"set_{prefix}_tia")
+        get_tia = getattr(MudraDevice, f"get_{prefix}_tia")
+        set_prpct = getattr(MudraDevice, f"set_{prefix}_prpct")
+        get_prpct = getattr(MudraDevice, f"get_{prefix}_prpct")
+        clear = getattr(MudraDevice, f"{prefix}_clear")
+        set_src = getattr(MudraDevice, f"set_{prefix}_src")
+        get_src = getattr(MudraDevice, f"get_{prefix}_src")
 
-    ppg_odr_box.bind("<<ComboboxSelected>>", _set_ppg_odr)
+        # ODR is covered by the pinned status above (PpgStatus, re-seeded on
+        # every change) -- no Set/Get here, just apply on selection. It's
+        # chip-wide, so both PPG sensors' charts follow it.
+        mid = config_row(form, "ODR Hz")
+        # Firmware boots PPG at 25 Hz; the status push re-syncs this anyway.
+        odr_box = combo(mid, PPG_ODR_VALUES, PPGODR.ppgOdr25.value_int)
+        odr_box.pack(side=tk.LEFT)
+        state.ppg_odr_combos.append(odr_box)
 
-    # Everything below isn't part of PpgStatus, so there's no push to show
-    # its current value -- these keep Get, but still apply on change (combo
-    # selection, or Enter in a text field), no Set button.
-    mid = config_row(ppg, "DEC", get_fn=lambda: state.run_device("PPG_DEC?", lambda d: d.get_ppg_dec()))
-    dec_box = combo(mid, PPG_DEC_VALUES, 4)
-    dec_box.pack(side=tk.LEFT)
-    dec_box.bind(
-        "<<ComboboxSelected>>",
-        lambda _evt: state.run_device("PPG_DEC", lambda d: d.set_ppg_dec(int(dec_box.get()))),
-    )
+        def _set_ppg_odr(_evt=None) -> None:
+            odr = PPGODR.from_value(int(odr_box.get()))
+            if odr is None:
+                return
+            for other in state.ppg_odr_combos:
+                other.set(str(odr.value_int))
+            _set_chart_odr(
+                state, ["PPG_H_CH0", "PPG_H_CH1", "PPG_F_CH0", "PPG_F_CH1"], odr.value_int
+            )
+            state.run_device(f"{title}_ODR", lambda d: set_odr(d, odr))
 
-    mid = config_row(
-        ppg,
-        "LED ch/d1/d2",
-        get_fn=lambda: state.run_device(
-            "PPG_LED?", lambda d: d.get_ppg_led(int(led_ch.get()))
-        ),
-    )
-    led_ch = entry(mid, "0", 3)
-    led_d1 = entry(mid, "0", 3)
-    led_d2 = entry(mid, "0", 3)
-    for e in (led_ch, led_d1, led_d2):
-        e.pack(side=tk.LEFT, padx=(0, 3))
-    _apply_on_enter(
-        (led_ch, led_d1, led_d2),
-        lambda: state.run_device(
-            "PPG_LED",
-            lambda d: d.set_ppg_led(int(led_ch.get()), int(led_d1.get()), int(led_d2.get())),
-        ),
-    )
+        odr_box.bind("<<ComboboxSelected>>", _set_ppg_odr)
 
-    mid = config_row(
-        ppg,
-        "TIA ch/rf/cf",
-        get_fn=lambda: state.run_device(
-            "PPG_TIA?", lambda d: d.get_ppg_tia(int(tia_ch.get()))
-        ),
-    )
-    tia_ch = entry(mid, "0", 3)
-    tia_rf = entry(mid, "0", 3)
-    tia_cf = entry(mid, "0", 3)
-    for e in (tia_ch, tia_rf, tia_cf):
-        e.pack(side=tk.LEFT, padx=(0, 3))
-    _apply_on_enter(
-        (tia_ch, tia_rf, tia_cf),
-        lambda: state.run_device(
-            "PPG_TIA",
-            lambda d: d.set_ppg_tia(int(tia_ch.get()), int(tia_rf.get()), int(tia_cf.get())),
-        ),
-    )
+        # Everything below isn't part of PpgStatus, so there's no push to show
+        # its current value -- these keep Get, but still apply on change (combo
+        # selection, or Enter in a text field), no Set button.
+        mid = config_row(
+            form, "DEC", get_fn=lambda: state.run_device(f"{title}_DEC?", lambda d: get_dec(d))
+        )
+        dec_box = combo(mid, PPG_DEC_VALUES, 4)
+        dec_box.pack(side=tk.LEFT)
+        dec_box.bind(
+            "<<ComboboxSelected>>",
+            lambda _evt: state.run_device(f"{title}_DEC", lambda d: set_dec(d, int(dec_box.get()))),
+        )
 
-    mid = config_row(ppg, "PRPCT", get_fn=lambda: state.run_device("PPG_PRPCT?", lambda d: d.get_ppg_prpct()))
-    prpct = entry(mid, "1280", 8)
-    prpct.pack(side=tk.LEFT)
-    _apply_on_enter(
-        (prpct,),
-        lambda: state.run_device("PPG_PRPCT", lambda d: d.set_ppg_prpct(int(prpct.get(), 0))),
-    )
+        def _channel_row(label: str, name: str, getter, setter, defaults) -> None:
+            # Channel is a 0/1 picker: each PPG sensor has exactly two local
+            # channels, so a free-text field only invited out-of-range input.
+            fields: List[ttk.Entry] = []
+            mid = config_row(
+                form,
+                label,
+                get_fn=lambda: state.run_device(
+                    f"{title}_{name}?", lambda d: getter(d, int(ch_box.get()))
+                ),
+            )
+            ch_box = combo(mid, PPG_LOCAL_CHANNELS, 0, width=2)
+            ch_box.pack(side=tk.LEFT, padx=(0, 3))
+            for default in defaults:
+                e = entry(mid, default, 3)
+                e.pack(side=tk.LEFT, padx=(0, 3))
+                fields.append(e)
+            _apply_on_enter(
+                fields,
+                lambda: state.run_device(
+                    f"{title}_{name}",
+                    lambda d: setter(d, int(ch_box.get()), *(int(f.get()) for f in fields)),
+                ),
+            )
 
-    # Pure action, not a value to apply on change -- keeps its button.
-    config_row(
-        ppg, "CLEAR", set_fn=lambda: state.run_device("PPG_CLEAR", lambda d: d.ppg_clear())
-    )
+        _channel_row("LED ch/d1/d2", "LED", get_led, set_led, ("0", "0"))
+        _channel_row("TIA ch/rf/cf", "TIA", get_tia, set_tia, ("0", "0"))
 
-    mid = config_row(
-        ppg,
-        "SRC ch/led/pd",
-        get_fn=lambda: state.run_device(
-            "PPG_SRC?", lambda d: d.get_ppg_src(int(src_ch.get()))
-        ),
-    )
-    src_ch = entry(mid, "0", 3)
-    src_led = entry(mid, "1", 3)
-    src_pd = entry(mid, "1", 3)
-    for e in (src_ch, src_led, src_pd):
-        e.pack(side=tk.LEFT, padx=(0, 3))
-    _apply_on_enter(
-        (src_ch, src_led, src_pd),
-        lambda: state.run_device(
-            "PPG_SRC",
-            lambda d: d.set_ppg_src(int(src_ch.get()), int(src_led.get()), int(src_pd.get())),
-        ),
-    )
+        mid = config_row(
+            form, "PRPCT", get_fn=lambda: state.run_device(f"{title}_PRPCT?", lambda d: get_prpct(d))
+        )
+        prpct = entry(mid, "1280", 8)
+        prpct.pack(side=tk.LEFT)
+        _apply_on_enter(
+            (prpct,),
+            lambda: state.run_device(f"{title}_PRPCT", lambda d: set_prpct(d, int(prpct.get(), 0))),
+        )
+
+        # Pure action, not a value to apply on change -- keeps its button.
+        config_row(
+            form, "CLEAR", set_fn=lambda: state.run_device(f"{title}_CLEAR", lambda d: clear(d))
+        )
+
+        _channel_row("SRC ch/led/pd", "SRC", get_src, set_src, ppg_src_defaults[prefix])
+
+    _ppg_tab("PPG_H", "ppg_h")
+    _ppg_tab("PPG_F", "ppg_f")

@@ -42,7 +42,7 @@ MUDRA_API void free_firmware_buffer(uint8_t* buffer);
 // CDC (USB serial) ASCII command tokens — see Computation/ProCdcCommands.h
 // and Computation/UltimateCdcCommands.h. Returns the raw (non-null-terminated)
 // ASCII bytes of the token, or a zero-length buffer if `command` has no CDC
-// equivalent on that product. `enable` only matters for the 5 ENABLE_* (power)
+// equivalent on that product. `enable` only matters for the 6 ENABLE_* (power)
 // commands, picking their ON vs OFF token; it's ignored for everything else.
 MUDRA_API ByteBuffer get_pro_cdc_command_token(int32_t command, bool enable);
 MUDRA_API ByteBuffer get_ultimate_cdc_command_token(int32_t command, bool enable);
@@ -51,10 +51,10 @@ MUDRA_API bool is_data_needed(ComputationManagerHandle computation, int dataType
 MUDRA_API void set_on_emg_ready(ComputationManagerHandle computation, OnRawDataCallback callback);
 MUDRA_API void set_on_imu_h_ready(ComputationManagerHandle computation, OnRawDataCallback callback);
 MUDRA_API void set_on_imu_f_ready(ComputationManagerHandle computation, OnRawDataCallback callback);
-MUDRA_API void set_on_ppg_ready(ComputationManagerHandle computation, OnRawDataCallback callback);
+MUDRA_API void set_on_ppg_h_ready(ComputationManagerHandle computation, OnRawDataCallback callback);
+MUDRA_API void set_on_ppg_f_ready(ComputationManagerHandle computation, OnRawDataCallback callback);
 MUDRA_API void set_parser_emg_resolution(ComputationManagerHandle computation, uint8_t bits);
 MUDRA_API void set_parser_emg_channel_count(ComputationManagerHandle computation, uint8_t channels);
-MUDRA_API void set_parser_ppg_channel_count(ComputationManagerHandle computation, uint8_t channels);
 MUDRA_API void set_parser_imu_h_ranges(ComputationManagerHandle computation, uint8_t accel_range_g, uint16_t gyro_range_dps);
 MUDRA_API void set_parser_imu_f_ranges(ComputationManagerHandle computation, uint8_t accel_range_g, uint16_t gyro_range_dps);
 

@@ -8,7 +8,8 @@
  * free instead of rendering white-on-dark. Only the brand accents and the tier /
  * gate tints carry concrete values, with explicit dark-mode overrides below.
  *
- * Brand colour comes from the logo's teal->blue gradient (#B1F2EF -> #76A1DF).
+ * Brand colour comes from the former Mudra logo's teal->blue gradient (#B1F2EF ->
+ * #76A1DF); the Kavana logo (orange K mark) hasn't been carried into the palette.
  * The brand teal proper (--color-brand-primary) is set in conf.py to a deepened
  * ~#0d7d6e in light (link text clears 4.5:1 on white) and a lighter ~#5fd6cb in
  * dark; --ex-teal tracks it, so the ▸ glyphs, connectors and icon chips stay on

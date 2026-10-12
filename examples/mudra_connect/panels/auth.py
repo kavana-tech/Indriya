@@ -20,7 +20,7 @@ import tkinter as tk
 from tkinter import ttk
 
 from ..state import AppState
-from ..theme import BG, FG_MUTED
+from ..theme import px
 
 
 def _set_auth_status(state: AppState, text: str) -> None:
@@ -85,84 +85,25 @@ def build_auth_bar(
     """
     bar = ttk.Frame(parent, style="Toolbar.TFrame")
 
-    ttk.Label(bar, text="Email").pack(side=tk.LEFT, padx=(0, 4))
+    ttk.Label(bar, text="Email", style="Bar.TLabel").pack(side=tk.LEFT, padx=(0, px(4)))
     state.auth_email_var = tk.StringVar()
     email_entry = ttk.Entry(bar, textvariable=state.auth_email_var, width=22)
-    email_entry.pack(side=tk.LEFT, padx=(0, 8))
+    email_entry.pack(side=tk.LEFT, padx=(0, px(8)))
 
-    ttk.Label(bar, text="Password").pack(side=tk.LEFT, padx=(0, 4))
+    ttk.Label(bar, text="Password", style="Bar.TLabel").pack(side=tk.LEFT, padx=(0, px(4)))
     state.auth_password_var = tk.StringVar()
     password_entry = ttk.Entry(bar, textvariable=state.auth_password_var, width=16, show="*")
-    password_entry.pack(side=tk.LEFT, padx=(0, 8))
+    password_entry.pack(side=tk.LEFT, padx=(0, px(8)))
 
     email_entry.bind("<Return>", lambda _e: _do_login(state, on_change))
     password_entry.bind("<Return>", lambda _e: _do_login(state, on_change))
 
     ttk.Button(
         bar, text="Login", style="Accent.TButton", command=lambda: _do_login(state, on_change)
-    ).pack(side=tk.LEFT, padx=(0, 4))
+    ).pack(side=tk.LEFT, padx=(0, px(4)))
     ttk.Button(bar, text="Logout", command=lambda: _do_logout(state, on_change)).pack(side=tk.LEFT)
 
     state.auth_status_label = ttk.Label(bar, text="Not signed in", style="Status.TLabel")
-    state.auth_status_label.pack(side=tk.LEFT, padx=(12, 0))
-
-    # Device license tier — filled by set_on_license_device_info_received.
-    license_wrap = ttk.Frame(bar, style="Toolbar.TFrame")
-    license_wrap.pack(side=tk.RIGHT, padx=(8, 0))
-    state.license_tier_dot = tk.Label(
-        license_wrap,
-        text="●",
-        font=("Segoe UI", 10),
-        bg=BG,
-        fg=FG_MUTED,
-        width=2,
-    )
-    state.license_tier_dot.pack(side=tk.LEFT)
-    state.license_tier_label = ttk.Label(
-        license_wrap,
-        text="License —",
-        style="Status.TLabel",
-    )
-    state.license_tier_label.pack(side=tk.LEFT)
-
-    # Device battery / charging — filled by set_on_battery_level_changed and
-    # set_on_charging_state_changed.
-    battery_wrap = ttk.Frame(bar, style="Toolbar.TFrame")
-    battery_wrap.pack(side=tk.RIGHT, padx=(8, 0))
-    state.battery_dot = tk.Label(
-        battery_wrap,
-        text="●",
-        font=("Segoe UI", 10),
-        bg=BG,
-        fg=FG_MUTED,
-        width=2,
-    )
-    state.battery_dot.pack(side=tk.LEFT)
-    state.battery_label = ttk.Label(
-        battery_wrap,
-        text="Battery —",
-        style="Status.TLabel",
-    )
-    state.battery_label.pack(side=tk.LEFT)
-
-    # Device firmware version — filled by set_on_firmware_version_received
-    # (BT_SYS_VERSION, 0x00 0x01).
-    firmware_version_wrap = ttk.Frame(bar, style="Toolbar.TFrame")
-    firmware_version_wrap.pack(side=tk.RIGHT, padx=(8, 0))
-    state.firmware_version_dot = tk.Label(
-        firmware_version_wrap,
-        text="●",
-        font=("Segoe UI", 10),
-        bg=BG,
-        fg=FG_MUTED,
-        width=2,
-    )
-    state.firmware_version_dot.pack(side=tk.LEFT)
-    state.firmware_version_label = ttk.Label(
-        firmware_version_wrap,
-        text="FW —",
-        style="Status.TLabel",
-    )
-    state.firmware_version_label.pack(side=tk.LEFT)
+    state.auth_status_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(px(12), 0))
 
     return bar

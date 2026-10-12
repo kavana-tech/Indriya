@@ -2,65 +2,64 @@
 
 from __future__ import annotations
 
-import platform
-
 import tkinter as tk
+import tkinter.font as tkfont
 from tkinter import ttk
 
 from mudra_sdk.models.mudra_device import MudraDevice
 
 from .anim import set_indicator
 from .state import AppState
-from .theme import BG, BG_PANEL, BORDER, FG, FG_MUTED, OK, SELECT, WARN
+from .theme import (
+    ACCENT,
+    BG,
+    BG_PANEL,
+    BORDER,
+    FG,
+    FG_MUTED,
+    FONT_DOT,
+    FONT_HEADER,
+    FONT_SMALL,
+    FONT_UI_BOLD,
+    OK,
+    SELECT,
+    WARN,
+    px,
+)
+from .widgets import ScrollColumn
 
 
 def build_device_list(parent: tk.Widget, state: AppState) -> tk.Frame:
     """Build scrollable device list; returns outer container."""
     outer = tk.Frame(parent, bg=BG_PANEL)
-    outer.pack(fill=tk.BOTH, expand=True)
 
     header = tk.Label(
         outer,
         text="Devices",
         bg=BG_PANEL,
         fg=FG,
-        font=("Segoe UI", 10, "bold"),
+        font=FONT_HEADER,
         anchor="w",
     )
-    header.pack(fill=tk.X, padx=8, pady=(8, 4))
+    header.pack(fill=tk.X, padx=px(8), pady=(px(8), px(4)))
 
-    canvas = tk.Canvas(outer, highlightthickness=0, bg=BG, height=200)
-    scrollbar = ttk.Scrollbar(outer, orient=tk.VERTICAL, command=canvas.yview)
-    canvas.configure(yscrollcommand=scrollbar.set)
-    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(8, 0), pady=(0, 8))
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y, padx=(0, 8), pady=(0, 8))
-
-    container = tk.Frame(canvas, bg=BG)
-    window_id = canvas.create_window((0, 0), window=container, anchor="nw")
-    state.devices_container = container
-
-    def _on_configure(_event=None) -> None:
-        canvas.configure(scrollregion=canvas.bbox("all"))
-        if canvas.winfo_width() > 1:
-            canvas.itemconfig(window_id, width=canvas.winfo_width())
-
-    container.bind("<Configure>", _on_configure)
-    canvas.bind(
-        "<Configure>",
-        lambda e: canvas.itemconfig(window_id, width=e.width) if e.width > 1 else None,
-    )
-
-    def _on_wheel(event) -> None:
-        delta = (
-            int(-1 * event.delta)
-            if platform.system() == "Darwin"
-            else int(-1 * (event.delta / 120))
-        )
-        canvas.yview_scroll(delta, "units")
-
-    canvas.bind("<MouseWheel>", _on_wheel)
-    container.bind("<MouseWheel>", _on_wheel)
+    column = ScrollColumn(outer, bg=BG)
+    column.outer.pack(fill=tk.BOTH, expand=True, padx=(px(8), 0), pady=(0, px(8)))
+    state.devices_container = column.inner
     return outer
+
+
+def device_list_width() -> int:
+    """Starting width of the device pane: enough for a typical name, its
+    transport tag and the address at this machine's font size."""
+    bold = tkfont.nametofont(FONT_UI_BOLD)
+    small = tkfont.nametofont(FONT_SMALL)
+    return (
+        bold.measure("Mudra Ultimate 00-00")
+        + small.measure("  BLE  ")
+        + tkfont.nametofont(FONT_DOT).measure("●  ")
+        + px(56)  # card padding/border + scrollbar + outer margins
+    )
 
 
 def add_device_row(state: AppState, device: MudraDevice) -> None:
@@ -70,31 +69,59 @@ def add_device_row(state: AppState, device: MudraDevice) -> None:
     if device.address in state.device_rows:
         return
 
-    row = tk.Frame(container, bg=BG_PANEL, highlightthickness=1, highlightbackground=BORDER)
-    row.pack(fill=tk.X, pady=1)
+    # Card: name + transport on line 1, address on line 2, and the action
+    # button full-width on line 3 — so it's never pushed out of a narrow
+    # column by a long name.
+    row = tk.Frame(
+        container,
+        bg=BG_PANEL,
+        highlightthickness=1,
+        highlightbackground=BORDER,
+        padx=px(6),
+        pady=px(5),
+    )
+    row.pack(fill=tk.X, pady=(0, px(4)))
+    row.columnconfigure(1, weight=1)
 
-    status_dot = tk.Label(row, text="●", font=("Segoe UI", 10), bg=BG_PANEL, fg=FG_MUTED, width=2)
-    status_dot.pack(side=tk.LEFT, padx=(2, 0))
+    status_dot = tk.Label(row, text="●", font=FONT_DOT, bg=BG_PANEL, fg=FG_MUTED)
+    status_dot.grid(row=0, column=0, sticky="w", padx=(0, px(4)))
 
-    display_name = device.name or device.address
     name_label = tk.Label(
         row,
-        text=f"{display_name} [{device.transport.upper()}]\n{device.address}",
-        font=("Segoe UI", 9),
+        text=device.name or device.address,
+        font=FONT_UI_BOLD,
         bg=BG_PANEL,
         fg=FG,
         anchor="w",
-        justify=tk.LEFT,
     )
-    name_label.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(2, 4))
+    name_label.grid(row=0, column=1, sticky="ew")
+
+    transport_label = tk.Label(
+        row,
+        text=device.transport.upper(),
+        font=FONT_SMALL,
+        bg=BG_PANEL,
+        fg=ACCENT,
+        anchor="e",
+    )
+    transport_label.grid(row=0, column=2, sticky="e", padx=(px(4), 0))
+
+    address_label = tk.Label(
+        row,
+        text=device.address,
+        font=FONT_SMALL,
+        bg=BG_PANEL,
+        fg=FG_MUTED,
+        anchor="w",
+    )
+    address_label.grid(row=1, column=1, columnspan=2, sticky="ew")
 
     action_btn = ttk.Button(
         row,
         text="Connect",
-        width=11,
         command=lambda d=device: toggle_connection(state, d),
     )
-    action_btn.pack(side=tk.RIGHT, padx=(0, 2), pady=2)
+    action_btn.grid(row=2, column=0, columnspan=3, sticky="ew", pady=(px(4), 0))
 
     info = {
         "device": device,
@@ -102,6 +129,7 @@ def add_device_row(state: AppState, device: MudraDevice) -> None:
         "name_label": name_label,
         "status_dot": status_dot,
         "action_btn": action_btn,
+        "bg_widgets": (row, status_dot, name_label, transport_label, address_label),
         "state": "idle",
     }
     state.device_rows[device.address] = info
@@ -109,7 +137,7 @@ def add_device_row(state: AppState, device: MudraDevice) -> None:
     def _on_click(_event, d=device) -> None:
         select_device(state, d)
 
-    for widget in (row, name_label, status_dot):
+    for widget in info["bg_widgets"]:
         widget.bind("<Button-1>", _on_click)
 
     _refresh_idle_buttons(state)
@@ -118,11 +146,9 @@ def add_device_row(state: AppState, device: MudraDevice) -> None:
 def select_device(state: AppState, device: MudraDevice) -> None:
     state.selected_device = device
     for info in state.device_rows.values():
-        is_selected = info["device"] is device
-        bg = SELECT if is_selected else BG_PANEL
-        info["row"].config(bg=bg)
-        info["name_label"].config(bg=bg)
-        info["status_dot"].config(bg=bg)
+        bg = SELECT if info["device"] is device else BG_PANEL
+        for widget in info["bg_widgets"]:
+            widget.config(bg=bg)
 
 
 def _refresh_idle_buttons(state: AppState) -> None:
@@ -150,13 +176,13 @@ def set_device_state(state: AppState, device: MudraDevice, device_state: str) ->
         if state.charts is not None:
             state.charts.clear()
     elif device_state == "connecting":
-        btn.config(text="...", state="disabled")
+        btn.config(text="Connecting…", state="disabled")
         set_indicator(dot, WARN)
     elif device_state == "connected":
         btn.config(text="Disconnect", state="normal")
         set_indicator(dot, OK)
     elif device_state == "disconnecting":
-        btn.config(text="...", state="disabled")
+        btn.config(text="Disconnecting…", state="disabled")
         set_indicator(dot, WARN)
 
     _refresh_idle_buttons(state)
