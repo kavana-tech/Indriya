@@ -17,7 +17,7 @@ from mudra_sdk.logging_config import get_logger
 
 from .config import build_sensor_config_ui
 from ..sensors import toggle_sensor
-from ..state import AppState
+from ..state import DeviceState
 from ..theme import ACCENT, BG_PANEL, CHART_BG, FG_MUTED, FONT_SMALL, FONT_UI_BOLD, px
 from ..widgets import ScrollColumn, fit_pane
 
@@ -27,7 +27,7 @@ DEFAULT_PING_INTERVAL_S = 0.1
 _PING_SENSORS = ("EMG", "IMU_H", "IMU_F", "PPG_H", "PPG_F")
 
 
-def _make_ping_callback(state: AppState):
+def _make_ping_callback(state: DeviceState):
     def _on_ping_response() -> None:
         if state.ping_sent_at_iso is None:
             return
@@ -45,7 +45,7 @@ def _make_ping_callback(state: AppState):
     return _on_ping_response
 
 
-def _read_ping_interval(state: AppState) -> float:
+def _read_ping_interval(state: DeviceState) -> float:
     raw = state.ping_interval_var.get() if state.ping_interval_var is not None else None
     try:
         value = float(raw) if raw is not None else state.ping_interval_s
@@ -57,7 +57,7 @@ def _read_ping_interval(state: AppState) -> float:
     return value
 
 
-async def _ping_loop(state: AppState, device) -> None:
+async def _ping_loop(state: DeviceState, device) -> None:
     try:
         while True:
             state.ping_sent_at_iso = datetime.now(timezone.utc).isoformat()
@@ -67,7 +67,7 @@ async def _ping_loop(state: AppState, device) -> None:
         pass
 
 
-def start_ping_check(state: AppState) -> None:
+def start_ping_check(state: DeviceState) -> None:
     device = state.connected_device()
     if device is None:
         if state.set_status is not None:
@@ -93,7 +93,7 @@ def start_ping_check(state: AppState) -> None:
     logger.info(f"Ping check started on {device.name or device.address} ({interval:.3g} s)")
 
 
-def stop_ping_check(state: AppState) -> None:
+def stop_ping_check(state: DeviceState) -> None:
     device = state.connected_device()
 
     async def _run() -> None:
@@ -113,7 +113,7 @@ def stop_ping_check(state: AppState) -> None:
     logger.info("Ping check stopped")
 
 
-def build_ping_ui(parent: tk.Widget, state: AppState) -> None:
+def build_ping_ui(parent: tk.Widget, state: DeviceState) -> None:
     header = tk.Frame(parent, bg=BG_PANEL)
     header.pack(fill=tk.X, padx=px(8), pady=(px(8), px(4)))
 

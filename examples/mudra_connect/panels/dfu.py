@@ -7,7 +7,7 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import filedialog, ttk
 
-from ..state import AppState
+from ..state import DeviceState
 from ..theme import ACCENT, BG_PANEL, ERR, FG_MUTED, FONT_SMALL, FONT_UI_BOLD, OK, muted_label
 
 _STAGE_TEXT = {
@@ -19,8 +19,9 @@ _STAGE_TEXT = {
 }
 
 
-def _pick_firmware(state: AppState) -> None:
+def _pick_firmware(state: DeviceState) -> None:
     path = filedialog.askopenfilename(
+        parent=state.window,
         title="Select firmware image (.bin)",
         filetypes=[("Firmware image", "*.bin"), ("All files", "*.*")],
     )
@@ -28,20 +29,20 @@ def _pick_firmware(state: AppState) -> None:
         state.dfu_file_var.set(path)
 
 
-def _set_status(state: AppState, text: str, color: str = FG_MUTED) -> None:
+def _set_status(state: DeviceState, text: str, color: str = FG_MUTED) -> None:
     if state.dfu_status_label is None or state.post_ui is None:
         return
     state.post_ui(lambda: state.dfu_status_label.configure(text=text, fg=color))
 
 
-def _set_progress(state: AppState, offset: int, total: int) -> None:
+def _set_progress(state: DeviceState, offset: int, total: int) -> None:
     if state.dfu_progress is None or state.post_ui is None:
         return
     pct = (offset / total * 100.0) if total else 0.0
     state.post_ui(lambda: state.dfu_progress.configure(value=pct))
 
 
-def _start_update(state: AppState) -> None:
+def _start_update(state: DeviceState) -> None:
     device = state.connected_device()
     if device is None:
         if state.set_status is not None:
@@ -79,7 +80,7 @@ def _start_update(state: AppState) -> None:
     state.bridge.submit(_run())
 
 
-def build_dfu_ui(parent: tk.Widget, state: AppState) -> None:
+def build_dfu_ui(parent: tk.Widget, state: DeviceState) -> None:
     header = tk.Frame(parent, bg=BG_PANEL)
     header.pack(fill=tk.X, padx=8, pady=(8, 4))
     tk.Label(

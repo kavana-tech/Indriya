@@ -6,11 +6,11 @@ import time
 import tkinter as tk
 from tkinter import ttk
 
-from ..state import AppState
+from ..state import DeviceState
 from ..theme import BG_PANEL, FG_MUTED, FONT_SMALL, muted_label, px
 
 
-def build_sd_recording_ui(parent: tk.Widget, state: AppState) -> None:
+def build_sd_recording_ui(parent: tk.Widget, state: DeviceState) -> None:
     """SD card recording — Set sensors/file/desc, Get State, next file #."""
     muted_label(
         parent,

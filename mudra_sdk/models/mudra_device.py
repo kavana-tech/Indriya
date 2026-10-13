@@ -706,6 +706,78 @@ class MudraDevice(BLEDevice):
         """Last ``BT_SYS_VERSION`` reply — see :class:`FirmwareVersion`."""
         return self._firmware_version
 
+    # ---- Packet-loss test mode (both models) ------------------------------ #
+
+    async def set_emg_test_mode(self, enable: bool) -> None:
+        """Packet-loss test for EMG: one firmware command that replaces wire
+        channel 0 with an incrementing counter AND starts EMG
+        (``enable=False`` stops EMG and clears it). Same on BLE (Pro
+        ``0x10 0x0B``, Ultimate ``0x10 0x0C``) and CDC (``EMG_TESTMODE <0|1>``).
+        Resets the native counters first. Entirely independent of
+        set_on_emg_ready. Read results via sample_emg_packet_loss()."""
+        if enable:
+            self._computation_wrapper.reset_packet_loss_stats(FirmwareDataType.emg.value)
+            self._emg_packet_loss.reset()
+        if self.transport == "cdc":
+            await self._cdc_command(self.CMD.emgTestMode, 1 if enable else 0)
+            return
+        await self.send_command(fp.set_power(self.CMD.emgTestMode, enable))
+
+    async def set_h_imu_test_mode(self, enable: bool) -> None:
+        """Packet-loss test for H_IMU: accel-x becomes an incrementing counter
+        AND H_IMU starts (``enable=False`` stops it and clears it), on BLE and
+        CDC (``H_IMU_TESTMODE``). Independent of set_on_imu_h_ready. Read
+        results via sample_h_imu_packet_loss()."""
+        if enable:
+            self._computation_wrapper.reset_packet_loss_stats(FirmwareDataType.imuH.value)
+            self._h_imu_packet_loss.reset()
+        if self.transport == "cdc":
+            await self._cdc_command(self.CMD.hImuTestMode, 1 if enable else 0)
+            return
+        await self.send_command(fp.set_power(self.CMD.hImuTestMode, enable))
+
+    async def set_f_imu_test_mode(self, enable: bool) -> None:
+        """Packet-loss test for F_IMU: same as :meth:`set_h_imu_test_mode`,
+        for the ring IMU (needs the ring). Independent of set_on_imu_f_ready.
+        Read results via sample_f_imu_packet_loss()."""
+        if enable:
+            self._computation_wrapper.reset_packet_loss_stats(FirmwareDataType.imuF.value)
+            self._f_imu_packet_loss.reset()
+        if self.transport == "cdc":
+            await self._cdc_command(self.CMD.fImuTestMode, 1 if enable else 0)
+            return
+        await self.send_command(fp.set_power(self.CMD.fImuTestMode, enable))
+
+    async def _set_ppg_test_mode(self, sensor: str, enable: bool) -> None:
+        """Shared body of set_ppg_h_test_mode / set_ppg_f_test_mode."""
+        data_type, window = (
+            (FirmwareDataType.ppgH, self._ppg_h_packet_loss)
+            if sensor == "H"
+            else (FirmwareDataType.ppgF, self._ppg_f_packet_loss)
+        )
+        if enable:
+            self._computation_wrapper.reset_packet_loss_stats(data_type.value)
+            window.reset()
+        cmd = self._ppg_cmd(sensor, "TestMode")
+        if self.transport == "cdc":
+            await self._cdc_command(cmd, 1 if enable else 0)
+            return
+        await self.send_command(fp.set_power(cmd, enable))
+
+    async def set_ppg_h_test_mode(self, enable: bool) -> None:
+        """Packet-loss test for PPG_H: its ch0 (AFE channel 0) becomes an
+        incrementing counter AND PPG_H starts (``enable=False`` stops it and
+        clears it), on BLE and CDC (``PPG_H_TESTMODE``). Independent of
+        set_on_ppg_h_ready. Read results via sample_ppg_h_packet_loss()."""
+        await self._set_ppg_test_mode("H", enable)
+
+    async def set_ppg_f_test_mode(self, enable: bool) -> None:
+        """Packet-loss test for PPG_F: same as :meth:`set_ppg_h_test_mode`,
+        but the counter (separate from PPG_H's) replaces PPG_F's ch0 (AFE
+        channel 2), and the ring must be connected. Independent of
+        set_on_ppg_f_ready. Read results via sample_ppg_f_packet_loss()."""
+        await self._set_ppg_test_mode("F", enable)
+
     def get_emg_packet_loss_stats(self) -> Tuple[int, int]:
         """Lifetime ``(samples_seen, samples_lost)`` from the native counter — resets with ``set_emg_test_mode``."""
         return self._computation_wrapper.get_packet_loss_stats(FirmwareDataType.emg.value)

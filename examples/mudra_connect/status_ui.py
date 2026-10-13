@@ -20,21 +20,13 @@ from mudra_sdk.models.mudra_device import (
 from mudra_sdk.logging_config import get_logger
 
 from .anim import set_indicator, set_text
-from .state import AppState
+from .state import DeviceState
 from .theme import ACCENT, BG, ERR, FG_MUTED, FONT_DOT, OK, WARN, px
 
 logger = get_logger(__name__)
 
-_CONFIG_KEY = {
-    "EMG": "EMG",
-    "IMU_H": "H_IMU",
-    "IMU_F": "F_IMU",
-    "PPG_H": "PPG_H",
-    "PPG_F": "PPG_F",
-}
 
-
-def build_device_indicators(parent: tk.Widget, state: AppState) -> ttk.Frame:
+def build_device_indicators(parent: tk.Widget, state: DeviceState) -> ttk.Frame:
     """FW / Battery / License indicators for the connected device, filled by
     the firmware-version, battery/charging and license-info callbacks below."""
     bar = ttk.Frame(parent, style="Toolbar.TFrame")
@@ -92,7 +84,7 @@ def format_record_status(status: RecordStatus) -> str:
 
 
 def update_sensor_indicator(
-    state: AppState,
+    state: DeviceState,
     sensor_key: str,
     *,
     enabled: Optional[bool],
@@ -118,7 +110,7 @@ def format_license_device_info(info: LicenseDeviceInfo) -> str:
 
 
 def update_license_indicator(
-    state: AppState, info: Optional[LicenseDeviceInfo]
+    state: DeviceState, info: Optional[LicenseDeviceInfo]
 ) -> None:
     if state.license_tier_dot is None or state.license_tier_label is None:
         return
@@ -145,7 +137,7 @@ def format_firmware_version(info: FirmwareVersion) -> str:
 
 
 def update_firmware_version_indicator(
-    state: AppState, info: Optional[FirmwareVersion]
+    state: DeviceState, info: Optional[FirmwareVersion]
 ) -> None:
     if state.firmware_version_dot is None or state.firmware_version_label is None:
         return
@@ -163,7 +155,7 @@ def format_battery_status(level: Optional[int], is_charging: Optional[bool]) -> 
 
 
 def update_battery_indicator(
-    state: AppState, level: Optional[int], is_charging: Optional[bool]
+    state: DeviceState, level: Optional[int], is_charging: Optional[bool]
 ) -> None:
     if state.battery_dot is None or state.battery_label is None:
         return
@@ -187,25 +179,7 @@ def update_battery_indicator(
     set_text(state.battery_label, text, foreground=color)
 
 
-def reset_sensor_indicators(state: AppState) -> None:
-    for key in ("EMG", "IMU_H", "IMU_F", "PPG_H", "PPG_F"):
-        update_sensor_indicator(
-            state,
-            key,
-            enabled=None,
-            summary="—",
-            config_key=_CONFIG_KEY[key],
-        )
-    if state.record_status_label is not None:
-        set_text(state.record_status_label, "—", foreground=FG_MUTED)
-    update_license_indicator(state, None)
-    update_firmware_version_indicator(state, None)
-    state.battery_level = None
-    state.battery_is_charging = None
-    update_battery_indicator(state, None, None)
-
-
-def _make_emg_handler(state: AppState):
+def _make_emg_handler(state: DeviceState):
     def _on_emg_status_ui(status: EmgStatus) -> None:
         text = format_emg_status(status)
         assert state.post_ui is not None
@@ -231,7 +205,7 @@ def _make_emg_handler(state: AppState):
     return _on_emg_status_ui
 
 
-def _make_h_imu_handler(state: AppState):
+def _make_h_imu_handler(state: DeviceState):
     def _on_h_imu_status_ui(status: ImuStatus) -> None:
         text = format_imu_status(status)
         assert state.post_ui is not None
@@ -251,7 +225,7 @@ def _make_h_imu_handler(state: AppState):
     return _on_h_imu_status_ui
 
 
-def _make_f_imu_handler(state: AppState):
+def _make_f_imu_handler(state: DeviceState):
     def _on_f_imu_status_ui(status: ImuStatus) -> None:
         text = format_imu_status(status)
         assert state.post_ui is not None
@@ -271,7 +245,7 @@ def _make_f_imu_handler(state: AppState):
     return _on_f_imu_status_ui
 
 
-def _make_ppg_sensor_handler(state: AppState, sensor: str):
+def _make_ppg_sensor_handler(state: DeviceState, sensor: str):
     """Status handler for PPG_H or PPG_F (`sensor`), mirroring the IMU pair."""
 
     def _on_ppg_status_ui(status: PpgStatus) -> None:
@@ -300,15 +274,15 @@ def _make_ppg_sensor_handler(state: AppState, sensor: str):
     return _on_ppg_status_ui
 
 
-def _make_ppg_h_handler(state: AppState):
+def _make_ppg_h_handler(state: DeviceState):
     return _make_ppg_sensor_handler(state, "PPG_H")
 
 
-def _make_ppg_f_handler(state: AppState):
+def _make_ppg_f_handler(state: DeviceState):
     return _make_ppg_sensor_handler(state, "PPG_F")
 
 
-def _make_record_status_handler(state: AppState):
+def _make_record_status_handler(state: DeviceState):
     def _on_record_status_ui(status: RecordStatus) -> None:
         text = format_record_status(status)
 
@@ -333,7 +307,7 @@ def _make_record_status_handler(state: AppState):
     return _on_record_status_ui
 
 
-def _make_record_error_handler(state: AppState):
+def _make_record_error_handler(state: DeviceState):
     def _on_record_error_ui(status: BtCmdStatus) -> None:
         text = f"ERROR {status.description} (0x{status.value_int:02X})"
 
@@ -349,7 +323,7 @@ def _make_record_error_handler(state: AppState):
     return _on_record_error_ui
 
 
-def _make_command_error_handler(state: AppState):
+def _make_command_error_handler(state: DeviceState):
     # Deliberately NOT used to infer "ring not connected": over BLE an
     # ERR_STATE (0x04) also arrives for a per-channel GET with no override
     # staged, and a 1-byte GET reply whose value is 4 (DEC 4, ACC 4 g) is
@@ -371,7 +345,7 @@ def _make_command_error_handler(state: AppState):
     return _on_command_error_ui
 
 
-def _make_next_file_num_handler(state: AppState):
+def _make_next_file_num_handler(state: DeviceState):
     def _on_next_file_num_ui(file_num: int) -> None:
         def _apply() -> None:
             if state.record_file_var is not None:
@@ -385,7 +359,7 @@ def _make_next_file_num_handler(state: AppState):
     return _on_next_file_num_ui
 
 
-def _make_battery_level_handler(state: AppState):
+def _make_battery_level_handler(state: DeviceState):
     def _on_battery_level_ui(level: int) -> None:
         def _apply() -> None:
             state.battery_level = level
@@ -397,7 +371,7 @@ def _make_battery_level_handler(state: AppState):
     return _on_battery_level_ui
 
 
-def _make_charging_state_handler(state: AppState):
+def _make_charging_state_handler(state: DeviceState):
     def _on_charging_state_ui(is_charging: bool) -> None:
         def _apply() -> None:
             state.battery_is_charging = is_charging
@@ -409,7 +383,7 @@ def _make_charging_state_handler(state: AppState):
     return _on_charging_state_ui
 
 
-def _make_license_device_info_handler(state: AppState):
+def _make_license_device_info_handler(state: DeviceState):
     def _on_license_device_info_ui(info: LicenseDeviceInfo) -> None:
         text = format_license_device_info(info)
         assert state.post_ui is not None
@@ -424,7 +398,7 @@ def _make_license_device_info_handler(state: AppState):
     return _on_license_device_info_ui
 
 
-def _make_firmware_version_handler(state: AppState):
+def _make_firmware_version_handler(state: DeviceState):
     def _on_firmware_version_ui(info: FirmwareVersion) -> None:
         text = format_firmware_version(info)
         assert state.post_ui is not None
@@ -439,7 +413,7 @@ def _make_firmware_version_handler(state: AppState):
     return _on_firmware_version_ui
 
 
-def _refresh_emg_odr_combo(state: AppState, device: MudraDevice) -> None:
+def _refresh_emg_odr_combo(state: DeviceState, device: MudraDevice) -> None:
     """Re-populate every EMG ODR combobox in state.emg_odr_combos with
     `device`'s actual valid rate set. build_sensor_config_ui() (config.py)
     runs once per host tab — Explorer (sensors.py), Ping (panels/ping.py) —
@@ -448,9 +422,8 @@ def _refresh_emg_odr_combo(state: AppState, device: MudraDevice) -> None:
     single-widget version of this previously left whichever tab was built
     last frozen at Pro's list). Pro (ADS1293) and Ultimate (ADS1298) support
     different discrete rates — see ProEMGODR/UltimateEMGODR in enums.py — so
-    every combo, built at app-startup before any device was known and
-    defaulting to Pro's list, must be refreshed per-connection, not just
-    re-validated on selection."""
+    every combo, built with Pro's list when the device window opens, must
+    be refreshed for the actual device, not just re-validated on selection."""
     combos = state.emg_odr_combos
     if not combos:
         return
@@ -470,11 +443,11 @@ def _refresh_emg_odr_combo(state: AppState, device: MudraDevice) -> None:
         _apply()
 
 
-def _refresh_emg_chart_channels(state: AppState, device: MudraDevice) -> None:
+def _refresh_emg_chart_channels(state: DeviceState, device: MudraDevice) -> None:
     """Rebuild the EMG chart panel (charts.py's Explorer tab) for `device`'s
     actual channel count (3 Pro / 8 Ultimate) — same rationale as
-    _refresh_emg_odr_combo above: the chart is built once at app startup,
-    before any device was known, with a fixed 3-channel EMG legend."""
+    _refresh_emg_odr_combo above: the chart is built when the device window
+    opens with a fixed 3-channel EMG legend."""
     if state.charts is None:
         return
     count = device.EMG_CHANNEL_COUNT
@@ -488,7 +461,7 @@ def _refresh_emg_chart_channels(state: AppState, device: MudraDevice) -> None:
         _apply()
 
 
-async def register_status_callbacks(device: MudraDevice, state: AppState) -> None:
+async def register_status_callbacks(device: MudraDevice, state: DeviceState) -> None:
     _refresh_emg_odr_combo(state, device)
     _refresh_emg_chart_channels(state, device)
     await device.set_on_emg_status_received(_make_emg_handler(state))

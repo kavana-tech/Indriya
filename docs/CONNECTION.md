@@ -320,3 +320,8 @@ await device_b.set_on_emg_ready(lambda *args: handle(device_b, *args))
 - There's no built-in cap on how many devices you can hold connected at
   once — the practical limit is your BLE adapter's own connection count and
   how many USB-CDC ports you have wired up, not anything in this SDK.
+
+The Mudra Connect example app works this way: each connected device gets its
+own window and state, opened and closed from the delegate's connection
+callbacks — see [`device_window.py`](../examples/mudra_connect/device_window.py)
+and [`delegate.py`](../examples/mudra_connect/delegate.py).

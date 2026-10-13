@@ -5,7 +5,7 @@ Two runnable apps live under `examples/`, both built entirely on the public
 
 - **Mudra Connect** ([`examples/connect_app.py`](../examples/connect_app.py),
   the `examples/mudra_connect` package) — a Tkinter GUI covering scan,
-  connect, sensors, recording and auth. Most snippets in the
+  connect, sensors, recording and auth, for any number of devices at once. Most snippets in the
   [usage guide](SDK_USAGE.md) and its sub-pages follow patterns from it.
 - **LSL streamer** ([`examples/lsl_app.py`](../examples/lsl_app.py), the
   `examples/mudra_lsl` package) — a headless command-line app that publishes
@@ -44,11 +44,17 @@ python examples/connect_app.py
 
 The primary reference app — [`examples/connect_app.py`](../examples/connect_app.py)
 launches the `examples/mudra_connect` package, whose files are listed below
-(paths relative to that package). Every panel maps to one guide page:
+(paths relative to that package). The main window holds the scan buttons,
+the sign-in bar and the device list. Connect as many devices as you like:
+each connected device opens its own window with the tabs below, which only
+ever talk to that device. Closing a device's window disconnects it, and
+clicking a connected device's card brings its window to the front. Every
+panel maps to one guide page:
 
 | Panel | Source | Covers |
 |---|---|---|
 | Devices | `devices.py` | BLE/CDC scan toggles, connect/disconnect — [CONNECTION.md §1–2](CONNECTION.md) |
+| Device windows | `device_window.py`, `state.py` | One window per connected device, each with its own state (`DeviceState`) — [CONNECTION.md §8](CONNECTION.md#8-multiple-devices-at-once) |
 | Sensor charts | `charts.py`, `sensors.py` | Live EMG/IMU/PPG_H/PPG_F plots, per-sensor enable — [SENSORS.md §1](SENSORS.md#1-enable--disable-a-sensors-data-stream) |
 | Config | `panels/config.py` | ODR/resolution/range get/set per sensor — [SENSORS.md §3](SENSORS.md#3-configure-a-sensor-odr-resolution-ranges-etc) |
 | Packet loss | `panels/packet_loss.py`, `packet_loss_chart.py` | Test-mode toggle + live loss chart — [SENSORS.md §4](SENSORS.md#4-packet-loss-test-mode) |
@@ -56,7 +62,7 @@ launches the `examples/mudra_connect` package, whose files are listed below
 | Ping | `panels/ping.py`, `ping_chart.py` | Round-trip latency — [CONNECTION.md §3](CONNECTION.md#3-ping--round-trip-check) |
 | Command | `panels/command.py` | Raw/advanced commands, branching on `device.transport` — [CONNECTION.md §4](CONNECTION.md#4-raw--advanced-commands) |
 | Auth | `panels/auth.py` | Sign-in bar — [AUTH.md](AUTH.md) |
-| Device indicators | `status_ui.py` | Toolbar FW / battery / license-tier readouts, plus every status callback the app registers — [CALLBACKS.md](CALLBACKS.md) |
+| Device indicators | `status_ui.py` | Each device window's FW / battery / license-tier readouts, plus every status callback the app registers — [CALLBACKS.md](CALLBACKS.md) |
 | Firmware update | `panels/dfu.py` | DFU over USB-CDC — [CONNECTION.md §6](CONNECTION.md#6-firmware-update-dfu-usb-only) |
 
 The window looks the same on Windows, macOS and Linux: `theme.py` picks an
@@ -66,7 +72,8 @@ side columns start at the width their content needs — drag a column's edge
 to resize it. If the detected scale looks wrong, override it, e.g.
 `MUDRA_UI_SCALE=1.5 python examples/connect_app.py`.
 
-`delegate.py` is the reference `MudraDelegate` implementation — a good
+`delegate.py` is the reference `MudraDelegate` implementation — it opens
+and closes the device windows from the connection callbacks — and a good
 template for your own ([CALLBACKS.md §1](CALLBACKS.md#1-mudradelegate-global-one-per-process)).
 
 ## Headless: stream to Lab Streaming Layer

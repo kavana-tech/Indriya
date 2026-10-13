@@ -8,13 +8,10 @@ from tkinter import ttk
 from mudra_sdk.models.enums import ProFirmwareCommand, UltimateFirmwareCommand
 from mudra_sdk.logging_config import get_logger
 
-from ..state import AppState
+from ..state import DeviceState
 from ..theme import BG_PANEL, muted_label
 
 logger = get_logger(__name__)
-
-_command_entry: ttk.Entry | None = None
-
 
 def parse_hex_command(raw: str) -> bytes:
     """Parse hex input like '01 02 ff' or '0102ff' into bytes."""
@@ -32,8 +29,8 @@ def parse_hex_command(raw: str) -> bytes:
     return bytes(int(part, 16) for part in parts)
 
 
-def send_command(state: AppState) -> None:
-    if _command_entry is None:
+def send_command(state: DeviceState) -> None:
+    if state.command_entry is None:
         return
 
     device = state.connected_device()
@@ -42,7 +39,7 @@ def send_command(state: AppState) -> None:
             state.set_status("Connect a device before sending a command")
         return
 
-    raw = _command_entry.get()
+    raw = state.command_entry.get()
 
     if device.transport == "cdc":
         # CDC's CONFIG port speaks ASCII, not binary hex frames — send the
@@ -75,7 +72,7 @@ def send_command(state: AppState) -> None:
     state.bridge.submit(state.mudra.send_general_command(device, command))
 
 
-def print_all_commands(state: AppState) -> None:
+def print_all_commands(state: DeviceState) -> None:
     """Dump every command's byte template for both hardware models —
     ProFirmwareCommand and UltimateFirmwareCommand are fully independent
     enums (not a shared table with a model switch), so this prints two
@@ -91,9 +88,7 @@ def print_all_commands(state: AppState) -> None:
         state.set_status(f"Printed {total} firmware commands to console")
 
 
-def build_command_ui(parent: tk.Widget, state: AppState) -> None:
-    global _command_entry
-
+def build_command_ui(parent: tk.Widget, state: DeviceState) -> None:
     muted_label(
         parent,
         text="Hex bytes (e.g. 01 02 FF or 0102FF)",
@@ -101,9 +96,9 @@ def build_command_ui(parent: tk.Widget, state: AppState) -> None:
 
     command_row = tk.Frame(parent, bg=BG_PANEL)
     command_row.pack(fill=tk.X, pady=(4, 0))
-    _command_entry = ttk.Entry(command_row)
-    _command_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 4))
-    _command_entry.bind("<Return>", lambda _event: send_command(state))
+    state.command_entry = ttk.Entry(command_row)
+    state.command_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(0, 4))
+    state.command_entry.bind("<Return>", lambda _event: send_command(state))
     ttk.Button(command_row, text="Send", width=10, command=lambda: send_command(state)).pack(
         side=tk.RIGHT
     )

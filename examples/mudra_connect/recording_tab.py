@@ -14,7 +14,7 @@ from tkinter import ttk
 
 from .panels.pc_recording import build_pc_recording_ui
 from .panels.recording import build_sd_recording_ui
-from .state import AppState
+from .state import DeviceState
 from .theme import ACCENT, BG_PANEL, FONT_UI_BOLD, px
 from .widgets import ScrollColumn
 
@@ -30,7 +30,7 @@ def _section_header(parent: tk.Widget, text: str) -> None:
     ).pack(fill=tk.X, pady=(0, 6))
 
 
-def build_recording_tab(parent: tk.Widget, state: AppState) -> None:
+def build_recording_tab(parent: tk.Widget, state: DeviceState) -> None:
     # Scrollable — SD Recording's help text can still run tall on a short
     # window even with two columns instead of one.
     column = ScrollColumn(parent, padx=px(12), pady=px(8))
