@@ -1,4 +1,8 @@
-"""Device list UI and BLE scan/connect helpers."""
+"""Device list UI and BLE/CDC scan/connect helpers (main window).
+
+Any number of devices can be connected at once; each connected device gets
+its own window (device_window.py). Clicking a connected device's card brings
+its window back to the front."""
 
 from __future__ import annotations
 
@@ -9,6 +13,7 @@ from tkinter import ttk
 from mudra_sdk.models.mudra_device import MudraDevice
 
 from .anim import set_indicator
+from .device_window import open_device_window
 from .state import AppState
 from .theme import (
     ACCENT,
@@ -22,7 +27,6 @@ from .theme import (
     FONT_SMALL,
     FONT_UI_BOLD,
     OK,
-    SELECT,
     WARN,
     px,
 )
@@ -135,30 +139,19 @@ def add_device_row(state: AppState, device: MudraDevice) -> None:
     state.device_rows[device.address] = info
 
     def _on_click(_event, d=device) -> None:
-        select_device(state, d)
+        show_device_window(state, d)
 
     for widget in info["bg_widgets"]:
         widget.bind("<Button-1>", _on_click)
 
-    _refresh_idle_buttons(state)
 
-
-def select_device(state: AppState, device: MudraDevice) -> None:
-    state.selected_device = device
-    for info in state.device_rows.values():
-        bg = SELECT if info["device"] is device else BG_PANEL
-        for widget in info["bg_widgets"]:
-            widget.config(bg=bg)
-
-
-def _refresh_idle_buttons(state: AppState) -> None:
-    busy = any(
-        info["state"] in ("connecting", "connected", "disconnecting")
-        for info in state.device_rows.values()
-    )
-    for info in state.device_rows.values():
-        if info["state"] == "idle":
-            info["action_btn"].config(state="disabled" if busy else "normal")
+def show_device_window(state: AppState, device: MudraDevice) -> None:
+    """Bring a connected device's window to the front — reopening it if it
+    was closed while the device stayed connected (e.g. a failed disconnect)."""
+    info = state.device_rows.get(device.address)
+    if info is None or info["state"] != "connected":
+        return
+    open_device_window(state, device)
 
 
 def set_device_state(state: AppState, device: MudraDevice, device_state: str) -> None:
@@ -173,8 +166,6 @@ def set_device_state(state: AppState, device: MudraDevice, device_state: str) ->
     if device_state == "idle":
         btn.config(text="Connect", state="normal")
         set_indicator(dot, FG_MUTED)
-        if state.charts is not None:
-            state.charts.clear()
     elif device_state == "connecting":
         btn.config(text="Connecting…", state="disabled")
         set_indicator(dot, WARN)
@@ -185,8 +176,6 @@ def set_device_state(state: AppState, device: MudraDevice, device_state: str) ->
         btn.config(text="Disconnecting…", state="disabled")
         set_indicator(dot, WARN)
 
-    _refresh_idle_buttons(state)
-
 
 def post_device_state(state: AppState, device: MudraDevice, device_state: str) -> None:
     assert state.post_ui is not None
@@ -196,7 +185,6 @@ def post_device_state(state: AppState, device: MudraDevice, device_state: str) -
 def toggle_connection(state: AppState, device: MudraDevice) -> None:
     info = state.device_rows.get(device.address)
     device_state = info["state"] if info else "idle"
-    select_device(state, device)
     assert state.bridge is not None
     state.bridge.ensure_running()
 

@@ -34,7 +34,7 @@ mudra_sdk/
   models/
     mudra.py              Mudra — top-level singleton: scan/connect/disconnect, delegate dispatch
     mudra_device.py       MudraDevice — per-device API: sensors, streaming, storage
-    mudra_pro.py          MudraPro — Mudra Pro subclass (3-ch EMG, packet-loss test mode)
+    mudra_pro.py          MudraPro — Mudra Pro subclass (3-ch EMG)
     mudra_ultimate.py     MudraUltimate — Mudra Ultimate subclass (8-ch EMG)
     cdc_device.py         CdcDevice — CDC device identity (address/ports)
     callbacks.py          MudraDelegate / BleServiceDelegate / CdcServiceDelegate ABCs

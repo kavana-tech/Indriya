@@ -16,9 +16,13 @@ _FLASH = "#f2fffb"
 
 
 def _root_of(widget: tk.Misc) -> Optional[tk.Misc]:
+    """The app's Tk root — not the widget's own toplevel. A device window
+    (tk.Toplevel) can be destroyed while a pop is still pending, and Tk
+    deletes the timer commands of a destroyed widget, so its timers would
+    fire "invalid command name" errors; the root outlives every window."""
     try:
-        return widget.winfo_toplevel()
-    except tk.TclError:
+        return widget._root()
+    except (tk.TclError, AttributeError):
         return None
 
 

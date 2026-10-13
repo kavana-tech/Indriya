@@ -14,8 +14,8 @@ class MudraUltimate(MudraDevice):
     """Mudra Ultimate (8-channel EMG). Adds SYSTEM_TSYNC/SYSTEM_LINKSTATS and
     the EMG bench self-test surface (input-mux TEST, CHMASK, RLD, ISOLATE) —
     see mudra_ultimate's bt_command_manager.h/cdc_commands.c for the firmware
-    side. Has no packet-loss test-mode commands (that's Pro-only — see
-    MudraPro)."""
+    side. The packet-loss test-mode commands (set_*_test_mode) are shared with
+    Pro and live on MudraDevice."""
 
     MODEL = MudraModel.ULTIMATE
     EMG_CHANNEL_COUNT = 8
@@ -49,8 +49,7 @@ class MudraUltimate(MudraDevice):
         """Input mux self-test (BT_EMG_TEST / CDC "EMG_TEST"): 0=normal,
         1=test signal, 2=inputs shorted, 3=temp sensor, 4=supply monitor
         (forces gain 1, RLD parked). Applies live, mid-stream. Unrelated to
-        Pro's set_emg_test_mode (a packet-loss counter overlay) — Ultimate
-        has no equivalent to that Pro-only feature."""
+        set_emg_test_mode (the packet-loss counter test)."""
         if self.transport == "cdc":
             await self._cdc_command(self.CMD.emgTest, mode)
             return

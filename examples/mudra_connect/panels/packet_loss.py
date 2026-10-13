@@ -20,14 +20,12 @@ doesn't need one to keep working.
 
 from __future__ import annotations
 
-import asyncio
 import tkinter as tk
 from tkinter import ttk
 
-from mudra_sdk.models.enums import ProEMGODR, IMUODR, PPGODR
-from mudra_sdk.models.mudra_pro import MudraPro
+from mudra_sdk.models.enums import IMUODR, PPGODR
 
-from ..state import AppState
+from ..state import DeviceState
 from ..theme import ACCENT, BG_PANEL, ERR, FG_MUTED, FONT_SMALL, FONT_UI_BOLD, OK, WARN, px
 from ..widgets import combo
 
@@ -41,32 +39,20 @@ _SENSOR_LABELS = {
     "PPG_F": "PPG ring",
 }
 
-# EMG uses ProEMGODR specifically (not a generic EMGODR) because this whole
-# panel is Pro-only (packet-loss test mode doesn't exist on Ultimate — see
-# the isinstance(device, MudraPro) guard in start_test/stop_test below).
-_ODR_ENUM = {
-    "EMG": ProEMGODR,
-    "IMU_H": IMUODR,
-    "IMU_F": IMUODR,
-    "PPG_H": PPGODR,
-    "PPG_F": PPGODR,
-}
+# EMG's rates differ per model (ProEMGODR vs UltimateEMGODR — different
+# AFEs), so they come from the window's device; IMU and PPG share one enum.
+def _odr_enum(device, sensor: str):
+    if sensor == "EMG":
+        return device.EMG_ODR_ENUM
+    return IMUODR if sensor.startswith("IMU") else PPGODR
 
-_ODR_VALUES = {
-    "EMG": [e.value_int for e in ProEMGODR],
-    "IMU_H": [e.value_int for e in IMUODR],
-    "IMU_F": [e.value_int for e in IMUODR],
-    "PPG_H": [e.value_int for e in PPGODR],
-    "PPG_F": [e.value_int for e in PPGODR],
-}
 
-_ODR_DEFAULT = {
-    "EMG": ProEMGODR.emgOdr800.value_int,
-    "IMU_H": IMUODR.imuHOdr100.value_int,
-    "IMU_F": IMUODR.imuHOdr100.value_int,
-    "PPG_H": PPGODR.ppgOdr100.value_int,
-    "PPG_F": PPGODR.ppgOdr100.value_int,
-}
+def _odr_default(device, sensor: str) -> int:
+    if sensor == "EMG":
+        values = [e.value_int for e in device.EMG_ODR_ENUM]
+        # 800 on Pro; on Ultimate its lowest rate above that (1000).
+        return min((v for v in values if v >= 800), default=values[0])
+    return 100
 
 # Escalating alert tiers for the current (last ~1s) loss %, checked highest
 # first. Two colors (WARN/ERR) each cover two tiers, distinguished by font
@@ -89,9 +75,6 @@ def _alert_for(pct: float):
 
 
 def _test_mode_setter(device, sensor: str):
-    """Only exists on MudraPro (packet-loss test mode is a Pro-only firmware
-    feature) — callers must check isinstance(device, MudraPro) first, since
-    building this dict touches all five attributes regardless of `sensor`."""
     return {
         "EMG": device.set_emg_test_mode,
         "IMU_H": device.set_h_imu_test_mode,
@@ -159,7 +142,7 @@ def _format_stats(sensor: str, rate_hz: float, total: int, samples_lost: int, ov
     )
 
 
-def tick(state: AppState) -> None:
+def tick(state: DeviceState) -> None:
     """Call once per app refresh tick. Polls the windowed loss % for every
     currently-running sensor test and updates its label, alert badge, and
     the shared chart caches — a plain poll, not a push callback, since the
@@ -190,7 +173,7 @@ def tick(state: AppState) -> None:
             alert_label.configure(text=text, fg=color, font=font)
 
 
-def _apply_odr(state: AppState, sensor: str) -> None:
+def _apply_odr(state: DeviceState, sensor: str) -> None:
     """Apply the ODR combo's value immediately on selection -- same
     apply-on-change pattern as every other ODR combo in the app now, instead
     of only being read implicitly when Start is pressed. Harmless either
@@ -201,28 +184,24 @@ def _apply_odr(state: AppState, sensor: str) -> None:
     combo_widget = state.packet_loss_odr_combos.get(sensor)
     if combo_widget is None:
         return
-    odr = _ODR_ENUM[sensor].from_value(int(combo_widget.get()))
+    odr = _odr_enum(state.device, sensor).from_value(int(combo_widget.get()))
     if odr is None:
         return
     state.run_device(f"{sensor}_ODR", lambda d: _odr_setter(d, sensor)(odr))
 
 
-def start_test(state: AppState, sensor: str) -> None:
+def start_test(state: DeviceState, sensor: str) -> None:
     device = state.connected_device()
     if device is None:
         if state.set_status is not None:
             state.set_status("Connect a device before starting the packet-loss test")
         return
-    if not isinstance(device, MudraPro):
-        if state.set_status is not None:
-            state.set_status("Packet-loss test mode is Pro-only (not available on Ultimate)")
-        return
     if state.packet_loss_active.get(sensor):
         return
 
     combo_widget = state.packet_loss_odr_combos.get(sensor)
-    odr_value = int(combo_widget.get()) if combo_widget is not None else _ODR_DEFAULT[sensor]
-    odr = _ODR_ENUM[sensor].from_value(odr_value)
+    odr_value = int(combo_widget.get()) if combo_widget is not None else _odr_default(device, sensor)
+    odr = _odr_enum(device, sensor).from_value(odr_value)
 
     if state.packet_loss_chart is not None:
         state.packet_loss_chart.clear(sensor)
@@ -250,7 +229,7 @@ def start_test(state: AppState, sensor: str) -> None:
         alert_label.configure(text=text, fg=color, font=font)
 
 
-def stop_test(state: AppState, sensor: str) -> None:
+def stop_test(state: DeviceState, sensor: str) -> None:
     device = state.connected_device()
     state.packet_loss_active[sensor] = False
 
@@ -268,7 +247,7 @@ def stop_test(state: AppState, sensor: str) -> None:
         alert_label.configure(text=text, fg=color, font=font)
 
     async def _run() -> None:
-        if device is not None and isinstance(device, MudraPro):
+        if device is not None:
             # One command: stops the sensor AND clears test mode.
             await _test_mode_setter(device, sensor)(False)
 
@@ -278,7 +257,7 @@ def stop_test(state: AppState, sensor: str) -> None:
         state.set_status(f"Packet-loss test stopped: {_SENSOR_LABELS[sensor]}")
 
 
-def build_packet_loss_ui(parent: tk.Widget, state: AppState) -> None:
+def build_packet_loss_ui(parent: tk.Widget, state: DeviceState) -> None:
     tk.Label(
         parent,
         text="Packet-Loss Test",
@@ -325,7 +304,12 @@ def build_packet_loss_ui(parent: tk.Widget, state: AppState) -> None:
         ).pack(side=tk.LEFT)
 
         ttk.Label(header, text="ODR Hz", width=7, anchor="w").pack(side=tk.LEFT, padx=(4, 2))
-        odr_combo = combo(header, _ODR_VALUES[sensor], _ODR_DEFAULT[sensor], width=6)
+        odr_combo = combo(
+            header,
+            [e.value_int for e in _odr_enum(state.device, sensor)],
+            _odr_default(state.device, sensor),
+            width=6,
+        )
         odr_combo.pack(side=tk.LEFT, padx=(0, 8))
         odr_combo.bind(
             "<<ComboboxSelected>>", lambda _evt, s=sensor: _apply_odr(state, s)

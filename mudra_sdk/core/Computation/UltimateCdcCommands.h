@@ -17,8 +17,8 @@
 //  Independent of ProCdcCommands.h — this table is byte-identical to Pro's
 //  for every command both products share (verified: mudra_ultimate's
 //  cdc_commands.c dispatcher/token set matches mudra_pro's for shared
-//  tokens), but Ultimate lacks Pro's *_TEST_MODE tokens entirely and adds
-//  TSYNC/EMG_TEST/EMG_CHMASK/EMG_RLD/EMG_ISOLATE, which Pro lacks.
+//  tokens, *_TESTMODE included), and adds TSYNC/EMG_TEST/EMG_CHMASK/EMG_RLD/
+//  EMG_ISOLATE, which Pro lacks.
 //
 
 #ifndef UltimateCdcCommands_h
@@ -127,6 +127,14 @@ namespace Mudra::Computation::Ultimate
                 case FirmwareCommand::PPG_F_CLEAR:  return "PPG_F_CLEAR";    /* bare action, no "?" variant */
                 case FirmwareCommand::PPG_F_SRC:    return "PPG_F_SRC";      /* multi-arg: "PPG_F_SRC <ch> <led> <pd>" / "PPG_F_SRC? <ch>" */
                 case FirmwareCommand::PPG_F_STATUS: return "PPG_F?";              /* not "PPG_F_STATUS?" */
+
+                /* Packet-loss counter test mode: "<TOKEN> <0|1>" (1 also starts
+                 * the sensor, 0 stops it) / "<TOKEN>?" */
+                case FirmwareCommand::EMG_TEST_MODE:   return "EMG_TESTMODE";    /* not "EMG_TEST_MODE" */
+                case FirmwareCommand::H_IMU_TEST_MODE: return "H_IMU_TESTMODE";  /* not "H_IMU_TEST_MODE" */
+                case FirmwareCommand::F_IMU_TEST_MODE: return "F_IMU_TESTMODE";  /* not "F_IMU_TEST_MODE" */
+                case FirmwareCommand::PPG_H_TEST_MODE: return "PPG_H_TESTMODE";  /* not "PPG_H_TEST_MODE" */
+                case FirmwareCommand::PPG_F_TEST_MODE: return "PPG_F_TESTMODE";  /* not "PPG_F_TEST_MODE" */
 
                 /* Battery — several shortened vs. the BLE-oriented name */
                 case FirmwareCommand::BAT_STATUS:    return "BAT";        /* not "BAT_STATUS" */

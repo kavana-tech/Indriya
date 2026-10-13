@@ -13,7 +13,7 @@ from tkinter import ttk
 
 from mudra_sdk.models.enums import RecordingDataType
 
-from ..state import AppState
+from ..state import DeviceState
 from ..theme import BG_PANEL, FG_MUTED, FONT_SMALL, muted_label, px
 
 # Which RecordingDataType members each sensor checkbox turns on. Hand and
@@ -34,14 +34,14 @@ _SENSOR_RECORDING_TYPES = {
 }
 
 
-def _set_status(state: AppState, text: str) -> None:
+def _set_status(state: DeviceState, text: str) -> None:
     if state.pc_record_status_label is not None:
         state.pc_record_status_label.config(text=text)
     if state.set_status is not None:
         state.set_status(text)
 
 
-def _start_recording(state: AppState) -> None:
+def _start_recording(state: DeviceState) -> None:
     selected = [sensor for sensor, var in state.pc_record_vars.items() if var.get()]
     if not selected:
         _set_status(state, "Select at least one sensor to record")
@@ -59,12 +59,12 @@ def _start_recording(state: AppState) -> None:
     )
 
 
-def _stop_recording(state: AppState) -> None:
+def _stop_recording(state: DeviceState) -> None:
     _set_status(state, "Stopping PC recording...")
     state.run_device("STOP_RECORDING", lambda d: d.stop_recording())
 
 
-def _save_json(state: AppState) -> None:
+def _save_json(state: DeviceState) -> None:
     device = state.connected_device()
     if device is None:
         _set_status(state, "Connect a device before saving")
@@ -76,6 +76,7 @@ def _save_json(state: AppState) -> None:
         return
 
     path = filedialog.asksaveasfilename(
+        parent=state.window,
         title="Save recording JSON",
         defaultextension=".json",
         filetypes=[("JSON", "*.json"), ("All files", "*.*")],
@@ -98,7 +99,7 @@ def _save_json(state: AppState) -> None:
     _set_status(state, f"Saved {len(json_str)} bytes to {path} — data: {groups}")
 
 
-def build_pc_recording_ui(parent: tk.Widget, state: AppState) -> None:
+def build_pc_recording_ui(parent: tk.Widget, state: DeviceState) -> None:
     """PC-side JSON recording — Start/Stop capture EMG/IMU/PPG_H/PPG_F samples into
     an in-memory DataRecorder session; Save JSON writes GetJsonRecording()'s
     output to a local file."""

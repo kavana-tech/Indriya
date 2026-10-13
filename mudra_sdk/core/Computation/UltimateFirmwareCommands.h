@@ -9,9 +9,9 @@
 //  mudra_ultimate/src/bt_layer/bt_command_manager.h, which defines its own
 //  byte values from scratch rather than patching Pro's. Some feature bytes
 //  coincide with Pro's (H_IMU/F_IMU/PPG_H/PPG_F/BAT/LED/BT_CTRL/TAP/STORAGE), some
-//  don't (SYSTEM_USER_ID_SET, EMG_STATUS), and Ultimate has commands Pro
-//  lacks entirely (SYSTEM_TSYNC/LINKSTATS, EMG_TEST/CHMASK/RLD/ISOLATE) while
-//  lacking Pro's packet-loss *_TEST_MODE commands.
+//  don't (SYSTEM_USER_ID_SET, EMG_STATUS, EMG_TEST_MODE), and Ultimate has
+//  commands Pro lacks entirely (SYSTEM_TSYNC/LINKSTATS,
+//  EMG_TEST/CHMASK/RLD/ISOLATE).
 //
 
 #ifndef UltimateFirmwareCommands_h
@@ -69,6 +69,10 @@ namespace Mudra::Computation::Ultimate
     constexpr uint8_t BT_EMG_RLD     = 0x06; /* GET -> u8 | SET <u8 0|1> bias amp */
     constexpr uint8_t BT_EMG_ISOLATE = 0x07; /* no action byte: stop PPG/IMUs/TinyTap/LEDs/advertising */
     constexpr uint8_t BT_EMG_STATUS  = 0x08; /* STATE — shifted vs. Pro to make room for TEST/CHMASK/RLD/ISOLATE */
+    /* Packet-loss counter test, action STOP|START (also starts/stops EMG).
+     * 0x0C, not Pro's 0x0B — 0x0B is EMG_HEALTH on Ultimate. Unrelated to
+     * BT_EMG_TEST above (the input mux). */
+    constexpr uint8_t BT_EMG_TEST_MODE = 0x0C;
 
     /* ---- 0x20 H_IMU ---- */
     constexpr uint8_t BT_CMD_H_IMU     = 0x20;
@@ -83,6 +87,7 @@ namespace Mudra::Computation::Ultimate
     constexpr uint8_t BT_H_IMU_ACC_AVG = 0x08;
     constexpr uint8_t BT_H_IMU_GYR_AVG = 0x09;
     constexpr uint8_t BT_H_IMU_STATUS  = 0x0a;
+    constexpr uint8_t BT_H_IMU_TEST_MODE = 0x0b; /* action STOP|START: accel-x counter + start/stop */
 
     /* ---- 0x30 F_IMU (same feature numbers as H_IMU) ---- */
     constexpr uint8_t BT_CMD_F_IMU     = 0x30;
@@ -97,6 +102,7 @@ namespace Mudra::Computation::Ultimate
     constexpr uint8_t BT_F_IMU_ACC_AVG = 0x08;
     constexpr uint8_t BT_F_IMU_GYR_AVG = 0x09;
     constexpr uint8_t BT_F_IMU_STATUS  = 0x0a;
+    constexpr uint8_t BT_F_IMU_TEST_MODE = 0x0b;
 
     /* ---- 0x40 PPG_H (hand, AFE ch 0-1) / 0xA0 PPG_F (finger, AFE ch 2-3) ----
      * One AFE4950, two sensors with identical feature numbers (like H_IMU /
@@ -114,6 +120,7 @@ namespace Mudra::Computation::Ultimate
     constexpr uint8_t BT_PPG_CLEAR     = 0x06;
     constexpr uint8_t BT_PPG_SRC       = 0x07;
     constexpr uint8_t BT_PPG_STATUS    = 0x08;
+    constexpr uint8_t BT_PPG_TEST_MODE = 0x0b; /* action STOP|START, per sensor: local ch0 counter + start/stop */
 
     /* ---- 0x50 BAT ---- */
     constexpr uint8_t BT_CMD_BAT       = 0x50;
@@ -158,9 +165,8 @@ namespace Mudra::Computation::Ultimate
     /* Fixed part of a RECORD_SET request — [cmd, feature, 5 sensor flags
      * (emg, ppg_h, h_imu, f_imu, ppg_f), is_test, file_num, duration_min(u16 LE),
      * utc_ts(u32 LE)] — a variable description may follow, up to
-     * BT_CMD_MAX_LEN (96) total. Note: on Ultimate, is_test only has an
-     * effect for EMG (see bt_command_manager.h) — same wire layout as Pro,
-     * different firmware-side semantics. */
+     * BT_CMD_MAX_LEN (96) total. is_test arms each recorded sensor's
+     * packet-loss counter, the same one the *_TEST_MODE commands use. */
     constexpr size_t BT_STORAGE_RECORD_SET_FIXED_LEN = 15;
 
     class UltimateFirmwareCommands
@@ -279,6 +285,15 @@ namespace Mudra::Computation::Ultimate
             PPG_F_CLEAR,         /* [BT_CMD_PPG_F, BT_PPG_CLEAR] */
             PPG_F_SRC,           /* [BT_CMD_PPG_F, BT_PPG_SRC, 0x00, 0x00, 0x00, 0x00] action+ch(0-1)+led+pd */
             PPG_F_STATUS,        /* [BT_CMD_PPG_F, BT_PPG_STATUS] */
+
+            /* Packet-loss counter test mode — appended (never inserted) so no
+             * existing ordinal shifts; the Python SDK's UltimateFirmwareCommand
+             * enum matches these positionally. */
+            EMG_TEST_MODE,       /* [BT_CMD_EMG, BT_EMG_TEST_MODE, 0x00] action STOP|START */
+            H_IMU_TEST_MODE,     /* [BT_CMD_H_IMU, BT_H_IMU_TEST_MODE, 0x00] action STOP|START */
+            F_IMU_TEST_MODE,     /* [BT_CMD_F_IMU, BT_F_IMU_TEST_MODE, 0x00] action STOP|START */
+            PPG_H_TEST_MODE,     /* [BT_CMD_PPG_H, BT_PPG_TEST_MODE, 0x00] action STOP|START */
+            PPG_F_TEST_MODE,     /* [BT_CMD_PPG_F, BT_PPG_TEST_MODE, 0x00] action STOP|START */
         };
 
         DLLEXPORT UltimateFirmwareCommands();
@@ -355,6 +370,13 @@ namespace Mudra::Computation::Ultimate
                 case FirmwareCommand::PPG_F_CLEAR:   return { BT_CMD_PPG_F, BT_PPG_CLEAR };
                 case FirmwareCommand::PPG_F_SRC:     return { BT_CMD_PPG_F, BT_PPG_SRC, 0x00, 0x00, 0x00, 0x00 };
                 case FirmwareCommand::PPG_F_STATUS:  return { BT_CMD_PPG_F, BT_PPG_STATUS };
+
+                /* Packet-loss counter test mode */
+                case FirmwareCommand::EMG_TEST_MODE:   return { BT_CMD_EMG, BT_EMG_TEST_MODE, 0x00 };
+                case FirmwareCommand::H_IMU_TEST_MODE: return { BT_CMD_H_IMU, BT_H_IMU_TEST_MODE, 0x00 };
+                case FirmwareCommand::F_IMU_TEST_MODE: return { BT_CMD_F_IMU, BT_F_IMU_TEST_MODE, 0x00 };
+                case FirmwareCommand::PPG_H_TEST_MODE: return { BT_CMD_PPG_H, BT_PPG_TEST_MODE, 0x00 };
+                case FirmwareCommand::PPG_F_TEST_MODE: return { BT_CMD_PPG_F, BT_PPG_TEST_MODE, 0x00 };
 
                 /* Battery */
                 case FirmwareCommand::BAT_STATUS:    return { BT_CMD_BAT, BT_BAT_STATUS };

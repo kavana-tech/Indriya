@@ -11,14 +11,14 @@ from mudra_sdk.models.mudra_device import MudraDevice
 from mudra_sdk.logging_config import get_logger
 
 from .panels.config import build_sensor_config_ui
-from .state import AppState
+from .state import DeviceState
 from .theme import ACCENT, BG_PANEL, CHART_BG, FG_MUTED, FONT_DOT, FONT_SMALL, FONT_UI_BOLD, px
 from .widgets import ScrollColumn, fit_pane
 
 logger = get_logger(__name__)
 
 
-def _make_sensor_callback(state: AppState, sensor_name: str) -> Callable:
+def _make_sensor_callback(state: DeviceState, sensor_name: str) -> Callable:
     def _on_ready(
         timestamp: int,
         data: list[float],
@@ -32,7 +32,7 @@ def _make_sensor_callback(state: AppState, sensor_name: str) -> Callable:
 
 
 async def _set_sensor_enabled(
-    state: AppState, device: MudraDevice, sensor: str, enabled: bool
+    state: DeviceState, device: MudraDevice, sensor: str, enabled: bool
 ) -> None:
     callback = _make_sensor_callback(state, sensor) if enabled else None
     if sensor == "EMG":
@@ -52,7 +52,7 @@ async def _set_sensor_enabled(
         state.charts.clear(sensor)
 
 
-def toggle_sensor(state: AppState, sensor: str, enabled: bool) -> None:
+def toggle_sensor(state: DeviceState, sensor: str, enabled: bool) -> None:
     device = state.connected_device()
     if device is None:
         if state.set_status is not None:
@@ -94,7 +94,7 @@ def _section_header(parent: tk.Widget, text: str) -> None:
     ).pack(fill=tk.X, pady=(px(10), px(4)))
 
 
-def _build_stream_toggles(parent: tk.Widget, state: AppState) -> None:
+def _build_stream_toggles(parent: tk.Widget, state: DeviceState) -> None:
     from .charts import SPLITTABLE_SENSORS
 
     _section_header(parent, "Streams")
@@ -153,7 +153,7 @@ def _build_stream_toggles(parent: tk.Widget, state: AppState) -> None:
         state.sensor_status_ui[sensor] = {"dot": dot, "text": text}
 
 
-def build_streams_panel(parent: tk.Widget, state: AppState) -> None:
+def build_streams_panel(parent: tk.Widget, state: DeviceState) -> None:
     """Streams + Sensor Config (scrollable left) and charts (right), split by a
     draggable sash. The left column starts exactly as wide as its content
     needs at this machine's fonts/DPI — never a fixed pixel width."""

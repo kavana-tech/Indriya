@@ -1,4 +1,15 @@
-"""Shared UI / device state for the connect app (no module-level globals)."""
+"""UI / device state for the connect app (no module-level globals).
+
+Two layers, matching the two kinds of window:
+
+- :class:`AppState` — the one main window: scan buttons, sign-in bar and the
+  device list, plus the open device windows keyed by address.
+- :class:`DeviceState` — one per connected device, owning that device's
+  window (a ``tk.Toplevel``) and every widget/variable the per-device tabs
+  (Explorer, Recording, Ping, Packet Loss, Advanced, Firmware Update) use.
+  Every panel builder takes a ``DeviceState`` and only ever talks to its own
+  device.
+"""
 
 from __future__ import annotations
 
@@ -26,6 +37,43 @@ class AppState:
     mudra: Mudra = field(default_factory=Mudra)
     bridge: Optional["AsyncBridge"] = None
     root: Optional[tk.Tk] = None
+
+    devices_list: List[MudraDevice] = field(default_factory=list)
+    device_rows: Dict[str, dict] = field(default_factory=dict)
+    devices_container: Optional[tk.Frame] = None
+
+    # One window per connected device, keyed by device address (devices.py's
+    # open_device_window / close_device_window).
+    device_windows: Dict[str, "DeviceState"] = field(default_factory=dict)
+
+    # BLE/CDC scan toggle buttons (toolbar) — each independently starts/stops
+    # scanning on its own transport via Mudra.scan_ble()/scan_cdc().
+    ble_scanning: bool = False
+    cdc_scanning: bool = False
+    ble_scan_btn: Optional[ttk.Button] = None
+    cdc_scan_btn: Optional[ttk.Button] = None
+
+    # Status label (main window's bottom bar)
+    status_label: Optional[tk.Label] = None
+
+    # Account sign-in bar (panels/auth.py)
+    auth_email_var: Optional[tk.StringVar] = None
+    auth_password_var: Optional[tk.StringVar] = None
+    auth_status_label: Optional[tk.Label] = None
+
+    # Optional hooks set by App after UI build
+    set_status: Optional[Callable[[str], None]] = None
+    post_ui: Optional[Callable[[Callable], None]] = None
+
+
+@dataclass
+class DeviceState:
+    """State for one connected device's window."""
+
+    app: AppState
+    device: MudraDevice
+    window: Optional[tk.Toplevel] = None
+
     charts: Optional["SensorCharts"] = None
     ping_chart: Optional["PingChart"] = None
     ping_status_label: Optional[tk.Label] = None
@@ -48,18 +96,6 @@ class AppState:
     packet_loss_pct_by_sensor: Dict[str, float] = field(default_factory=dict)
     # Threshold-alert badge next to each sensor's ODR combo.
     packet_loss_alert_labels: Dict[str, tk.Label] = field(default_factory=dict)
-
-    devices_list: List[MudraDevice] = field(default_factory=list)
-    device_rows: Dict[str, dict] = field(default_factory=dict)
-    devices_container: Optional[tk.Frame] = None
-    selected_device: Optional[MudraDevice] = None
-
-    # BLE/CDC scan toggle buttons (toolbar) — each independently starts/stops
-    # scanning on its own transport via Mudra.scan_ble()/scan_cdc().
-    ble_scanning: bool = False
-    cdc_scanning: bool = False
-    ble_scan_btn: Optional[ttk.Button] = None
-    cdc_scan_btn: Optional[ttk.Button] = None
 
     # Sensors tab indicators: sensor -> {dot, text}
     sensor_status_ui: Dict[str, dict] = field(default_factory=dict)
@@ -109,14 +145,13 @@ class AppState:
     pc_record_status_label: Optional[tk.Label] = None
     pc_record_vars: Dict[str, tk.BooleanVar] = field(default_factory=dict)
 
-    # Status / rate labels (toolbar)
+    # Raw-command entry (panels/command.py)
+    command_entry: Optional[ttk.Entry] = None
+
+    # Status / rate labels (bottom bar of this device's window)
     status_label: Optional[tk.Label] = None
     rate_label: Optional[tk.Label] = None
 
-    # Account sign-in bar (panels/auth.py)
-    auth_email_var: Optional[tk.StringVar] = None
-    auth_password_var: Optional[tk.StringVar] = None
-    auth_status_label: Optional[tk.Label] = None
     # Device license tier indicator (updated via set_on_license_device_info_received)
     license_tier_dot: Optional[tk.Label] = None
     license_tier_label: Optional[tk.Label] = None
@@ -135,19 +170,23 @@ class AppState:
     battery_level: Optional[int] = None
     battery_is_charging: Optional[bool] = None
 
-    # Optional hooks set by App after UI build
+    # Set by devices.open_device_window after the UI is built
     set_status: Optional[Callable[[str], None]] = None
     post_ui: Optional[Callable[[Callable], None]] = None
 
+    @property
+    def mudra(self) -> Mudra:
+        return self.app.mudra
+
+    @property
+    def bridge(self) -> Optional["AsyncBridge"]:
+        return self.app.bridge
+
     def connected_device(self) -> Optional[MudraDevice]:
-        if self.selected_device is not None:
-            info = self.device_rows.get(self.selected_device.address)
-            if info and info["state"] == "connected":
-                return self.selected_device
-        for info in self.device_rows.values():
-            if info["state"] == "connected":
-                return info["device"]
-        return None
+        info = self.app.device_rows.get(self.device.address)
+        if info is not None and info["state"] != "connected":
+            return None
+        return self.device
 
     def run_device(self, label: str, coro_fn: Callable) -> None:
         device = self.connected_device()
