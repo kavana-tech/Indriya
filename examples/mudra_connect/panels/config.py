@@ -10,7 +10,7 @@ from tkinter import ttk
 from mudra_sdk.models.enums import ProEMGODR, EmgRes, IMUODR, PPGODR
 from mudra_sdk.models.mudra_device import MudraDevice
 
-from ..state import AppState
+from ..state import DeviceState
 from ..theme import BG_PANEL, FG_MUTED, FONT_SMALL, px
 from ..widgets import auto_wrap, combo, config_row, config_tab, entry, pin_status
 
@@ -30,7 +30,7 @@ PPG_DEC_VALUES = [1, 2, 4, 8, 16]
 PPG_LOCAL_CHANNELS = [0, 1]  # each PPG sensor's own channels (PPG_H: AFE 0-1, PPG_F: 2-3)
 
 
-def _set_chart_odr(state: AppState, panels: List[str], hz: int) -> None:
+def _set_chart_odr(state: DeviceState, panels: List[str], hz: int) -> None:
     if state.charts is None or hz <= 0:
         return
     for panel in panels:
@@ -47,7 +47,7 @@ def _apply_on_enter(entries: List[ttk.Entry], callback) -> None:
         e.bind("<Return>", lambda _evt: callback())
 
 
-def build_sensor_config_ui(parent: tk.Widget, state: AppState) -> None:
+def build_sensor_config_ui(parent: tk.Widget, state: DeviceState) -> None:
     """EMG / H_IMU / F_IMU / PPG_H / PPG_F — Get Status pinned on every tab."""
     notebook = ttk.Notebook(parent, style="Inner.TNotebook")
     notebook.pack(fill=tk.BOTH, expand=True)

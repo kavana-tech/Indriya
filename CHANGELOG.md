@@ -2,6 +2,31 @@
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-13
+
+### Changed
+
+- Supported Mudra Ultimate firmware is now **1.0.3.9** — see [Firmware compatibility](docs/supported_devices.md#firmware-compatibility).
+- The Mudra Connect example app (`examples/connect_app.py`) now connects to
+  any number of devices at once and opens a separate window for each one,
+  with its own sensor charts, config, recording, ping, packet-loss, command
+  and firmware-update tabs. The main window keeps scanning, sign-in and the
+  device list. Closing a device's window disconnects that device.
+- `set_emg_test_mode`, `set_h_imu_test_mode`, `set_f_imu_test_mode`,
+  `set_ppg_h_test_mode` and `set_ppg_f_test_mode` moved from `MudraPro` to
+  `MudraDevice`, so they work on **Mudra Ultimate** too. Ultimate needs
+  firmware newer than 1.0.3.8 for them. See
+  [SENSORS.md §4](docs/SENSORS.md#4-packet-loss-test-mode).
+- Mudra Connect's Packet Loss tab now runs on Mudra Ultimate the same way as
+  on Pro, and offers each device's own EMG rates (Ultimate: 500–4000 Hz).
+- Mudra Connect's window titles (main window and each device window) now
+  show the SDK version, e.g. `Mudra Pro — Signal Explorer — SDK v0.5.1`.
+
+### Documentation
+
+- CDC test mode starts and stops the sensor, the same as BLE. The guide
+  said it didn't.
+
 ## [0.5.0] - 2026-10-12
 
 ### Changed

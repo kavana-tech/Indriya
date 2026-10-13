@@ -36,12 +36,12 @@ everything but the extras below.
 
 <!-- firmware-versions:table -->
 
-This SDK version (**0.5.0**) supports:
+This SDK version (**0.5.1**) supports:
 
 | Model | Firmware |
 |---|---|
 | Mudra Pro | 2.0.2.6 |
-| Mudra Ultimate | 1.0.3.8 |
+| Mudra Ultimate | 1.0.3.9 |
 
 <!-- /firmware-versions -->
 
@@ -70,7 +70,7 @@ BLE, `BtCmdStatus.ERR_UNKNOWN` over USB-CDC.
 | EMG channels | 3 (`EMG_CHANNEL_COUNT = 3`) | 8 (`EMG_CHANNEL_COUNT = 8`) |
 | EMG AFE | ADS1293 | ADS1298 |
 | EMG ODR enum | `ProEMGODR` — 200/400/800/1600/2133/3200/4267/6400 Hz | `UltimateEMGODR` — 500/1000/2000/4000 Hz |
-| Packet-loss test mode | `set_emg_test_mode` / `set_h_imu_test_mode` / `set_f_imu_test_mode` / `set_ppg_h_test_mode` / `set_ppg_f_test_mode` — Pro-only firmware-side counter overlay per sensor (see [SENSORS.md §4](SENSORS.md#4-packet-loss-test-mode)) | Not present — Ultimate has no equivalent |
+| Packet-loss test mode | `set_emg_test_mode` / `set_h_imu_test_mode` / `set_f_imu_test_mode` / `set_ppg_h_test_mode` / `set_ppg_f_test_mode` — firmware-side counter overlay per sensor (see [SENSORS.md §4](SENSORS.md#4-packet-loss-test-mode)) | Same methods; needs firmware newer than 1.0.3.8 |
 | EMG bench self-test | Not present | `set_emg_test(mode)` (input-mux self-test: normal / test signal / inputs shorted / temp sensor / supply monitor), `set_emg_channel_mask(mask)`, `set_emg_rld(enable)`, `emg_isolate()` — see `mudra_sdk/models/mudra_ultimate.py` |
 | Host clock-sync / link stats | Not present | `get_tsync()` (echoes the firmware's 64-bit GRTC cycle counter), `get_linkstats()` (BLE notification-drop stats + connection params, BLE-only) — both replies currently appear only in the SDK's debug log; no callback receives them |
 

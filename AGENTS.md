@@ -86,7 +86,7 @@ The next session to connect will find it still on.
 
 <!-- firmware-versions:sentence -->
 
-This SDK version (**0.5.0**) supports Mudra Pro firmware **2.0.2.6** and Mudra Ultimate firmware **1.0.3.8**.
+This SDK version (**0.5.1**) supports Mudra Pro firmware **2.0.2.6** and Mudra Ultimate firmware **1.0.3.9**.
 
 <!-- /firmware-versions -->
 

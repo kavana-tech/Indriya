@@ -293,10 +293,10 @@ status codes).
 
 ## 4. Packet-loss test mode
 
-**Mudra Pro only** — the `set_*_test_mode` methods exist on `MudraPro`, not
-on `MudraUltimate`. A firmware-side overlay, per sensor, that replaces one
-channel with an incrementing counter so loss can be measured without
-inspecting real data:
+Both models. A firmware-side overlay, per sensor, that replaces one channel
+with an incrementing counter so loss can be measured without inspecting real
+data. On Mudra Ultimate it needs firmware newer than 1.0.3.8, which doesn't
+have these commands and rejects them:
 
 ```python
 await device.set_emg_test_mode(True)    # also: set_h_imu_test_mode / set_f_imu_test_mode /
@@ -308,12 +308,9 @@ device.reset_emg_packet_loss_window()
 await device.set_emg_test_mode(False)   # turn it off again
 ```
 
-On BLE, test mode is one combined firmware command: turning it on also
-powers the sensor on, and `set_emg_test_mode(False)` turns the sensor off
-again. On CDC, test mode only arms the software counter-substitution — it
-does **not** power the sensor on or off by itself. Make sure the sensor is
-separately enabled over CDC for the counter to actually appear in the data
-stream.
+Test mode is one combined firmware command on both BLE and CDC: turning it
+on also starts the sensor, and `set_emg_test_mode(False)` stops the sensor
+again.
 
 ## 5. SD card recording (**BLE only**)
 
@@ -408,8 +405,6 @@ Unlike storage/SD commands, `set_user_id` also works over CDC (`USER_ID <hex>`).
   exiting the app turns sensors off; they keep running until you disable
   them or the device is powered off. See
   [Turning sensors off is the app's job](#turning-sensors-off-is-the-apps-job).
-- **CDC test mode doesn't power the sensor on** — see §4 above; enable the
-  sensor separately. (Test mode is Mudra Pro only.)
 - **SD recording is BLE-only** — see §5 above.
 - **Treating PPG settings as per-sensor** — ODR, decimation and PRPCT are
   shared by PPG_H and PPG_F, and PPG channel numbers are each sensor's own

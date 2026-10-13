@@ -568,9 +568,9 @@ class ProFirmwareCommand(Enum):
     storageRecordState = 65
     storageNextFileNum = 66
 
-    # Packet-loss test mode — Pro-only, no Ultimate equivalent. Appended at
-    # the end; matches ProFirmwareCommands.h, where these are also appended
-    # last so no existing ordinal shifts.
+    # Packet-loss test mode. Appended at the end; matches ProFirmwareCommands.h,
+    # where these are also appended last so no existing ordinal shifts.
+    # Ultimate has the same names at its own ordinals (and its own bytes).
     emgTestMode = 67
     hImuTestMode = 68
     fImuTestMode = 69
@@ -814,6 +814,15 @@ class UltimateFirmwareCommand(Enum):
     ppgFSrc = 81
     ppgFStatus = 82
 
+    # Packet-loss counter test mode — appended after every pre-existing entry
+    # (matches UltimateFirmwareCommands.h). Names match ProFirmwareCommand's so
+    # MudraDevice's shared set_*_test_mode methods resolve them on either model.
+    emgTestMode = 83
+    hImuTestMode = 84
+    fImuTestMode = 85
+    ppgHTestMode = 86
+    ppgFTestMode = 87
+
     @property
     def description(self) -> str:
         return {
@@ -900,6 +909,11 @@ class UltimateFirmwareCommand(Enum):
             UltimateFirmwareCommand.ppgFClear: "PPG_F_CLEAR",
             UltimateFirmwareCommand.ppgFSrc: "PPG_F_SRC",
             UltimateFirmwareCommand.ppgFStatus: "PPG_F_STATUS",
+            UltimateFirmwareCommand.emgTestMode: "EMG_TEST_MODE",
+            UltimateFirmwareCommand.hImuTestMode: "H_IMU_TEST_MODE",
+            UltimateFirmwareCommand.fImuTestMode: "F_IMU_TEST_MODE",
+            UltimateFirmwareCommand.ppgHTestMode: "PPG_H_TEST_MODE",
+            UltimateFirmwareCommand.ppgFTestMode: "PPG_F_TEST_MODE",
         }[self]
 
     @property

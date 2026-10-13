@@ -24,7 +24,7 @@ except ImportError as exc:  # pragma: no cover
     ) from exc
 
 if TYPE_CHECKING:
-    from .state import AppState
+    from .state import DeviceState
 
 # 1.0 => each panel's sample count is exactly its ODR (e.g. 3200 samples
 # shown for a 3200 Hz sensor), not a multiple of it.
@@ -286,7 +286,7 @@ class SensorCharts:
     when a sensor is split, via `_rebuild_panels()`.
     """
 
-    def __init__(self, parent: tk.Widget, state: Optional["AppState"] = None):
+    def __init__(self, parent: tk.Widget, state: Optional["DeviceState"] = None):
         self._state = state
         self._lock = Lock()
         self._pending: Dict[str, List[List[float]]] = {s: [] for s in SENSOR_PANELS}

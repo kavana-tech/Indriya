@@ -83,6 +83,10 @@ class ScrollColumn:
         self.inner.bind("<Configure>", self._sync)
         self.canvas.bind("<Configure>", self._sync)
         _SCROLLERS[str(self.canvas)] = self.canvas
+        # Device windows come and go; drop the entry with the canvas.
+        self.canvas.bind(
+            "<Destroy>", lambda _e, key=str(self.canvas): _SCROLLERS.pop(key, None), add="+"
+        )
         _install_wheel(self.canvas)
 
     def _sync(self, _event=None) -> None:

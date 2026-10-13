@@ -57,7 +57,7 @@ Written for the docs site, not duplicated elsewhere. Readable on GitHub too.
 
 | Doc | What it is |
 | --- | --- |
-| `examples/connect_app.py` / `examples/mudra_connect/` | The full reference app (scan, connect, sensors, recording, firmware update, auth) that the code snippets in `docs/SDK_USAGE.md`, `CONNECTION.md`, `SENSORS.md`, `CALLBACKS.md` and `AUTH.md` are taken from. No separate README — the module docstrings and `docs/SDK_USAGE.md` are the guide. |
+| `examples/connect_app.py` / `examples/mudra_connect/` | The full reference app (scan, connect, sensors, recording, firmware update, auth; any number of devices at once, one window each) that the code snippets in `docs/SDK_USAGE.md`, `CONNECTION.md`, `SENSORS.md`, `CALLBACKS.md` and `AUTH.md` are taken from. No separate README — the module docstrings and `docs/SDK_USAGE.md` are the guide. |
 | `examples/lsl_app.py` / `examples/mudra_lsl/` | Headless command-line streamer: scan, optionally sign in, connect, optionally change sensor ODRs, and publish the sensors to Lab Streaming Layer until stopped. Source of `docs/LSL.md`'s snippets; guide: [`docs/LSL.md`](LSL.md) §2. |
 
 ---
