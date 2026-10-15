@@ -43,7 +43,7 @@ see the [key enums quick reference](docs/SDK_USAGE.md#5-quick-reference--key-enu
 
 <!-- firmware-versions:sentence -->
 
-This SDK version (**0.5.1**) supports Mudra Pro firmware **2.0.2.6** and Mudra Ultimate firmware **1.0.3.9**.
+This SDK version (**0.5.2**) supports Mudra Pro firmware **2.0.2.6** and Mudra Ultimate firmware **1.0.3.9**.
 
 <!-- /firmware-versions -->
 

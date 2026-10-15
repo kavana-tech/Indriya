@@ -36,7 +36,7 @@ everything but the extras below.
 
 <!-- firmware-versions:table -->
 
-This SDK version (**0.5.1**) supports:
+This SDK version (**0.5.2**) supports:
 
 | Model | Firmware |
 |---|---|

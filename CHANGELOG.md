@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-10-15
+
+### Changed
+
+- The SDK is now named **Kavana SDK**. The repo and docs site moved to
+  https://kavana-tech.github.io/Kavana-SDK/, and the README, docs and
+  site title use the new name. The Python package is still imported as
+  `mudra_sdk` — no code changes are needed.
+
 ## [0.5.1] - 2026-10-13
 
 ### Changed

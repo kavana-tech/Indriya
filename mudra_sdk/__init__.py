@@ -2,7 +2,7 @@
 Mudra SDK - Python client for Mudra API
 """
 
-__version__ = "0.5.1"
+__version__ = "0.5.2"
 __author__ = "Foad Khoury"
 
 # Import main classes/functions to make them available at package level
