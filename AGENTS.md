@@ -1,9 +1,9 @@
-# AGENTS.md — Indriya
+# AGENTS.md — Kavana SDK
 
 Instructions for AI coding agents working in, or on top of, this SDK. Humans want
 [`README.md`](README.md) and [`docs/SDK_USAGE.md`](docs/SDK_USAGE.md) instead.
 
-**Indriya** is the SDK's name; the Python package is `mudra_sdk` (older page titles
+**Kavana SDK** is the SDK's name; the Python package is `mudra_sdk` (older page titles
 still say "Mudra SDK" — same thing). It supports **Mudra Pro** and **Mudra Ultimate**,
 over BLE and USB-CDC.
 
@@ -118,4 +118,4 @@ different product (Mudra Band). Never hand-edit the text between the
 
 - Doc index: **[`docs/DOCS_MAP.md`](docs/DOCS_MAP.md)** · Repo landing: **[`README.md`](README.md)**
 - Sign-in & licensing reference: **[`docs/AUTH.md`](docs/AUTH.md)**
-- Docs site (built from these same docs): **[kavana-tech.github.io/Indriya](https://kavana-tech.github.io/Indriya/)**
+- Docs site (built from these same docs): **[kavana-tech.github.io/Kavana-SDK](https://kavana-tech.github.io/Kavana-SDK/)**

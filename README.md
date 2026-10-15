@@ -3,13 +3,13 @@
   <img src="docs/_static/brand-logo-tagline-dark.png" alt="Kavana — Neural Intent Data" height="64">
 </picture>
 
-# Indriya
+# Kavana SDK
 
 Python SDK for the **Mudra Pro** and **Mudra Ultimate** wrist-worn sensor devices —
 one unified, `asyncio`-based API over two transports (**BLE** and **USB-CDC**) for
 five sensor streams, SD-card recording, firmware update, and account sign-in/licensing.
 
-📖 **Docs site: [kavana-tech.github.io/Indriya](https://kavana-tech.github.io/Indriya/)**
+📖 **Docs site: [kavana-tech.github.io/Kavana-SDK](https://kavana-tech.github.io/Kavana-SDK/)**
 — installation, quickstart, guides, and the full API reference, built from the same
 `docs/*.md` files linked below.
 
@@ -23,8 +23,8 @@ pip install -r examples/requirements.txt   # SDK deps + the example apps' (matpl
 python examples/connect_app.py             # reference GUI: scan, connect, stream, record
 ```
 
-Full steps: [Installation](https://kavana-tech.github.io/Indriya/installation.html) ·
-[Quickstart](https://kavana-tech.github.io/Indriya/getting_started.html).
+Full steps: [Installation](https://kavana-tech.github.io/Kavana-SDK/installation.html) ·
+[Quickstart](https://kavana-tech.github.io/Kavana-SDK/getting_started.html).
 
 ## Sensors
 
@@ -91,5 +91,5 @@ or run `python examples/lsl_app.py` with no code. `pylsl` is an optional extra �
   other coding agents/bots integrating against this SDK, not just humans.
 - **Sign-in & licensing:** [docs/AUTH.md](docs/AUTH.md).
 - **Examples:** two runnable reference apps under [`examples/`](examples/) — see the
-  [docs site's examples page](https://kavana-tech.github.io/Indriya/examples.html).
+  [docs site's examples page](https://kavana-tech.github.io/Kavana-SDK/examples.html).
 - **What changed, release by release:** [CHANGELOG.md](CHANGELOG.md).

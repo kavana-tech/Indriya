@@ -1,4 +1,4 @@
-"""Sphinx configuration for the Indriya docs.
+"""Sphinx configuration for the Kavana SDK docs.
 
 Builds:
   - Hand-written Markdown (MyST) for narrative pages — mostly the existing
@@ -29,7 +29,7 @@ def _read_version() -> str:
     return match.group(1) if match else "0.0.0"
 
 
-project = "Indriya"
+project = "Kavana SDK"
 author = "Wearable Devices"
 copyright = "2026, Wearable Devices"
 release = _read_version()

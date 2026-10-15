@@ -1,7 +1,7 @@
-Indriya
+Kavana SDK
 =======
 
-**Indriya** (Python package ``mudra_sdk``) is the Python SDK for the
+**Kavana SDK** (Python package ``mudra_sdk``) is the Python SDK for the
 **Mudra Pro** and **Mudra Ultimate** wrist-worn sensor devices by Wearable
 Devices. It presents one unified, ``asyncio``-based API over two physically
 different transports — **BLE** (Bluetooth Low Energy) and **USB-CDC**

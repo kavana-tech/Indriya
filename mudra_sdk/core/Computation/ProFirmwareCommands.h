@@ -1,6 +1,6 @@
 //
 //  ProFirmwareCommands.h
-//  Indriya — CONFIG (0xFFF1) command templates for Mudra PRO
+//  Kavana SDK — CONFIG (0xFFF1) command templates for Mudra PRO
 //
 //  Wire format: [cmd_id, feature, params...]
 //  Trailing 0x00 bytes are placeholders filled by the SDK before send.

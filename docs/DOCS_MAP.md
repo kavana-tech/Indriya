@@ -1,4 +1,4 @@
-# Documentation map — Indriya
+# Documentation map — Kavana SDK
 
 > **The master index for every doc in this repo.** Every documentation file is a node
 > below; where a doc already carries its own "Part of / See also" links (the
@@ -16,7 +16,7 @@
 | **[`docs/SDK_USAGE.md`](SDK_USAGE.md)** | The main usage guide: package layout, setup, core architecture, a minimal end-to-end example. Links out to every page below. |
 | **[`CHANGELOG.md`](../CHANGELOG.md)** | What changed, release by release. |
 | **[`supported_firmware.json`](../supported_firmware.json)** | The one firmware version per model this SDK version supports. Single source for the "Firmware compatibility" statements in `README.md`, `AGENTS.md`, `docs/installation.md` and `docs/supported_devices.md` — generated blocks: never hand-edit between the `firmware-versions` markers. |
-| **[Docs site](https://kavana-tech.github.io/Indriya/)** | The `docs/` guides below plus the site-only pages, published as a browsable Sphinx site (installation, quickstart, API reference). `README.md`, `AGENTS.md` and this map aren't on it. |
+| **[Docs site](https://kavana-tech.github.io/Kavana-SDK/)** | The `docs/` guides below plus the site-only pages, published as a browsable Sphinx site (installation, quickstart, API reference). `README.md`, `AGENTS.md` and this map aren't on it. |
 
 ## SDK usage guide (`docs/`)
 

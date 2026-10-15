@@ -1,4 +1,4 @@
-/* Client-side fuzzy + synonym search for the Indriya docs.
+/* Client-side fuzzy + synonym search for the Kavana SDK docs.
  *
  * Loaded ONLY on the search results page (see _templates/search.html), which
  * also loads the vendored MiniSearch engine (_static/minisearch.js) and sets
